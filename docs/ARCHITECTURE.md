@@ -70,11 +70,17 @@ No package depends on an app; no domain package depends on infrastructure.
 
 ### Recovery
 
+The native recorder is a process-wide singleton: reloading the JavaScript runtime keeps recording,
+and the next coordinator instance continues from the journal. After a *process* restart nothing
+restarts automatically.
+
 On launch the coordinator looks for an activity in `recording/paused/interrupted`. It rebuilds the
 session by **deterministic replay** of the persisted events and samples, then drains anything the
 native journal captured while JS was not running. If native is no longer recording (e.g. device
 restart), the session becomes `INTERRUPTED` with moving time stopped at the last known data; the
-user can resume or finish. Nothing is discarded without an explicit user action.
+user can resume or finish. A session found in `FINALIZING` (crash during save) is completed. A
+failing native bridge never blocks recovery of what SQLite already holds. Nothing is discarded
+without an explicit user action.
 
 ## State machine
 

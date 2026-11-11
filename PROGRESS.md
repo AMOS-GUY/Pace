@@ -1,30 +1,36 @@
 # PACE Development Progress
 
-_Last updated: 2026-11-12_
+_Last updated: 2026-11-12 (GPS reliability & data-integrity audit)_
 
 ## Current Milestone
-M0–M6 implemented in software; iOS builds in CI. Blocked on physical iPhone validation (M2 exit criterion).
+M0–M6 implemented in software. GPS reliability audit complete: 18 defects fixed, 8 residual risks
+documented in [docs/GPS_RELIABILITY_AUDIT.md](docs/GPS_RELIABILITY_AUDIT.md). Blocked on the first
+real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 
 ## Completed (implemented and automatically tested)
-- [x] Repository inspection
-- [x] Architecture and documentation (README, docs/*)
+- [x] Repository inspection, architecture and documentation (README, docs/*)
 - [x] Project initialisation: pnpm monorepo, TS 6 strict, ESLint, Prettier, Jest, CI workflow
 - [x] Design tokens (WCAG-checked) and component library
 - [x] Domain model, units, formatting, time-zone-aware bucketing
-- [x] GPS engine: validation, Kalman filtering, drift suppression, jump rejection/re-anchoring, gaps, elevation hysteresis, speed
+- [x] GPS engine: validation, Kalman filtering with segment-close lag recovery, Doppler stationary gating, jump rejection timed from the last plausible fix, re-anchoring, gaps, smoothed elevation, speed
 - [x] Recording state machine, session (pause, auto-pause, laps, pool swim, triathlon legs), deterministic replay
-- [x] Recording coordinator: incremental persistence, journal drain, crash recovery, retries
-- [x] Local SQLite schema, migrations, repositories, personal records, outbox
+- [x] Recording coordinator: incremental persistence, journal drain, crash/finalisation recovery, start rollback, sequence continuity
+- [x] Local SQLite schema, migrations, repositories, records, outbox; single-connection serialised driver
 - [x] GPX import/export, CSV export, privacy zones
 - [x] Encrypted, versioned backups; restore by replay
 - [x] Sync engine (idempotent, backoff, conflict rules)
 - [x] Analytics, records, goals services
-- [x] CI green on GitHub Actions: Linux checks + macOS simulator build (Swift module compiles)
 - [x] API: auth guard, profiles, activity sync, route batches, backups, devices, entitlements, account deletion (e2e on PGlite)
+- [x] Deterministic GPS replay suite (realistic run/ride, drift, poor accuracy, tunnel, jumps; correlated error)
+- [x] Data-integrity suite (delivery, lifecycle, recovery, SQLite atomicity)
+
+## Implemented, awaiting first macOS CI run
+- [ ] Native Swift core restructured (`Core/`), 29 XCTests via `swift test`
+- [ ] iOS app compile including the Swift module — **correction:** the previous "macOS build successful" did not prove this (failures were masked by a pipe without `pipefail`; the Swift journal had a syntax error). Fixed; awaiting a genuine green run.
 
 ## Implemented, not yet verified (requires external environment)
-- [ ] iOS app run on device/simulator (builds in CI; not yet launched)
-- [ ] Background recording on a physical iPhone
+- [ ] iOS app run on simulator/device
+- [ ] Background recording on a physical iPhone (TESTING.md device plan)
 - [ ] Supabase auth flows against a real project
 - [ ] MapLibre rendering with a licensed tile provider
 - [ ] Cloud backup upload/download against real S3
@@ -39,22 +45,21 @@ M0–M6 implemented in software; iOS builds in CI. Blocked on physical iPhone va
 - Supabase project credentials, map tile provider, S3 bucket (user-provided services).
 
 ## Tests
-- Unit/integration (packages, real SQLite): 122 passing
-- Mobile logic: 4 passing
+- Packages (real SQLite, replay & integrity suites): 151 passing
+- Mobile logic: 8 passing
 - API end-to-end (NestJS + PGlite): 11 passing
+- Native (XCTest): 29 written, run on macOS CI
 - UI (Maestro): 2 flows written, not executed
-- Native (XCTest): not written yet
 
-## Known Issues
-- Kalman filter lag loses ≈3–4 m per recording segment (documented trade-off).
+## Known Issues / residual risks
+- See audit R1–R8: permission revoked mid-recording keeps `RECORDING`; main-thread fsync cost; brief window where a failed write + crash loses a control event; GPS on while paused; OS termination gap; GPS-only elevation ±5–20 %.
 - Goal sync and multi-device pull are not implemented (goals stay queued locally).
-- OpenAPI document not generated yet.
-- Sentry not wired (error reporting logs locally).
+- OpenAPI document not generated yet; Sentry not wired.
 - `react-dom` peer warning from a web-only dependency (iOS unaffected).
 
 ## Next Actions
-1. On a Mac: `cd apps/mobile && npx expo prebuild --platform ios && npx expo run:ios --device`.
-2. Execute the physical-device plan in docs/TESTING.md for running and cycling.
-3. Configure Supabase redirect URLs; run `maestro test apps/mobile/maestro`.
-4. Stand up staging API (docker-compose or managed Postgres + R2/S3) and validate backups.
-5. Add XCTests for SampleJournal and LocationRecorder.
+1. Check the macOS CI job: `swift test` and the app build must both pass; fix any compile errors.
+2. On a Mac/iPhone: `cd apps/mobile && npx expo prebuild --platform ios && npx expo run:ios --device`.
+3. Execute the physical-device plan in docs/TESTING.md (tests 1–15) for running and cycling.
+4. Decide R1 (permission revoked mid-recording → `INTERRUPTED`?).
+5. Configure Supabase; run `maestro test apps/mobile/maestro`.

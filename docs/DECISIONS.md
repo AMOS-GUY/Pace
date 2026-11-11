@@ -28,8 +28,8 @@ inserts idempotent (retries, sync batches) and keeps the largest table compact (
 
 ### D6 — Kalman-filtered distance
 Pure anchor/threshold filtering inflated noisy tracks by 11 % and stationary drift by kilometres.
-An accuracy-weighted position filter fixed both at the cost of ≈3–4 m lag per segment (documented
-in GPS_ENGINE.md).
+An accuracy-weighted position filter fixed both; its ≈3–4 m lag is recovered at segment close
+(audit F17).
 
 ### D7 — Charts built from Views instead of Victory Native **(deviation)**
 Victory Native (current major) requires Skia, Reanimated and gesture-handler native modules. The
@@ -66,3 +66,20 @@ combine packages (import/export, backup/restore, analytics). Module boundaries a
 React Native Testing Library would need a full RN Jest runtime; at this stage UI coverage is
 provided by Maestro flows (device/simulator) and logic is kept out of components and unit-tested.
 RNTL tests are planned once a macOS CI runner is available.
+
+### D15 — Process-wide native recorder, no automatic restart (audit F2)
+A JS reload must not stop a recording, so the recorder outlives Expo module instances. A process
+restart must not silently resume, or downtime would count as moving time; the activity is recovered
+as `INTERRUPTED` and the athlete decides.
+
+### D16 — Single-connection SQLite with an in-process lock (audit F3)
+`withExclusiveTransactionAsync` uses a separate connection without our pragmas. All statements run
+on one configured connection, and a JS lock guarantees transactions are never interleaved.
+
+### D17 — Raw samples validated for type only at boundaries (audit F4)
+Plausibility belongs to the GPS engine, which stores and rejects. Rejecting at the boundary breaks
+the gap-free sequence and backups.
+
+### D18 — Smoothed elevation and Doppler stationary gating (audit F15, F16)
+Parameters (τ = 10 s, 5 m; per-sport Doppler thresholds) come from the replay suite's correlated
+error model; see the audit for the sweep and tolerances.
