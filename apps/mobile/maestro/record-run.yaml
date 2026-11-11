@@ -5,27 +5,27 @@
 appId: app.pace.ios.dev
 ---
 - launchApp
-- tapOn: "Record"
-- tapOn: "Run"
-- tapOn: "Start Run"
-- tapOn: "Find GPS"
+- tapOn: 'Record'
+- tapOn: 'Run'
+- tapOn: 'Start Run'
+- tapOn: 'Find GPS'
 - extendedWaitUntil:
-    visible: "GPS ready"
+    visible: 'GPS ready'
     timeout: 30000
-- tapOn: "Start"
-- assertVisible: "RECORDING"
+- tapOn: 'Start'
+- assertVisible: 'RECORDING'
 - swipe:
     direction: UP
 - waitForAnimationToEnd
 - tapOn:
-    label: "Pause recording"
-- assertVisible: "PAUSED"
-- tapOn: "Resume"
-- assertVisible: "RECORDING"
+    label: 'Pause recording'
+- assertVisible: 'PAUSED'
+- tapOn: 'Resume'
+- assertVisible: 'RECORDING'
 - tapOn:
-    label: "Pause recording"
-- tapOn: "Finish"
-- tapOn: "Finish & save"
-- assertVisible: "Activity saved"
-- tapOn: "View activity"
-- assertVisible: "Splits"
+    label: 'Pause recording'
+- tapOn: 'Finish'
+- tapOn: 'Finish & save'
+- assertVisible: 'Activity saved'
+- tapOn: 'View activity'
+- assertVisible: 'Splits'

@@ -5,3 +5,7 @@ pnpm-lock.yaml
 apps/mobile/ios
 apps/mobile/android
 *.md
+infrastructure/database/migrations
+*.sql
+*.swift
+*.podspec
