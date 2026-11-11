@@ -11,12 +11,23 @@ import type {
 } from '../coordinator';
 import type { RecordedEvent, SessionConfig, SessionSummary } from '../recording-session';
 
+/**
+ * Mirrors the Swift recorder contract (modules/pace-tracking): a per-activity journal with a
+ * persisted sequence high-water mark, journal-before-notify, `nextSequence` on start, and
+ * compaction that never restarts numbering. Extra hooks simulate faults.
+ */
 export class FakeBridge implements TrackingBridge {
   authorization: LocationAuthorization = 'when_in_use';
   recordingId: string | null = null;
+  /** Retained (unacknowledged or not yet compacted) entries per activity. */
   journal = new Map<string, JournalEntry[]>();
+  /** Next sequence number per activity (survives compaction, like the Swift `ackThrough`). */
+  nextSequence = new Map<string, number>();
   acknowledged = new Map<string, number>();
+  deletedJournals: string[] = [];
   policy: GpsPolicy | null = null;
+  failNextStartRecording = false;
+  failReads = false;
   private listeners: Array<(id: string | null, e: JournalEntry[]) => void> = [];
 
   async getAuthorization(): Promise<LocationAuthorization> {
@@ -28,10 +39,16 @@ export class FakeBridge implements TrackingBridge {
   async startAcquisition(p: GpsPolicy): Promise<void> {
     this.policy = p;
   }
-  async startRecording(id: string, p: GpsPolicy): Promise<void> {
+  async startRecording(id: string, p: GpsPolicy, nextSequence: number): Promise<void> {
+    if (this.failNextStartRecording) {
+      this.failNextStartRecording = false;
+      throw new Error('Could not open journal');
+    }
+    if (this.recordingId === id) return;
     this.recordingId = id;
     this.policy = p;
     if (!this.journal.has(id)) this.journal.set(id, []);
+    this.nextSequence.set(id, Math.max(this.nextSequence.get(id) ?? 0, nextSequence));
   }
   async updatePolicy(p: GpsPolicy | null): Promise<void> {
     this.policy = p;
@@ -44,10 +61,21 @@ export class FakeBridge implements TrackingBridge {
     return this.recordingId;
   }
   async readJournal(id: string, from: number): Promise<JournalEntry[]> {
+    if (this.failReads) throw new Error('native module unavailable');
     return (this.journal.get(id) ?? []).filter((e) => e.sequence >= from);
   }
   async acknowledge(id: string, through: number): Promise<void> {
     this.acknowledged.set(id, through);
+    // Compaction: acknowledged entries may be dropped; numbering continues regardless.
+    this.journal.set(
+      id,
+      (this.journal.get(id) ?? []).filter((e) => e.sequence > through),
+    );
+  }
+  async deleteJournal(id: string): Promise<void> {
+    if (id === this.recordingId) return;
+    this.journal.delete(id);
+    this.deletedJournals.push(id);
   }
   addListener(l: (id: string | null, e: JournalEntry[]) => void): () => void {
     this.listeners.push(l);
@@ -57,21 +85,39 @@ export class FakeBridge implements TrackingBridge {
   }
 
   /** Simulates native capturing samples: journal first, then notify JS. */
-  emit(samples: LocationSample[], options: { notify?: boolean } = {}): void {
+  emit(samples: LocationSample[], options: { notify?: boolean } = {}): JournalEntry[] {
     const id = this.recordingId;
     if (!id) {
-      for (const l of this.listeners)
-        l(
-          null,
-          samples.map((s) => ({ sequence: -1, sample: s })),
-        );
-      return;
+      this.emitAcquisition(samples);
+      return [];
     }
     const j = this.journal.get(id)!;
-    const base = j.length;
+    const base = this.nextSequence.get(id) ?? 0;
     const entries = samples.map((s, i) => ({ sequence: base + i, sample: s }));
+    this.nextSequence.set(id, base + entries.length);
     for (const e of entries) j.push(e);
-    if (options.notify ?? true) for (const l of this.listeners) l(id, entries);
+    if (options.notify ?? true) this.deliver(id, entries);
+    return entries;
+  }
+
+  /** Acquisition-only fixes (not journaled), as native sends before recording starts. */
+  emitAcquisition(samples: LocationSample[]): void {
+    for (const l of this.listeners)
+      l(
+        null,
+        samples.map((s) => ({ sequence: -1, sample: s })),
+      );
+  }
+
+  /** Raw event delivery, for duplicate / out-of-order / late-delivery scenarios. */
+  deliver(id: string | null, entries: JournalEntry[]): void {
+    for (const l of this.listeners) l(id, entries);
+  }
+
+  /** Simulates the journal file disappearing (e.g. storage failure): numbering restarts at 0. */
+  loseJournal(id: string): void {
+    this.journal.delete(id);
+    this.nextSequence.delete(id);
   }
 }
 

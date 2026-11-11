@@ -24,10 +24,23 @@ describe('validation', () => {
 
   it('rejects out-of-range coordinates and timestamps', () => {
     expect(locationSampleSchema.safeParse({ ...sample, latitude: 120 }).success).toBe(false);
-    expect(locationSampleSchema.safeParse({ ...sample, recordedAt: 12 }).success).toBe(false);
+    expect(locationSampleSchema.safeParse({ ...sample, recordedAt: -1 }).success).toBe(false);
+    expect(locationSampleSchema.safeParse({ ...sample, recordedAt: 1.5 }).success).toBe(false);
     expect(locationSampleSchema.safeParse({ ...sample, longitude: Number.NaN }).success).toBe(
       false,
     );
+  });
+
+  it('preserves physically implausible raw samples for the GPS engine to judge', () => {
+    // Regression: these were rejected at the native boundary, leaving a permanent sequence gap
+    // that stalled ingestion of every later sample.
+    expect(locationSampleSchema.safeParse({ ...sample, altitudeMeters: 12_500 }).success).toBe(
+      true,
+    );
+    expect(locationSampleSchema.safeParse({ ...sample, recordedAt: 12 }).success).toBe(true);
+    expect(
+      locationSampleSchema.safeParse({ ...sample, horizontalAccuracyMeters: -1 }).success,
+    ).toBe(true);
   });
 
   it('requires at least one field to edit', () => {

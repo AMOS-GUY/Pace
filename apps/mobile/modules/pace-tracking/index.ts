@@ -1,13 +1,8 @@
-import type { JournalEntry, LocationAuthorization, TrackingBridge } from '@pace/activity-engine';
+import type { LocationAuthorization, TrackingBridge } from '@pace/activity-engine';
 import type { GpsPolicy } from '@pace/gps-engine';
-import { locationSampleSchema } from '@pace/validation';
 import { requireOptionalNativeModule } from 'expo';
 import { Platform } from 'react-native';
-
-interface NativeEntry {
-  sequence: number;
-  sample: unknown;
-}
+import { type NativeEntry, toEntries } from './entries';
 
 interface EventSubscription {
   remove(): void;
@@ -18,7 +13,7 @@ interface PaceTrackingNative {
   requestAuthorization(level: 'when_in_use' | 'always'): Promise<LocationAuthorization>;
   startAcquisition(policy: GpsPolicy): Promise<void>;
   stopAcquisition(): Promise<void>;
-  startRecording(activityId: string, policy: GpsPolicy): Promise<void>;
+  startRecording(activityId: string, policy: GpsPolicy, nextSequence: number): Promise<void>;
   updatePolicy(policy: GpsPolicy | null): Promise<void>;
   stopRecording(): Promise<void>;
   getRecordingActivityId(): Promise<string | null>;
@@ -55,20 +50,6 @@ function native(): PaceTrackingNative {
 
 export const isTrackingAvailable = (): boolean => Native != null;
 
-/** Validates every sample crossing the native boundary; malformed ones are reported, not used. */
-function toEntries(raw: NativeEntry[], onInvalid: (msg: string) => void): JournalEntry[] {
-  const out: JournalEntry[] = [];
-  for (const e of raw) {
-    const parsed = locationSampleSchema.safeParse(e.sample);
-    if (parsed.success) out.push({ sequence: e.sequence, sample: parsed.data });
-    else
-      onInvalid(
-        `Invalid native sample #${e.sequence}: ${parsed.error.issues[0]?.message ?? 'unknown'}`,
-      );
-  }
-  return out;
-}
-
 /**
  * JS side of the native tracker, implementing the activity-engine TrackingBridge port.
  *
@@ -85,7 +66,7 @@ export function createNativeTrackingBridge(onError: (message: string) => void): 
     requestAuthorization: (level) => native().requestAuthorization(level),
     startAcquisition: (policy) => native().startAcquisition(policy),
     stopAcquisition: () => native().stopAcquisition(),
-    startRecording: (id, policy) => native().startRecording(id, policy),
+    startRecording: (id, policy, nextSequence) => native().startRecording(id, policy, nextSequence),
     updatePolicy: (policy) => native().updatePolicy(policy),
     stopRecording: () => native().stopRecording(),
     getRecordingActivityId: () => native().getRecordingActivityId(),

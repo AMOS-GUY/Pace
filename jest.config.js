@@ -16,7 +16,7 @@ const packagesProject = {
 const mobileLogicProject = {
   displayName: 'mobile-logic',
   testEnvironment: 'node',
-  roots: ['<rootDir>/apps/mobile/src'],
+  roots: ['<rootDir>/apps/mobile/src', '<rootDir>/apps/mobile/modules'],
   testMatch: ['**/*.test.ts'],
   transform: {
     '^.+\.ts$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.jest.json' }],

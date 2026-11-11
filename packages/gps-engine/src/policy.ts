@@ -38,6 +38,15 @@ export interface GpsPolicy {
   countDistanceAcrossGaps: boolean;
   /** Hysteresis threshold for elevation gain/loss accumulation. */
   elevationHysteresisMeters: number;
+  /** Exponential smoothing time constant applied to altitude before the hysteresis. */
+  elevationSmoothingSeconds: number;
+  /**
+   * Doppler speed below which a fix is treated as stationary (no distance), or null to ignore
+   * platform speed. Core Location's Doppler speed stays near 0 while the position wanders, which
+   * makes it the most reliable stationary signal. Displacement is measured from the anchor, so a
+   * gated fix never loses real movement — it is counted once a moving fix arrives.
+   */
+  stationarySpeedMps: number | null;
   /** Rolling window used for current/maximum speed. */
   speedWindowMs: number;
   /** Douglas–Peucker tolerance for display geometry. */
@@ -53,12 +62,14 @@ const base = {
   jumpRecoverySampleCount: 3,
   countDistanceAcrossGaps: true,
   displaySimplificationMeters: 3,
+  elevationSmoothingSeconds: 10,
 } as const;
 
 export const GPS_POLICIES: Readonly<Record<GpsProfileId, GpsPolicy>> = {
   run: {
     ...base,
     id: 'run',
+    stationarySpeedMps: 0.3,
     processNoiseMps: 3,
     desiredAccuracy: 'best',
     distanceFilterMeters: 0,
@@ -68,12 +79,13 @@ export const GPS_POLICIES: Readonly<Record<GpsProfileId, GpsPolicy>> = {
     // Elite sprint ~12.5 m/s; allow headroom while rejecting vehicle-speed jumps.
     maxPlausibleSpeedMps: 13,
     gapThresholdMs: 15_000,
-    elevationHysteresisMeters: 3,
+    elevationHysteresisMeters: 5,
     speedWindowMs: 10_000,
   },
   walk: {
     ...base,
     id: 'walk',
+    stationarySpeedMps: 0.25,
     processNoiseMps: 1.5,
     desiredAccuracy: 'best',
     distanceFilterMeters: 0,
@@ -82,12 +94,13 @@ export const GPS_POLICIES: Readonly<Record<GpsProfileId, GpsPolicy>> = {
     minMovementMeters: 2.5,
     maxPlausibleSpeedMps: 7,
     gapThresholdMs: 20_000,
-    elevationHysteresisMeters: 3,
+    elevationHysteresisMeters: 5,
     speedWindowMs: 15_000,
   },
   hike: {
     ...base,
     id: 'hike',
+    stationarySpeedMps: 0.2,
     processNoiseMps: 1.5,
     desiredAccuracy: 'best',
     distanceFilterMeters: 2,
@@ -97,12 +110,13 @@ export const GPS_POLICIES: Readonly<Record<GpsProfileId, GpsPolicy>> = {
     minMovementMeters: 3,
     maxPlausibleSpeedMps: 7,
     gapThresholdMs: 30_000,
-    elevationHysteresisMeters: 4,
+    elevationHysteresisMeters: 5,
     speedWindowMs: 20_000,
   },
   ride: {
     ...base,
     id: 'ride',
+    stationarySpeedMps: 0.5,
     processNoiseMps: 8,
     desiredAccuracy: 'best_for_navigation',
     distanceFilterMeters: 0,
@@ -112,12 +126,13 @@ export const GPS_POLICIES: Readonly<Record<GpsProfileId, GpsPolicy>> = {
     // ~108 km/h: covers fast descents while rejecting most car/train jumps.
     maxPlausibleSpeedMps: 30,
     gapThresholdMs: 10_000,
-    elevationHysteresisMeters: 3,
+    elevationHysteresisMeters: 5,
     speedWindowMs: 5_000,
   },
   open_water_swim: {
     ...base,
     id: 'open_water_swim',
+    stationarySpeedMps: null,
     processNoiseMps: 1,
     desiredAccuracy: 'best',
     distanceFilterMeters: 0,

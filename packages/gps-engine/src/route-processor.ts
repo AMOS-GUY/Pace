@@ -47,6 +47,18 @@ interface Anchor {
   accuracy: number;
 }
 
+/** A raw fix that passed every gate (accepted or stationary): the latest trustworthy position. */
+interface PlausibleFix {
+  sample: LocationSample;
+  sequenceNumber: number;
+}
+
+/**
+ * Segment-close lag recovery only applies while genuinely moving. Below this speed the latest raw
+ * fix is dominated by positional noise rather than filter lag, so it is not used.
+ */
+export const LAG_RECOVERY_MIN_SPEED_MPS = 0.5;
+
 interface JumpCandidate {
   sample: LocationSample;
   sequenceNumber: number;
@@ -71,6 +83,7 @@ export class RouteProcessor {
   private lastSampleTime: number | null = null;
   private lastSample: LocationSample | null = null;
   private lastUsableFixTime: number | null = null;
+  private lastPlausible: PlausibleFix | null = null;
   private segmentIndex = -1;
   private pendingBreak = true;
   private distance = 0;
@@ -86,7 +99,10 @@ export class RouteProcessor {
 
   constructor(readonly policy: GpsPolicy) {
     this.filter = new PositionFilter(policy.processNoiseMps);
-    this.elevation = new ElevationAccumulator(policy.elevationHysteresisMeters);
+    this.elevation = new ElevationAccumulator(
+      policy.elevationHysteresisMeters,
+      policy.elevationSmoothingSeconds,
+    );
     this.speed = new RollingSpeedEstimator(policy.speedWindowMs);
   }
 
@@ -95,10 +111,64 @@ export class RouteProcessor {
    * from the previous anchor. Used for pause/resume: movement while paused never counts.
    */
   breakSegment(): void {
+    this.closeSegment();
     this.pendingBreak = true;
     this.jumpCandidates = [];
     this.elevation.resetReference();
     this.speed.reset();
+  }
+
+  /**
+   * Ends the current segment at the latest plausible *raw* fix when the athlete is moving.
+   *
+   * The position filter trails genuine motion by a few metres; without this the lag is lost at
+   * every pause, gap and finish. The added point is a real recorded sample (never synthesised),
+   * and the call is idempotent, so replay and repeated summaries give identical results.
+   */
+  closeSegment(): void {
+    const last = this.lastPlausible;
+    const anchor = this.anchor;
+    if (!last || !anchor || this.pendingBreak) return;
+    if (last.sequenceNumber < anchor.point.sequenceNumber) return;
+    const speed = this.speed.currentSpeedMps(last.sample.recordedAt);
+    if (speed == null || speed < LAG_RECOVERY_MIN_SPEED_MPS) return;
+
+    const segment = this.segments[this.segmentIndex]!;
+    if (last.sequenceNumber === anchor.point.sequenceNumber) {
+      // The latest fix is the anchor itself, stored at its filtered (lagging) position. Re-solve
+      // the final leg against that same fix's raw coordinates.
+      if (
+        anchor.point.latitude === last.sample.latitude &&
+        anchor.point.longitude === last.sample.longitude
+      )
+        return;
+      const prev = segment[segment.length - 2];
+      if (!prev) return;
+      const oldLeg = haversineDistanceMeters(prev, anchor.point);
+      const newLeg = haversineDistanceMeters(prev, last.sample);
+      this.distance += newLeg - oldLeg;
+      const corrected: ProcessedPoint = {
+        ...anchor.point,
+        latitude: last.sample.latitude,
+        longitude: last.sample.longitude,
+        cumulativeDistanceMeters: this.distance,
+      };
+      segment[segment.length - 1] = corrected;
+      this.anchor = { point: corrected, accuracy: anchor.accuracy };
+      return;
+    }
+
+    const d = haversineDistanceMeters(anchor.point, last.sample);
+    if (d < this.noiseRadius(anchor.accuracy, last.sample.horizontalAccuracyMeters)) return;
+    this.distance += d;
+    this.pushPoint(last.sample, last.sample, last.sequenceNumber, false);
+  }
+
+  private noiseRadius(accA: number, accB: number): number {
+    return Math.max(
+      this.policy.minMovementMeters,
+      (this.policy.accuracyNoiseFactor * (accA + accB)) / 2,
+    );
   }
 
   process(sample: LocationSample, sequenceNumber: number): SampleDecision {
@@ -126,12 +196,17 @@ export class RouteProcessor {
     // First point, or first point after a pause/resume break.
     if (this.anchor == null || this.pendingBreak) {
       this.jumpCandidates = [];
+      this.lastPlausible = { sample, sequenceNumber };
       return this.startSegmentDecision(sample, sequenceNumber, null, 0);
     }
 
     const anchor = this.anchor;
     const rawDistance = haversineDistanceMeters(anchor.point, sample);
-    const dtMs = sample.recordedAt - anchor.point.recordedAt;
+    // Elapsed time is measured from the latest plausible fix, not from the anchor: after standing
+    // still for minutes the anchor is old, and a multipath spike would otherwise look like a
+    // slow, believable move.
+    const referenceTime = this.lastPlausible?.sample.recordedAt ?? anchor.point.recordedAt;
+    const dtMs = sample.recordedAt - referenceTime;
 
     if (!this.isPlausible(rawDistance, dtMs, anchor.accuracy, sample.horizontalAccuracyMeters)) {
       return this.handleImplausible(sample, sequenceNumber);
@@ -142,7 +217,10 @@ export class RouteProcessor {
     const isGap =
       previousFixTime != null && sample.recordedAt - previousFixTime > this.policy.gapThresholdMs;
     if (isGap) {
-      const counted = this.policy.countDistanceAcrossGaps ? rawDistance : 0;
+      // Close the segment before the gap at its last real fix, then measure the chord from there.
+      this.closeSegment();
+      const chord = haversineDistanceMeters(this.anchor!.point, sample);
+      const counted = this.policy.countDistanceAcrossGaps ? chord : 0;
       const gap: RouteGap = {
         kind: 'signal_loss',
         startedAt: previousFixTime!,
@@ -151,16 +229,19 @@ export class RouteProcessor {
       };
       this.gaps.push(gap);
       this.distance += counted;
+      this.lastPlausible = { sample, sequenceNumber };
       return this.startSegmentDecision(sample, sequenceNumber, gap, counted);
     }
 
     const filtered = this.filter.update(sample, sample.horizontalAccuracyMeters, sample.recordedAt);
     const d = haversineDistanceMeters(anchor.point, filtered);
-    const noiseRadius = Math.max(
-      this.policy.minMovementMeters,
-      (this.policy.accuracyNoiseFactor * (anchor.accuracy + sample.horizontalAccuracyMeters)) / 2,
-    );
-    if (d < noiseRadius) {
+    this.lastPlausible = { sample, sequenceNumber };
+    const reportedStill =
+      this.policy.stationarySpeedMps != null &&
+      sample.speedMps != null &&
+      sample.speedMps >= 0 &&
+      sample.speedMps < this.policy.stationarySpeedMps;
+    if (reportedStill || d < this.noiseRadius(anchor.accuracy, sample.horizontalAccuracyMeters)) {
       this.stationaryCount++;
       return { kind: 'stationary' };
     }
@@ -212,6 +293,7 @@ export class RouteProcessor {
     this.elevation.resetReference();
 
     const first = candidates[0]!;
+    this.lastPlausible = candidates[candidates.length - 1]!;
     this.startSegment(first.sample, first.sequenceNumber);
     let lastDelta = 0;
     let lastPoint = this.anchor!.point;
@@ -280,7 +362,7 @@ export class RouteProcessor {
     this.acceptedCount++;
     this.speed.add(sample.recordedAt, this.distance);
     const alt = usableAltitude(sample, this.policy.maxVerticalAccuracyMeters);
-    if (alt != null) this.elevation.add(alt);
+    if (alt != null) this.elevation.add(alt, sample.recordedAt);
     return point;
   }
 

@@ -11,5 +11,9 @@
       "@/*": ["./apps/mobile/src/*"]
     }
   },
-  "include": ["packages/*/src/**/*.ts", "apps/mobile/src/**/*.test.ts"]
+  "include": [
+    "packages/*/src/**/*.ts",
+    "apps/mobile/src/**/*.test.ts",
+    "apps/mobile/modules/**/*.ts"
+  ]
 }

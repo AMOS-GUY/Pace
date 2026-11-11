@@ -41,12 +41,19 @@ jobs:
         run: npx expo export --platform ios --output-dir /tmp/pace-bundle
 
   ios-native:
-    name: iOS native build (simulator)
+    name: iOS native tests and build (simulator)
     runs-on: macos-15
-    timeout-minutes: 60
-    # Requires a macOS runner; compiles the Swift tracking module and the full app.
+    timeout-minutes: 75
+    defaults:
+      run:
+        # Explicit bash enables `-eo pipefail`, so a failing command piped into `tail` fails the
+        # step. (The default shell omits pipefail, which previously hid xcodebuild failures.)
+        shell: bash
     steps:
       - uses: actions/checkout@v4
+      - name: Swift unit tests (recorder core, journal, serialisation)
+        working-directory: apps/mobile/modules/pace-tracking/ios
+        run: swift test
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -59,9 +66,14 @@ jobs:
       - name: Install pods
         working-directory: apps/mobile/ios
         run: pod install
-      - name: Build for simulator
+      - name: Verify the native tracking module is autolinked
         working-directory: apps/mobile/ios
         run: |
-          xcodebuild -workspace PACE.xcworkspace -scheme PACE -configuration Debug \
-            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
-            CODE_SIGNING_ALLOWED=NO build | tail -50
+          grep -q "PaceTracking" Podfile.lock || { echo "PaceTracking pod is not linked"; exit 1; }
+      - name: Build app for simulator
+        working-directory: apps/mobile/ios
+        run: |
+          WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
+          SCHEME="${WORKSPACE%.xcworkspace}"
+          echo "Building $WORKSPACE / $SCHEME"
+          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug             -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'             CODE_SIGNING_ALLOWED=NO build 2>&1 | tail -n 80

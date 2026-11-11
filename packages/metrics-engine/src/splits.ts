@@ -17,7 +17,11 @@ export interface TimedDistancePoint {
 export function computeSplits(
   points: readonly TimedDistancePoint[],
   splitDistanceMeters: number,
-  options: { minPartialMeters?: number; elevationThresholdMeters?: number } = {},
+  options: {
+    minPartialMeters?: number;
+    elevationThresholdMeters?: number;
+    elevationSmoothingSeconds?: number;
+  } = {},
 ): Split[] {
   if (!(splitDistanceMeters > 0)) throw new Error('Split distance must be positive');
   if (points.length < 2) return [];
@@ -27,8 +31,12 @@ export function computeSplits(
   let splitStartDistance = points[0]!.cumulativeDistanceMeters;
   let nextBoundary = splitStartDistance + splitDistanceMeters;
   // Elevation per split uses the same hysteresis as activity totals, never raw fluctuation sums.
-  const elevation = new ElevationAccumulator(options.elevationThresholdMeters ?? 3);
-  if (points[0]!.altitudeMeters != null) elevation.add(points[0]!.altitudeMeters);
+  const elevation = new ElevationAccumulator(
+    options.elevationThresholdMeters ?? 5,
+    options.elevationSmoothingSeconds ?? 10,
+  );
+  if (points[0]!.altitudeMeters != null)
+    elevation.add(points[0]!.altitudeMeters, points[0]!.movingTimeMs);
   let gainAtSplitStart = 0;
 
   const push = (endDistance: number, endTime: number, partial: boolean): void => {
@@ -49,7 +57,7 @@ export function computeSplits(
   for (let i = 1; i < points.length; i++) {
     const a = points[i - 1]!;
     const b = points[i]!;
-    if (b.altitudeMeters != null) elevation.add(b.altitudeMeters);
+    if (b.altitudeMeters != null) elevation.add(b.altitudeMeters, b.movingTimeMs);
 
     while (b.cumulativeDistanceMeters >= nextBoundary) {
       const span = b.cumulativeDistanceMeters - a.cumulativeDistanceMeters;

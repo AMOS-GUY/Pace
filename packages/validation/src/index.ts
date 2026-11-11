@@ -13,16 +13,25 @@ export const segmentTypeSchema = z.enum(MULTISPORT_SEGMENT_TYPES);
 const nonNegative = z.number().finite().nonnegative();
 const nullableNonNegative = nonNegative.nullable();
 
+/**
+ * A *raw* location sample at a storage/transport boundary (native bridge, backups, sync).
+ *
+ * Deliberately permissive: raw samples are preserved exactly as captured, so this schema only
+ * guarantees well-typed values (and coordinate ranges, which every platform guarantees). Physical
+ * plausibility — accuracy, timestamps, altitude, jumps — is judged later by the GPS engine, which
+ * keeps but rejects implausible samples. Rejecting them here would create holes in the gap-free
+ * sample sequence and make an otherwise valid backup unrestorable.
+ */
 export const locationSampleSchema = z.object({
   latitude: z.number().finite().min(-90).max(90),
   longitude: z.number().finite().min(-180).max(180),
-  altitudeMeters: z.number().finite().min(-1000).max(10_000).nullable(),
+  altitudeMeters: z.number().finite().nullable(),
   // Native layers may emit negative accuracy for invalid fixes; the GPS engine rejects them.
   horizontalAccuracyMeters: z.number().finite(),
   verticalAccuracyMeters: z.number().finite().nullable(),
   speedMps: z.number().finite().nullable(),
   courseDegrees: z.number().finite().nullable(),
-  recordedAt: epochMsSchema,
+  recordedAt: z.number().int().nonnegative(),
   source: z.enum(['device_gps', 'device_fused', 'external_device', 'import', 'replay']),
 });
 export type LocationSampleInput = z.infer<typeof locationSampleSchema>;

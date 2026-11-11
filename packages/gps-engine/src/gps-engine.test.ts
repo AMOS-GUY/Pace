@@ -204,13 +204,15 @@ describe('RouteProcessor', () => {
       durationSeconds: 60,
     });
     const p = run([...a, ...b]);
+    p.closeSegment();
     expect(p.routeGaps).toHaveLength(1);
     expect(p.routeGaps[0]!.kind).toBe('signal_loss');
-    // Filter lag at the gap start makes the counted chord a few metres longer than 180 m.
-    expect(Math.abs(p.routeGaps[0]!.countedDistanceMeters - 180)).toBeLessThan(6);
+    // The segment is closed at its last real fix before the chord is measured, so the chord is
+    // the true 180 m (clean track: no positional noise to tolerate).
+    expect(Math.abs(p.routeGaps[0]!.countedDistanceMeters - 180)).toBeLessThan(0.5);
     expect(p.routeSegments).toHaveLength(2);
     expect(p.allPoints().length).toBeLessThanOrEqual(a.length + b.length);
-    expect(p.distanceMeters).toBeCloseTo(540, -1);
+    expect(Math.abs(p.distanceMeters - 540)).toBeLessThan(0.5);
   });
 
   it('does not count distance across a segment break (pause)', () => {
@@ -226,10 +228,44 @@ describe('RouteProcessor', () => {
     a.forEach((s, i) => p.process(s, i));
     p.breakSegment();
     b.forEach((s, i) => p.process(s, a.length + i));
-    // Each segment loses a few metres of filter lag at its end (documented in GPS_ENGINE.md).
-    expect(Math.abs(p.distanceMeters - 360)).toBeLessThan(10);
+    p.closeSegment();
+    // Clean track: filter lag is recovered at each segment close, so the result is exact.
+    expect(Math.abs(p.distanceMeters - 360)).toBeLessThan(0.5);
     expect(p.routeSegments).toHaveLength(2);
     expect(p.routeGaps).toHaveLength(0);
+  });
+
+  it('rejects a multipath spike after a long stationary period', () => {
+    // Regression: plausibility used the (old) anchor time, so after 10 minutes standing still a
+    // 2 km spike looked like a 3 m/s move and was counted as distance.
+    const still = driftTrack({ durationSeconds: 600, noiseMeters: 2, accuracyMeters: 8 });
+    const lastStill = still[still.length - 1]!;
+    const spike = destinationPoint(ORIGIN, 45, 2000);
+    const track = [...still, sample(spike, lastStill.recordedAt + 1000, { accuracy: 8 })];
+    const after = driftTrack({
+      durationSeconds: 30,
+      noiseMeters: 2,
+      accuracyMeters: 8,
+      startTime: lastStill.recordedAt + 2000,
+      seed: 3,
+    });
+    const p = run([...track, ...after]);
+    expect(p.stats.rejected.implausible_jump).toBe(1);
+    expect(p.distanceMeters).toBeLessThan(20);
+  });
+
+  it('segment close is idempotent and ignores stationary noise', () => {
+    const p = run(driftTrack({ durationSeconds: 120, noiseMeters: 8, accuracyMeters: 10 }));
+    const before = p.distanceMeters;
+    p.closeSegment();
+    p.closeSegment();
+    expect(p.distanceMeters).toBe(before);
+    const q = run(straightTrack({ speedMps: 3, durationSeconds: 100 }));
+    q.closeSegment();
+    const once = q.distanceMeters;
+    q.closeSegment();
+    expect(q.distanceMeters).toBe(once);
+    expect(Math.abs(once - 300)).toBeLessThan(0.5);
   });
 
   it('is deterministic', () => {

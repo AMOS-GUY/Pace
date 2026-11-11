@@ -42,8 +42,12 @@ export interface TrackingBridge {
   requestAuthorization(level: 'when_in_use' | 'always'): Promise<LocationAuthorization>;
   /** Start location updates for GPS acquisition only (no journaling, foreground only). */
   startAcquisition(policy: GpsPolicy): Promise<void>;
-  /** Begin journaled (background-capable) recording for an activity. Idempotent per activity. */
-  startRecording(activityId: string, policy: GpsPolicy): Promise<void>;
+  /**
+   * Begin journaled (background-capable) recording for an activity. Idempotent per activity.
+   * `nextSequence` is the number of samples JavaScript already holds for this activity: native
+   * must never assign a sequence number below it, even if its journal file was lost.
+   */
+  startRecording(activityId: string, policy: GpsPolicy, nextSequence: number): Promise<void>;
   /** Switch policy mid-recording (multisport legs) without interrupting the journal. */
   updatePolicy(policy: GpsPolicy | null): Promise<void>;
   stopRecording(): Promise<void>;
@@ -238,12 +242,21 @@ export class RecordingCoordinator {
         },
         config: session.config,
       });
-      this.activityId = id;
-      this.pending.events.push(...session.start(at, { withoutFix: options.withoutFix ?? true }));
       if (leg.policy) {
-        await this.deps.bridge.startRecording(id, leg.policy);
+        try {
+          await this.deps.bridge.startRecording(id, leg.policy, 0);
+        } catch (e) {
+          // Native could not open its journal: never leave an activity that records nothing.
+          await this.deps.store.discardRecording(id, this.deps.clock.now());
+          // A retry gets a fresh activity id (the discarded record keeps its tombstone).
+          this.session = new RecordingSession({ ...session.config, activityId: this.deps.newId() });
+          throw e;
+        }
         await this.deps.bridge.stopAcquisition();
       }
+      // Same serialised step as native start, so no journal entry can be ingested before this.
+      this.activityId = id;
+      this.pending.events.push(...session.start(at, { withoutFix: options.withoutFix ?? true }));
       await this.flush();
       return { ok: true, activityId: id } as const;
     });
@@ -283,11 +296,13 @@ export class RecordingCoordinator {
     return this.serial(async () => {
       const s = this.requireSession();
       const id = this.activityId!;
+      const at = this.deps.clock.now();
+      // Stop native first, then drain: every sample captured up to the tap is persisted and none
+      // can be appended to the journal after the final drain (it is deleted once saved).
+      if (s.config.legs.some((l) => l.policy)) await this.deps.bridge.stopRecording();
       await this.drain();
-      this.pending.events.push(...s.finish(this.deps.clock.now()));
+      this.pending.events.push(...s.finish(at));
       await this.flush();
-      if (s.requiresGps || s.config.legs.some((l) => l.policy))
-        await this.deps.bridge.stopRecording();
       const summary = s.summary();
       try {
         await this.deps.store.completeRecording(id, summary);
@@ -367,14 +382,40 @@ export class RecordingCoordinator {
       this.session = session;
       this.activityId = id;
       this.ensureListener();
-      await this.drain();
-      const nativeId = await this.deps.bridge.getRecordingActivityId();
-      if (nativeId !== id && session.state.status === 'RECORDING') {
-        const lastSample = loaded.samples[loaded.samples.length - 1]?.recordedAt ?? 0;
-        const lastEvent = loaded.events[loaded.events.length - 1]?.event.at ?? 0;
-        this.pending.events.push(...session.interrupt(Math.max(lastSample, lastEvent)));
+      // A failing native bridge must not block recovery of what SQLite already holds; any
+      // journal entries stay on disk and are drained by the next command or resume.
+      let nativeId: string | null = null;
+      try {
+        await this.drain();
+        nativeId = await this.deps.bridge.getRecordingActivityId();
+      } catch (e) {
+        this.deps.onError?.(e);
+      }
+      const status = session.state.status;
+      if (nativeId !== id && (status === 'RECORDING' || status === 'PAUSED')) {
+        // Native is not recording (force-quit, crash, reboot): stop the moving clock at the last
+        // moment for which data exists, not at relaunch time.
+        if (status === 'RECORDING') {
+          this.pending.events.push(
+            ...session.interrupt(session.lastDataAt ?? this.deps.clock.now()),
+          );
+        }
       }
       await this.flush();
+      if (session.state.status === 'FINALIZING') {
+        // The app stopped after "finished" was persisted but before the summary was saved.
+        const summary = session.summary();
+        try {
+          await this.deps.store.completeRecording(id, summary);
+          session.markSaved();
+          await this.deps.bridge
+            .deleteJournal?.(id)
+            .catch((err: unknown) => this.deps.onError?.(err));
+        } catch (e) {
+          session.markSaveFailed(e instanceof Error ? e.message : String(e));
+        }
+      }
+      this.changed();
       return { recovered: true, activityId: id, status: session.state.status } as const;
     });
   }
@@ -384,7 +425,10 @@ export class RecordingCoordinator {
     return this.serial(async () => {
       const s = this.requireSession();
       const policy = s.currentLeg.policy;
-      if (policy) await this.deps.bridge.startRecording(this.activityId!, policy);
+      if (policy) {
+        await this.drain().catch((e: unknown) => this.deps.onError?.(e));
+        await this.deps.bridge.startRecording(this.activityId!, policy, s.processedSampleCount);
+      }
       this.pending.events.push(...s.resume(this.deps.clock.now()));
       await this.flush();
     });
@@ -401,11 +445,12 @@ export class RecordingCoordinator {
     const s = this.session;
     if (!s) return;
     if (activityId == null) {
-      // Acquisition-only fix: update the GPS indicator; transition to RECORDING happens on start.
+      // Acquisition-only fix (not journaled). It may be delivered after recording started; it
+      // must never be counted as a recorded sample or the sequence numbering would shift.
       const last = entries[entries.length - 1];
-      if (last) {
+      if (last && !this.activityId) {
         this.acquisitionAccuracy = last.sample.horizontalAccuracyMeters;
-        s.ingestSample(last.sample, { detectAutoPause: false });
+        s.observeAcquisitionSample(last.sample);
       }
       this.changed();
       return;

@@ -204,6 +204,10 @@ export class RecordingSession {
   private lastAccuracy: number | null = null;
   /** Time after which a sample counts as recorded while paused/interrupted. */
   private stoppedSince: number | null = null;
+  /** Start of the current recording interval (start or last manual resume). */
+  private activeSince: number | null = null;
+  /** Timestamp of the newest sample seen after start (for interruption timing). */
+  private newestSampleAt: number | null = null;
 
   constructor(readonly config: SessionConfig) {
     if (config.legs.length === 0) throw new SessionError('A session needs at least one leg');
@@ -222,6 +226,24 @@ export class RecordingSession {
   get events(): readonly RecordedEvent[] {
     return this.log;
   }
+  /**
+   * Latest time for which data exists: newest sample or newest event. Used to stop the moving
+   * clock at the right moment when a recording is found interrupted.
+   */
+  get lastDataAt(): number | null {
+    const lastEvent = this.log[this.log.length - 1]?.event.at ?? null;
+    if (lastEvent == null) return this.newestSampleAt;
+    return this.newestSampleAt == null ? lastEvent : Math.max(lastEvent, this.newestSampleAt);
+  }
+
+  /** A pre-start acquisition fix: updates the GPS indicator only (never counted or stored). */
+  observeAcquisitionSample(sample: LocationSample): void {
+    if (this.startedAt != null) return;
+    this.lastAccuracy = Number.isFinite(sample.horizontalAccuracyMeters)
+      ? sample.horizontalAccuracyMeters
+      : null;
+  }
+
   get processedSampleCount(): number {
     return this.sampleCount;
   }
@@ -306,12 +328,18 @@ export class RecordingSession {
     // Before start, samples only inform the GPS indicator; they are neither persisted nor counted.
     if (this.startedAt == null) return [];
     const sequenceNumber = this.sampleCount++;
+    if (Number.isFinite(sample.recordedAt)) {
+      this.newestSampleAt = Math.max(this.newestSampleAt ?? sample.recordedAt, sample.recordedAt);
+    }
     const leg = this.legs[this.legIndex]!;
     if (!leg.processor) return [];
 
     const status = this.machine.status;
     const capturing =
-      status === 'RECORDING' ||
+      // While recording, fixes taken before the current start/resume belong to the pause (or to
+      // acquisition) and must not count toward the new segment.
+      (status === 'RECORDING' &&
+        (this.activeSince == null || sample.recordedAt >= this.activeSince)) ||
       // Samples recorded before a pause but delivered after it still count.
       ((status === 'PAUSED' ||
         status === 'INTERRUPTED' ||
@@ -419,6 +447,7 @@ export class RecordingSession {
         if (!isStart) break;
         this.startedAt = event.at;
         leg.startedAt = event.at;
+        this.activeSince = event.at;
         this.openInterval(event.at);
         this.laps.push({ at: event.at, distanceMeters: 0, lengthCount: null });
         break;
@@ -433,6 +462,7 @@ export class RecordingSession {
       case 'resumed':
         this.openInterval(event.at);
         this.stoppedSince = null;
+        this.activeSince = event.at;
         this.belowSpeedSince = null;
         leg.processor?.breakSegment();
         break;
@@ -452,6 +482,7 @@ export class RecordingSession {
         break;
       }
       case 'leg_advanced': {
+        leg.processor?.closeSegment();
         leg.endedAt = event.at;
         this.legIndex++;
         const next = this.legs[this.legIndex]!;
@@ -460,6 +491,7 @@ export class RecordingSession {
         break;
       }
       case 'finished':
+        leg.processor?.closeSegment();
         this.closeInterval(event.at);
         this.stoppedSince = event.at;
         this.endedAt = event.at;

@@ -1,13 +1,20 @@
 import ExpoModulesCore
 
+/// One recorder per process, created on first use — always from the main queue (every entry
+/// point below runs with `.runOnQueue(.main)`, and OnCreate hops to main). It outlives Expo
+/// module instances, so reloading the JavaScript runtime never stops an active recording.
+private enum SharedRecorder {
+  static let instance: LocationRecorder = {
+    let directory = (try? SampleJournal.defaultDirectory())
+      ?? FileManager.default.temporaryDirectory.appendingPathComponent("PaceTracking", isDirectory: true)
+    return LocationRecorder(manager: SystemLocationManager(), journalDirectory: directory)
+  }()
+}
+
 /// Expo module exposing the native recording service to JavaScript.
 /// Contract: `TrackingBridge` in packages/activity-engine/src/coordinator.ts.
 public class PaceTrackingModule: Module, LocationRecorderDelegate {
-  private lazy var recorder: LocationRecorder = {
-    let r = LocationRecorder()
-    r.delegate = self
-    return r
-  }()
+  private var recorder: LocationRecorder { SharedRecorder.instance }
 
   public func definition() -> ModuleDefinition {
     Name("PaceTracking")
@@ -15,9 +22,10 @@ public class PaceTrackingModule: Module, LocationRecorderDelegate {
     Events("onSamples", "onAuthorizationChange", "onError")
 
     OnCreate {
+      // Attach this module instance as the event sink. Nothing is started automatically: after a
+      // process restart JavaScript recovers the activity as INTERRUPTED.
       DispatchQueue.main.async {
-        // If iOS relaunched the app (or JS reloaded) mid-recording, keep journaling.
-        self.recorder.restoreIfNeeded()
+        self.recorder.delegate = self
       }
     }
 
@@ -30,6 +38,7 @@ public class PaceTrackingModule: Module, LocationRecorderDelegate {
     }.runOnQueue(.main)
 
     AsyncFunction("startAcquisition") { (policy: [String: Any]) in
+      self.recorder.delegate = self
       self.recorder.startAcquisition(policy: RecorderPolicy(policy))
     }.runOnQueue(.main)
 
@@ -37,8 +46,9 @@ public class PaceTrackingModule: Module, LocationRecorderDelegate {
       self.recorder.stopAcquisition()
     }.runOnQueue(.main)
 
-    AsyncFunction("startRecording") { (activityId: String, policy: [String: Any]) in
-      try self.recorder.startRecording(activityId: activityId, policyDict: policy)
+    AsyncFunction("startRecording") { (activityId: String, policy: [String: Any], nextSequence: Int) in
+      self.recorder.delegate = self
+      try self.recorder.startRecording(activityId: activityId, policyDict: policy, nextSequence: nextSequence)
     }.runOnQueue(.main)
 
     AsyncFunction("updatePolicy") { (policy: [String: Any]?) in
@@ -64,7 +74,7 @@ public class PaceTrackingModule: Module, LocationRecorderDelegate {
     }.runOnQueue(.main)
 
     AsyncFunction("deleteJournal") { (activityId: String) in
-      self.recorder.deleteJournal(activityId: activityId)
+      _ = self.recorder.deleteJournal(activityId: activityId)
     }.runOnQueue(.main)
   }
 

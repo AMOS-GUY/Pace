@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name           = 'PaceTracking'
-  s.version        = '0.1.0'
+  s.version        = '0.2.0'
   s.summary        = 'PACE native GPS recording service with a durable sample journal'
   s.description    = 'Core Location recording, background operation and crash-safe journaling for PACE.'
   s.author         = 'PACE'
@@ -17,5 +17,8 @@ Pod::Spec.new do |s|
     'DEFINES_MODULE' => 'YES',
   }
 
-  s.source_files = '**/*.{h,m,mm,swift}'
+  # Core/ is plain Swift (unit-tested via Package.swift with `swift test`); the module file adds
+  # the Expo bridge. Tests and the SwiftPM manifest are not part of the app.
+  s.source_files  = 'PaceTrackingModule.swift', 'Core/**/*.swift'
+  s.exclude_files = 'Tests/**/*', 'Package.swift'
 end
