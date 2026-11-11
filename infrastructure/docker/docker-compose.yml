@@ -1,0 +1,29 @@
+# Local development services: PostgreSQL and S3-compatible storage (MinIO).
+#   docker compose -f infrastructure/docker/docker-compose.yml up -d
+# Credentials below are for local development only.
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: pace
+      POSTGRES_PASSWORD: pace
+      POSTGRES_DB: pace
+    ports: ['5432:5432']
+    volumes: ['pace-pg:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U pace']
+      interval: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: pace-dev
+      MINIO_ROOT_PASSWORD: pace-dev-secret
+    ports: ['9000:9000', '9001:9001']
+    volumes: ['pace-minio:/data']
+
+volumes:
+  pace-pg:
+  pace-minio:

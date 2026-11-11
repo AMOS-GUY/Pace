@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Typecheck, lint, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Build shared packages
+        run: pnpm build
+      - name: Typecheck API and mobile
+        run: |
+          pnpm --filter @pace/api typecheck
+          pnpm --filter @pace/mobile typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+      - name: Unit and integration tests (packages, mobile logic)
+        run: pnpm test:unit -- --ci
+      - name: API end-to-end tests (PGlite)
+        run: pnpm test:api
+      - name: Bundle iOS JavaScript
+        working-directory: apps/mobile
+        run: npx expo export --platform ios --output-dir /tmp/pace-bundle
+
+  ios-native:
+    name: iOS native build (simulator)
+    runs-on: macos-15
+    timeout-minutes: 60
+    # Requires a macOS runner; compiles the Swift tracking module and the full app.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Prebuild iOS project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform ios --no-install
+      - name: Install pods
+        working-directory: apps/mobile/ios
+        run: pod install
+      - name: Build for simulator
+        working-directory: apps/mobile/ios
+        run: |
+          xcodebuild -workspace PACE.xcworkspace -scheme PACE -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build | tail -50

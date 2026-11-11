@@ -1,0 +1,24 @@
+# Maestro UI flow: sign up and complete onboarding.
+# Requires a Supabase project with email confirmation disabled for the test environment, and
+# TEST_EMAIL / TEST_PASSWORD supplied via `maestro test -e TEST_EMAIL=... -e TEST_PASSWORD=...`.
+appId: app.pace.ios.dev
+---
+- launchApp:
+    clearState: true
+- tapOn: "Create account"
+- tapOn: "Email"
+- inputText: ${TEST_EMAIL}
+- tapOn: "Password"
+- inputText: ${TEST_PASSWORD}
+- tapOn: "Confirm password"
+- inputText: ${TEST_PASSWORD}
+- tapOn: "Create account"
+- assertVisible: "Set up your profile"
+- tapOn: "Display name"
+- inputText: "Maestro Tester"
+- tapOn: "Continue"
+- tapOn: "Run"
+- tapOn: "Continue"
+- tapOn: "Continue"
+- tapOn: "Not now"
+- assertVisible: "Start activity"

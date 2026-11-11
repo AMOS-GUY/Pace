@@ -1,0 +1,31 @@
+# Maestro UI flow: record, pause, resume and save a run on an iOS simulator.
+# Prerequisites: a signed-in development build on the simulator and a GPX route loaded via
+# Xcode (Debug → Simulate Location) or `xcrun simctl location <udid> start ...`.
+# Run: maestro test apps/mobile/maestro/record-run.yaml
+appId: app.pace.ios.dev
+---
+- launchApp
+- tapOn: "Record"
+- tapOn: "Run"
+- tapOn: "Start Run"
+- tapOn: "Find GPS"
+- extendedWaitUntil:
+    visible: "GPS ready"
+    timeout: 30000
+- tapOn: "Start"
+- assertVisible: "RECORDING"
+- swipe:
+    direction: UP
+- waitForAnimationToEnd
+- tapOn:
+    label: "Pause recording"
+- assertVisible: "PAUSED"
+- tapOn: "Resume"
+- assertVisible: "RECORDING"
+- tapOn:
+    label: "Pause recording"
+- tapOn: "Finish"
+- tapOn: "Finish & save"
+- assertVisible: "Activity saved"
+- tapOn: "View activity"
+- assertVisible: "Splits"

@@ -10,13 +10,14 @@
   "scripts": {
     "build": "tsc -b packages/tsconfig.json",
     "typecheck": "tsc -b packages/tsconfig.json && pnpm --filter @pace/api typecheck && pnpm --filter @pace/mobile typecheck",
-    "test": "jest",
-    "test:packages": "jest --selectProjects packages",
+    "test": "jest && pnpm --filter @pace/api test",
     "test:api": "pnpm --filter @pace/api test",
-    "lint": "eslint .",
+    "lint": "eslint packages apps/api/src apps/api/test apps/mobile/app apps/mobile/src apps/mobile/modules",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "clean": "node scripts/clean.mjs"
+    "clean": "node scripts/clean.mjs",
+    "test:unit": "jest",
+    "build:api": "tsc -b packages/tsconfig.json && pnpm --filter @pace/api build"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

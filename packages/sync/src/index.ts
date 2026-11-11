@@ -70,6 +70,8 @@ export interface SyncOptions {
   maxDelayMs?: number;
   /** Errors marked permanent stop retrying fast; still kept in the outbox for diagnosis. */
   maxAttempts?: number;
+  /** Entity types this server supports; others remain in the outbox untouched. */
+  entityTypes?: ReadonlyArray<OutboxItem['entityType']>;
 }
 
 export interface SyncReport {
@@ -109,6 +111,9 @@ export class SyncEngine {
     try {
       const items = await this.outbox.due(this.options.batchSize ?? 25);
       for (const item of items) {
+        // Entity types the server does not accept yet stay queued (never reported as synced).
+        if (this.options.entityTypes && !this.options.entityTypes.includes(item.entityType))
+          continue;
         try {
           const payload =
             item.operation === 'delete'
@@ -119,12 +124,15 @@ export class SyncEngine {
             await this.outbox.complete(item.id);
             continue;
           }
-          if (item.entityType === 'activity' && item.operation === 'upsert')
-            await this.pushRoute(item.entityId);
           const result = await this.transport.push(item, payload);
           switch (result.status) {
             case 'applied':
             case 'duplicate':
+              // Route points reference the activity row, so they follow the metadata upload.
+              // Batches are idempotent, so a retry after a partial upload is safe.
+              if (item.entityType === 'activity' && item.operation === 'upsert') {
+                await this.pushRoute(item.entityId);
+              }
               await this.outbox.complete(item.id);
               report.pushed++;
               break;

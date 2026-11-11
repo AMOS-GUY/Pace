@@ -54,6 +54,8 @@ export interface TrackingBridge {
   acknowledge(activityId: string, throughSequence: number): Promise<void>;
   /** activityId is null for acquisition-only samples. */
   addListener(listener: (activityId: string | null, entries: JournalEntry[]) => void): () => void;
+  /** Remove the native journal once SQLite holds the final activity (or it was discarded). */
+  deleteJournal?(activityId: string): Promise<void>;
 }
 
 export interface NewRecording {
@@ -139,6 +141,10 @@ export class RecordingCoordinator {
   /** Snapshot for the UI; null when idle. */
   snapshot(): LiveMetrics | null {
     return this.session?.snapshot(this.deps.clock.now()) ?? null;
+  }
+  /** Decimated live route for the map; empty when idle. */
+  liveRoute(): Array<Array<{ latitude: number; longitude: number }>> {
+    return this.session?.liveRoute() ?? [];
   }
   get currentActivityId(): string | null {
     return this.activityId;
@@ -291,6 +297,8 @@ export class RecordingCoordinator {
         this.changed();
         throw e;
       }
+      // Cleanup only: SQLite already holds everything, so a failure here loses nothing.
+      await this.deps.bridge.deleteJournal?.(id).catch((err: unknown) => this.deps.onError?.(err));
       this.changed();
       return summary;
     });
@@ -304,6 +312,9 @@ export class RecordingCoordinator {
       const summary = s.summary();
       await this.deps.store.completeRecording(this.activityId!, summary);
       s.markSaved();
+      await this.deps.bridge
+        .deleteJournal?.(this.activityId!)
+        .catch((err: unknown) => this.deps.onError?.(err));
       this.changed();
       return summary;
     });
@@ -317,6 +328,7 @@ export class RecordingCoordinator {
       if (this.activityId) {
         await this.deps.bridge.stopRecording();
         await this.deps.store.discardRecording(this.activityId, this.deps.clock.now());
+        await this.deps.bridge.deleteJournal?.(this.activityId);
       } else {
         await this.deps.bridge.stopAcquisition();
       }

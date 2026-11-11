@@ -136,6 +136,53 @@ describe('SyncEngine', () => {
   });
 });
 
+describe('SyncEngine scope', () => {
+  it('leaves unsupported entity types queued and skips routes when the push is rejected', async () => {
+    const t = 0;
+    const outbox = new MemOutbox(() => t);
+    outbox.items.push(
+      {
+        id: 1,
+        entityType: 'goal',
+        entityId: 'g1',
+        operation: 'upsert',
+        entityVersion: 1,
+        idempotencyKey: 'g',
+        attempts: 0,
+        nextAttemptAt: 0,
+      },
+      {
+        id: 2,
+        entityType: 'activity',
+        entityId: 'a1',
+        operation: 'upsert',
+        entityVersion: 1,
+        idempotencyKey: 'a',
+        attempts: 0,
+        nextAttemptAt: 0,
+      },
+    );
+    const batches: number[] = [];
+    const engine = new SyncEngine(
+      outbox,
+      {
+        load: async () => activity(),
+        routeSamples: async () => [{ sequenceNumber: 0 }],
+        applyResolved: async () => undefined,
+      },
+      {
+        push: async () => ({ status: 'rejected', reason: 'bad' }),
+        pushRouteBatch: async (_i, f) => void batches.push(f),
+      },
+      (_t, l) => l,
+      { now: () => t, random: () => 0, entityTypes: ['activity'] },
+    );
+    expect(await engine.runOnce()).toEqual({ pushed: 0, failed: 0, conflicts: 0, rejected: 1 });
+    expect(batches).toEqual([]);
+    expect(outbox.items.find((i) => i.id === 1)!.attempts).toBe(0);
+  });
+});
+
 describe('conflict rules and backoff', () => {
   it('never resurrects a deleted activity', () => {
     const merged = resolveActivityConflict(

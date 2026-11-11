@@ -571,6 +571,21 @@ export class RecordingSession {
     return max;
   }
 
+  /**
+   * Processed route for live display, decimated to at most `maxPoints` points (the last point of
+   * each segment is always kept). Display only — never used for metrics.
+   */
+  liveRoute(maxPoints = 1500): Array<Array<{ latitude: number; longitude: number }>> {
+    const segments = this.legs.flatMap((l) => (l.processor ? l.processor.routeSegments : []));
+    const total = segments.reduce((n, s) => n + s.length, 0);
+    const step = Math.max(1, Math.ceil(total / maxPoints));
+    return segments.map((seg) =>
+      seg
+        .filter((_, i) => i % step === 0 || i === seg.length - 1)
+        .map((p) => ({ latitude: p.latitude, longitude: p.longitude })),
+    );
+  }
+
   /** Final summary. Only valid once the session has finished. */
   summary(): SessionSummary {
     if (this.startedAt == null || this.endedAt == null)

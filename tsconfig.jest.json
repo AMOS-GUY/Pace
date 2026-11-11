@@ -7,8 +7,9 @@
     "noEmit": false,
     "types": ["node", "jest"],
     "paths": {
-      "@pace/*": ["./packages/*/src/index.ts"]
+      "@pace/*": ["./packages/*/src/index.ts"],
+      "@/*": ["./apps/mobile/src/*"]
     }
   },
-  "include": ["packages/*/src/**/*.ts"]
+  "include": ["packages/*/src/**/*.ts", "apps/mobile/src/**/*.test.ts"]
 }
