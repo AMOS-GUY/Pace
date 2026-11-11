@@ -6,5 +6,21 @@
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/test-fixtures/**"],
-  "references": [{ "path": "../domain" }]
+  "references": [
+    {
+      "path": "../activity-engine"
+    },
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../gps-engine"
+    },
+    {
+      "path": "../metrics-engine"
+    },
+    {
+      "path": "../sports"
+    }
+  ]
 }

@@ -1,0 +1,36 @@
+{
+  "name": "@pace/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Application services: import/export, backup/restore, analytics",
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "react-native": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "react-native": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@pace/activity-engine": "workspace:*",
+    "@pace/backup": "workspace:*",
+    "@pace/database": "workspace:*",
+    "@pace/domain": "workspace:*",
+    "@pace/formats": "workspace:*",
+    "@pace/gps-engine": "workspace:*",
+    "@pace/metrics-engine": "workspace:*",
+    "@pace/sports": "workspace:*",
+    "@pace/validation": "workspace:*",
+    "@noble/hashes": "^1.8.0"
+  }
+}

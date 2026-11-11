@@ -1,16 +1,41 @@
 {
   "files": [],
   "references": [
-    { "path": "./domain" },
-    { "path": "./gps-engine" },
-    { "path": "./sports" },
-    { "path": "./metrics-engine" },
-    { "path": "./activity-engine" },
-    { "path": "./validation" },
-    { "path": "./formats" },
-    { "path": "./database" },
-    { "path": "./backup" },
-    { "path": "./sync" },
-    { "path": "./design-system" }
+    {
+      "path": "./domain"
+    },
+    {
+      "path": "./gps-engine"
+    },
+    {
+      "path": "./sports"
+    },
+    {
+      "path": "./metrics-engine"
+    },
+    {
+      "path": "./activity-engine"
+    },
+    {
+      "path": "./validation"
+    },
+    {
+      "path": "./formats"
+    },
+    {
+      "path": "./database"
+    },
+    {
+      "path": "./backup"
+    },
+    {
+      "path": "./sync"
+    },
+    {
+      "path": "./design-system"
+    },
+    {
+      "path": "./core"
+    }
   ]
 }

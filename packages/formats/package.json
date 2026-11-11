@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "@pace/domain": "workspace:*",
+    "@pace/gps-engine": "workspace:*",
     "@pace/validation": "workspace:*",
-    "@pace/gps-engine": "workspace:*"
+    "fast-xml-parser": "^5.12.0"
   }
 }

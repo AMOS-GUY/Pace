@@ -22,6 +22,7 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@pace/domain": "workspace:*"
+    "@pace/domain": "workspace:*",
+    "zod": "^4.6.7"
   }
 }

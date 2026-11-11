@@ -22,6 +22,10 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@pace/domain": "workspace:*"
+    "@pace/activity-engine": "workspace:*",
+    "@pace/domain": "workspace:*",
+    "@pace/gps-engine": "workspace:*",
+    "@pace/metrics-engine": "workspace:*",
+    "@pace/sports": "workspace:*"
   }
 }
