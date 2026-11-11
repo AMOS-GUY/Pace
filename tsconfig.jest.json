@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "noEmit": false,
+    "types": ["node", "jest"],
+    "paths": {
+      "@pace/*": ["./packages/*/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src/**/*.ts"]
+}

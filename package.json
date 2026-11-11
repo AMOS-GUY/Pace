@@ -1,0 +1,34 @@
+{
+  "name": "pace",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PACE — local-first endurance sports tracking platform",
+  "packageManager": "pnpm@12.18.0",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "build": "tsc -b packages/tsconfig.json",
+    "typecheck": "tsc -b packages/tsconfig.json && pnpm --filter @pace/api typecheck && pnpm --filter @pace/mobile typecheck",
+    "test": "jest",
+    "test:packages": "jest --selectProjects packages",
+    "test:api": "pnpm --filter @pace/api test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "node scripts/clean.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.19.2",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
+    "jest": "^30.5.2",
+    "prettier": "^3.9.10",
+    "ts-jest": "^29.4.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.2"
+  }
+}

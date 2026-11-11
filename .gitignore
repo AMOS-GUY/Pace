@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+.env
+.env.*
+!.env.example
+.expo/
+apps/mobile/ios/build/
+apps/mobile/android/build/
+apps/mobile/android/.gradle/
+*.log
+.DS_Store
+# Never commit generated activity / backup data
+*.pace-backup
+*.gpx.local
