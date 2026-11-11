@@ -3,7 +3,7 @@
 _Last updated: 2026-11-12_
 
 ## Current Milestone
-M0–M6 implemented in software; blocked on macOS + physical iPhone validation (M2 exit criterion).
+M0–M6 implemented in software; iOS builds in CI. Blocked on physical iPhone validation (M2 exit criterion).
 
 ## Completed (implemented and automatically tested)
 - [x] Repository inspection
