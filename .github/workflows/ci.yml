@@ -2,7 +2,8 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # ci/** branches let native CI changes be verified before they reach main.
+    branches: [main, 'ci/**']
   pull_request:
 
 permissions:
@@ -42,15 +43,23 @@ jobs:
 
   ios-native:
     name: iOS native tests and build (simulator)
-    runs-on: macos-15
+    # Expo SDK 58 builds ExpoModulesJSI from a Swift package that needs swift-tools-version 6.2
+    # (Xcode 26+). macos-15 defaults to Xcode 16.4 (Swift 6.1), which cannot build it.
+    runs-on: macos-26
     timeout-minutes: 75
+    env:
+      XCODE_APP: /Applications/Xcode_26.6.app
     defaults:
       run:
-        # Explicit bash enables `-eo pipefail`, so a failing command piped into `tail` fails the
-        # step. (The default shell omits pipefail, which previously hid xcodebuild failures.)
+        # Explicit bash runs with `-eo pipefail`.
         shell: bash
     steps:
       - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s "$XCODE_APP"
+          xcodebuild -version
+          xcrun swift --version
       - name: Swift unit tests (recorder core, journal, serialisation)
         working-directory: apps/mobile/modules/pace-tracking/ios
         run: swift test
@@ -59,6 +68,8 @@ jobs:
           node-version: 24
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
+      - name: Check Swift toolchain against package requirements
+        run: scripts/ci/check-swift-toolchain.sh .
       - run: pnpm build
       - name: Prebuild iOS project
         working-directory: apps/mobile
@@ -75,5 +86,28 @@ jobs:
         run: |
           WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
           SCHEME="${WORKSPACE%.xcworkspace}"
-          echo "Building $WORKSPACE / $SCHEME"
-          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug             -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'             CODE_SIGNING_ALLOWED=NO build 2>&1 | tail -n 80
+          echo "Building $WORKSPACE / $SCHEME with $(xcodebuild -version | head -n 1)"
+          # The full log is kept (uploaded below); nothing is piped, so the exit code is xcodebuild's own.
+          set +e
+          args=(-workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator)
+          args+=(-destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build)
+          xcodebuild "${args[@]}" > "$RUNNER_TEMP/xcodebuild.log" 2>&1
+          status=$?
+          set -e
+          echo "xcodebuild exit code: $status"
+          if [ "$status" -ne 0 ]; then
+            echo "::group::Error lines"
+            grep -nE "(error|fatal error):|BUILD FAILED|failed with exit code" "$RUNNER_TEMP/xcodebuild.log" || true
+            echo "::endgroup::"
+            echo "::group::Last 300 lines"
+            tail -n 300 "$RUNNER_TEMP/xcodebuild.log"
+            echo "::endgroup::"
+          fi
+          exit "$status"
+      - name: Upload xcodebuild log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: ${{ runner.temp }}/xcodebuild.log
+          if-no-files-found: ignore
