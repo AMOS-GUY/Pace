@@ -33,7 +33,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm format:check
       - name: Unit and integration tests (packages, mobile logic)
-        run: pnpm test:unit -- --ci
+        run: pnpm test:unit --ci
       - name: API end-to-end tests (PGlite)
         run: pnpm test:api
       - name: Bundle iOS JavaScript
