@@ -1,0 +1,27 @@
+{
+  "name": "@pace/validation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zod runtime validation schemas for PACE boundaries",
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "react-native": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "react-native": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@pace/domain": "workspace:*"
+  }
+}
