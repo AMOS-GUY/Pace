@@ -1,6 +1,6 @@
 # PACE Development Progress
 
-_Last updated: 2026-11-11_
+_Last updated: 2026-11-12_
 
 ## Current Milestone
 M0–M6 implemented in software; blocked on macOS + physical iPhone validation (M2 exit criterion).
@@ -19,11 +19,12 @@ M0–M6 implemented in software; blocked on macOS + physical iPhone validation (
 - [x] Encrypted, versioned backups; restore by replay
 - [x] Sync engine (idempotent, backoff, conflict rules)
 - [x] Analytics, records, goals services
+- [x] CI green on GitHub Actions: Linux checks + macOS simulator build (Swift module compiles)
 - [x] API: auth guard, profiles, activity sync, route batches, backups, devices, entitlements, account deletion (e2e on PGlite)
 
 ## Implemented, not yet verified (requires external environment)
-- [ ] iOS app on device/simulator (type-checks and Metro iOS bundle succeed; native build not run)
-- [ ] Swift tracking module compile + background recording on a physical iPhone
+- [ ] iOS app run on device/simulator (builds in CI; not yet launched)
+- [ ] Background recording on a physical iPhone
 - [ ] Supabase auth flows against a real project
 - [ ] MapLibre rendering with a licensed tile provider
 - [ ] Cloud backup upload/download against real S3
@@ -34,7 +35,6 @@ M0–M6 implemented in software; blocked on macOS + physical iPhone validation (
 - [ ] Physical-device validation (M2/M7)
 
 ## Blocked
-- macOS with Xcode (native compile) — development machine is Windows.
 - Physical iPhone for GPS/background tests.
 - Supabase project credentials, map tile provider, S3 bucket (user-provided services).
 

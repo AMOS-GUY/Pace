@@ -30,7 +30,7 @@ backup → encrypted file → restore on a fresh database by replay.
 
 | Area | How | Status |
 |---|---|---|
-| Swift module compile | CI job `ios-native` on macOS, or `npx expo run:ios` | **Not run** (developed on Windows) |
+| Swift module compile | CI job `ios-native` on macOS | ✅ Passing (simulator build) |
 | XCTest for `SampleJournal` / `LocationRecorder` | to be added with the first macOS build | Not written |
 | Maestro flows (`apps/mobile/maestro`) | `maestro test apps/mobile/maestro` on a simulator with simulated location | Written, **not run** |
 | Supabase auth against a real project | manual + Maestro `auth-onboarding.yaml` | Not run |
