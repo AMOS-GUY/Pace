@@ -1,8 +1,7 @@
 name: CI
 
-# Linux checks only: they run on every push and every pull request, and do not depend on any
-# macOS job. The macOS (iOS) jobs live in ios.yml, which runs only when native code changes or
-# when started manually, because macOS minutes count 10x against the included Actions minutes.
+# Linux checks only: they run on every push and every pull request and do not depend on any
+# macOS job. The iOS verification is ios.yml (D19).
 on:
   push:
     branches: ['**']

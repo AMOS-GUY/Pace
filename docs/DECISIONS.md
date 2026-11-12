@@ -84,17 +84,30 @@ the gap-free sequence and backups.
 Parameters (τ = 10 s, 5 m; per-sport Doppler thresholds) come from the replay suite's correlated
 error model; see the audit for the sweep and tolerances.
 
-### D19 — macOS CI only on native changes; full iOS suite on demand
-macOS minutes are billed at 10x on private repositories. Measured job times (runs 43105734303,
-43137368039): setup ~3 min, Swift tests ~0.5 min, Debug build 17-26 min, Release build ~28 min.
-Before: every push to `main`/`ci/**` ran a Debug job and a Release launch job (~55-65 macOS min,
-~550-650 billed min), and a pull request from a `ci/**` branch ran them twice. Now: Linux checks
-on every push and pull request; Swift tests (~2 min, ~20 billed) only when a native module's
-`ios/` directory changes; the full suite (~55 min, ~550 billed; ~35 min without the Debug build) as one job,
-manually or via the `ios-full-verification` PR label, before releases and native merges.
-Trade-off: a dependency or config change can break the iOS build without an automatic signal
-until the next full run, so the full suite is required before merging such changes.
-The repository stays private. Estimate and remaining duplicates: docs/TESTING.md.
+### D19 — CI split into Linux and iOS workflows; full iOS suite on every pull request
+Linux checks (`ci.yml`) and the iOS verification (`ios.yml`) are separate workflows, so a macOS
+problem never hides a Linux result and vice versa.
+
+**History.** While the repository was private, macOS minutes counted 10x against the included
+Actions minutes. Measured job times (runs 43105734303, 43137368039):
+- setup ~3 min
+- Swift tests ~0.5 min
+- Debug build 17-26 min
+- Release build ~28 min
+
+So macOS jobs then ran only on native changes or on demand.
+
+**Now.** The repository is public, and GitHub-hosted standard runners, macOS included, are free.
+The full iOS suite runs automatically on every pull request and every push to `main`:
+Swift tests, Release simulator launch, Maestro first-screen flow and Debug compile, about 55 min.
+The cost gating was removed, because it left dependency and configuration changes without an
+automatic iOS signal.
+
+**Remaining limits:**
+- Free macOS runners allow 5 concurrent jobs per account.
+- A newer commit cancels the older automatic run.
+- Pull requests from forks need maintainer approval before workflows run (GitHub default).
+- If the repository becomes private again, the gating from commit 9bc8e79 should be restored.
 
 ### D20 — Dashboard figures only from measured history
 Home shows a welcome and guidance until the first completed activity exists, rather than a grid

@@ -1,34 +1,24 @@
 name: iOS
 
-# macOS runner minutes are billed at 10x on private repositories, and one iOS build takes
-# 17-28 minutes, so the expensive jobs run only when asked for:
+# The repository is public, so GitHub-hosted macOS runners are free (D19). The complete iOS
+# verification therefore runs automatically:
 #
-#   swift-tests     Swift XCTests of the native recorder core (about 2 minutes). Runs
-#                   automatically on a push that changes a native module's ios/ directory
-#                   (Swift sources, tests, Package.swift) or this workflow, or manually
-#                   (suite: swift-tests). TypeScript-only module changes are covered by the
-#                   Linux checks in ci.yml.
-#   full            Complete iOS verification (about 55 minutes): Swift tests, toolchain check,
-#                   prebuild, pods, autolink check, Release simulator build, launch check on a
-#                   simulator, Maestro first-screen flow, and the Debug (development build)
-#                   compile. Manual only: "Run workflow" with suite: full, or the
-#                   `ios-full-verification` label on a pull request. Run it before every release.
+#   full            Swift tests, toolchain check, prebuild, pods, autolink check, Release
+#                   simulator build, launch check on a simulator, Maestro first-screen flow, and
+#                   the Debug (development build) compile (about 55 minutes). Runs on every pull
+#                   request, on every push to main, and manually (suite: full).
+#   swift-tests     Swift XCTests of the native recorder core only (about 2 minutes). Manual
+#                   (suite: swift-tests), for a quick check of a branch without a pull request.
 #
 # How to start a manual run: docs/TESTING.md, "Running the full iOS verification".
 on:
   push:
-    branches: ['**']
-    paths:
-      - 'apps/mobile/modules/*/ios/**'
-      - '.github/workflows/ios.yml'
+    branches: [main]
   pull_request:
-    # Only for the label trigger below. Pushes to same-repo branches are covered by `push`,
-    # so pull_request does not start the Swift tests a second time for the same commit.
-    types: [labeled]
   workflow_dispatch:
     inputs:
       suite:
-        description: 'swift-tests (about 2 min) or full (about 55 min, ~550 billed min)'
+        description: 'full (about 55 min) or swift-tests (about 2 min)'
         type: choice
         options: [full, swift-tests]
         default: full
@@ -41,15 +31,15 @@ permissions:
   contents: read
 
 concurrency:
-  # One group per ref and kind of run, so an automatic Swift-test run never cancels a manual
-  # full run. Only automatic push runs are cancelled by a newer push.
-  group: ios-${{ github.ref }}-${{ github.event_name }}-${{ inputs.suite || github.event.label.name || 'swift' }}
-  cancel-in-progress: ${{ github.event_name == 'push' }}
+  # One group per ref and kind of run. A newer push or pull request commit cancels the older
+  # automatic run; a manual run is never cancelled.
+  group: ios-${{ github.ref }}-${{ github.event_name }}-${{ inputs.suite || 'auto' }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:
   swift-tests:
     name: Swift native tests
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.suite == 'swift-tests')
+    if: github.event_name == 'workflow_dispatch' && inputs.suite == 'swift-tests'
     runs-on: macos-26
     timeout-minutes: 20
     env:
@@ -71,9 +61,7 @@ jobs:
 
   full:
     name: Full iOS verification (Swift tests, Release launch, Maestro, Debug build)
-    if: >-
-      (github.event_name == 'workflow_dispatch' && inputs.suite == 'full') ||
-      (github.event_name == 'pull_request' && github.event.label.name == 'ios-full-verification')
+    if: github.event_name != 'workflow_dispatch' || inputs.suite == 'full'
     # Expo SDK 58 builds ExpoModulesJSI from a Swift package that needs swift-tools-version 6.2
     # (Xcode 26+). macos-15 defaults to Xcode 16.4 (Swift 6.1), which cannot build it.
     runs-on: macos-26
@@ -165,7 +153,7 @@ jobs:
             --test-output-dir "$RUNNER_TEMP/launch/maestro" apps/mobile/maestro/smoke-launch.yaml
 
       # The development build (Debug, expo-dev-client) must keep compiling. It reuses the pods
-      # installed above and runs even when a launch step failed, so one paid run reports both;
+      # installed above and runs even when a launch step failed, so one run reports both;
       # the job still fails if any step failed.
       - name: Build Debug app for simulator (development build)
         if: ${{ !cancelled() && steps.pods.outcome == 'success' && (github.event_name != 'workflow_dispatch' || inputs.debug_build) }}

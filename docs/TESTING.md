@@ -19,91 +19,63 @@ did not prove the native code compiled (see GPS_RELIABILITY_AUDIT.md, F1).
 
 ## CI: what runs when
 
-On a private repository a macOS minute counts as 10 of the included Actions minutes (GitHub
-Free: 2,000 a month), and one iOS build takes 17-28 minutes, so only the cheap checks run on
-every change. The Linux checks are a separate workflow with no dependency on any macOS job.
+The repository is public, so GitHub-hosted runners (Linux and macOS) are free (D19). The Linux
+checks and the iOS verification are separate workflows with no dependency on each other.
 
 | Workflow / job | Runner | Runs | Duration |
 |---|---|---|---|
-| `CI` / Typecheck, lint, test | Linux | every push (any branch) and every pull request | ~2 min |
-| `iOS` / Swift native tests | macOS | a push that changes `apps/mobile/modules/*/ios/**` (Swift sources, tests, `Package.swift`) or `ios.yml`; or manually (`suite: swift-tests`) | ~2 min |
-| `iOS` / Full iOS verification | macOS | manually only (`suite: full`, or the `ios-full-verification` PR label) | ~55 min (~35 without the Debug build) |
+| `CI` / Typecheck, lint, test | Linux (`ubuntu-latest`) | every push (any branch) and every pull request | ~2 min |
+| `iOS` / Full iOS verification | macOS (`macos-26`, Xcode 26.6) | every pull request, every push to `main`, or manually (`suite: full`) | ~55 min (~35 without the Debug build) |
+| `iOS` / Swift native tests | macOS (`macos-26`, Xcode 26.6) | manually only (`suite: swift-tests`) | ~2 min |
 
 The full suite is one job: Swift tests, toolchain check, prebuild, pods, autolink check,
 Release simulator build, launch check (alive after 30 s, no crash report, no fatal log line),
 Maestro first-screen flow, and the Debug (development build) compile. It reuses one checkout,
 install and `pod install` for both builds. The Debug build also runs when an earlier launch
-step failed, so one paid run reports both results; the job still fails if any step failed.
+step failed, so one run reports both results; the job still fails if any step failed.
+
+A newer commit on the same branch or pull request cancels the older automatic run. A pull
+request from a fork runs only after a maintainer approves it (GitHub's default for public
+repositories). A branch with an open pull request runs the Linux checks twice: once for the push
+and once for the pull request's merge commit.
 
 ## Running the full iOS verification
 
-Run it before every release, and before merging changes to native code, the iOS
-configuration or dependencies.
+It runs by itself on every pull request and on `main`. To run it on demand, for example on a
+branch without a pull request or as a release check:
 
-**From the Actions tab** (needs `ios.yml` on `main`: GitHub shows "Run workflow" only for
-workflows on the default branch):
+**From the Actions tab:**
 
 1. Open the repository on GitHub, then the **Actions** tab.
 2. In the left sidebar, select the **iOS** workflow.
 3. Click **Run workflow** (right side, above the run list).
-4. Choose the **branch** to verify, set **suite** to `full`, and leave **debug_build** checked
-   for the complete suite (uncheck it to skip the ~20 min Debug compile).
+4. Choose the **branch** to verify and set **suite** to `full`. Leave **debug_build** checked for
+   the complete suite; uncheck it to skip the ~20 min Debug compile.
 5. Click the green **Run workflow** button. The run appears in the list after a few seconds.
 
-**From a pull request** (works before `ios.yml` is on `main`):
+"Run workflow" only appears once `ios.yml` is on `main`.
 
-1. Create the label once: **Issues** or **Pull requests** -> **Labels** -> **New label**, named
-   exactly `ios-full-verification`.
-2. On the pull request, add the label under **Labels**. This starts the full suite on the
-   pull request's merge commit.
-3. To run it again after new commits, remove the label and add it again, or use **Re-run all
-   jobs** on the run for the same commit.
+**From the command line:** `gh workflow run ios.yml --ref <branch> -f suite=full -f debug_build=true`.
 
-**From the command line:** `gh workflow run ios.yml --ref <branch> -f suite=full -f debug_build=true`
-(same default-branch requirement as the button).
+**Running again** on the same commit: **Re-run all jobs**, or **Re-run failed jobs** when the
+cause was outside the code (for example a runner problem).
 
 **Reading the result:** open the run, then the **Full iOS verification** job. Every step must
-be green. The run's **Artifacts** section holds `simulator-launch` (`device.log`,
-`after-30s.png`, any crash reports, `simulator.txt`, `maestro-junit.xml`, Maestro screenshots
-and `xcodebuild-release.log`) and `xcodebuild-log` (the Debug build log).
+be green. The run's **Artifacts** section holds two items:
+- `simulator-launch`: `device.log`, `after-30s.png`, any crash reports, `simulator.txt`,
+  `maestro-junit.xml`, Maestro screenshots and `xcodebuild-release.log`.
+- `xcodebuild-log`: the Debug build log.
 
 ## Release verification
 
 Before every release:
 
-1. Merge the release changes into `main` and wait for the Linux `CI` run on that commit to pass.
-2. **Actions** -> **iOS** -> **Run workflow** -> **Use workflow from:** `main` (or the release
-   tag, if it is already pushed) -> **suite:** `full` -> **debug_build:** checked -> **Run
-   workflow**.
+1. Merge the release changes into `main` and wait for the `CI` and `iOS` runs on that commit to
+   pass. Both start automatically.
+2. For a release tag, also run **Actions** -> **iOS** -> **Run workflow** with the tag, **suite:**
+   `full` and **debug_build:** checked.
 3. Release only from a commit whose **Full iOS verification** job passed with every step green.
    Keep the run URL with the release notes.
-
-## macOS cost: estimate and remaining duplicates
-
-Measured (runs 43105734303, 43137368039): setup ~3 min, Swift tests ~0.5 min, Debug build
-17-26 min, Release build ~28 min, launch check + Maestro ~4 min (estimate).
-
-Example month: 20 pushes, 4 of them changing native `ios/` code, 3 full verifications.
-
-| | macOS minutes | Counted against the included 2,000 (x10) |
-|---|---|---|
-| Before (both macOS jobs on every push to `main`/`ci/**`) | 20 x ~60 = ~1,200 | ~12,000 |
-| Now: Swift tests 4 x ~2, full suite 3 x ~55 | ~173 | ~1,730 |
-
-That is ~85 % fewer macOS minutes; the Linux checks add ~40-80 counted minutes. Each full run
-without the Debug build saves another ~20 macOS minutes (~200 counted).
-
-Duplicate or optional macOS work that remains, all deliberate:
-
-- Merging a native change into `main` runs the Swift tests again on the merge commit (~2 min),
-  so `main` itself is verified.
-- A full run repeats the Swift tests (~0.5 min) even if a push already ran them.
-- The Debug build in the full suite (~20 min) only proves the development build compiles;
-  uncheck **debug_build** when no Debug-only code or dependency changed.
-- After a failed full run, use **Re-run failed jobs** rather than a new run when the cause was
-  outside the code (for example a runner problem).
-- Linux only: a branch with an open pull request runs the Linux checks for both the push and
-  the pull request merge commit (~2 Linux minutes each).
 
 ## Data portability suite (M4.5)
 

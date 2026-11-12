@@ -71,7 +71,7 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - `react-dom` peer warning from a web-only dependency (iOS unaffected).
 
 ## Next Actions
-1. Run the full iOS verification on `ci/simulator-launch` (PR label `ios-full-verification`) and check the launch artifacts.
+1. Check the full iOS verification on PR #2 (`ci/simulator-launch`; it now runs automatically on every pull request) and its launch artifacts.
 2. On a Mac/iPhone: `cd apps/mobile && npx expo prebuild --platform ios && npx expo run:ios --device`.
 3. Execute the physical-device plan in docs/TESTING.md (tests 1–15) for running and cycling.
 4. Decide R1 (permission revoked mid-recording → `INTERRUPTED`?).
