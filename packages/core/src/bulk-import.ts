@@ -6,6 +6,8 @@ import {
   type ByteSource,
   DEFAULT_ARCHIVE_LIMITS,
   type ParsedTrack,
+  type SourceItem,
+  parseFit,
   parseGpxTrack,
   parseTcx,
   readImportSource,
@@ -198,14 +200,7 @@ export class BulkImportService {
             break;
           }
           await progress(item.entry ?? file.name);
-          for (const o of await this.importText(
-            file.name,
-            item.entry,
-            item.format,
-            item.text,
-            options,
-          ))
-            record(o);
+          for (const o of await this.importItem(file.name, item, options)) record(o);
           // Report updated counts right after each file, so the screen never lags by one.
           await progress(item.entry ?? file.name);
         }
@@ -220,17 +215,21 @@ export class BulkImportService {
     return report;
   }
 
-  private async importText(
+  private async importItem(
     file: string,
-    entry: string | null,
-    format: 'gpx' | 'tcx',
-    text: string,
+    item: Extract<SourceItem, { kind: 'file' }>,
     options: BulkImportOptions,
   ): Promise<ImportOutcome[]> {
+    const entry = item.entry;
     const base = { file, warnings: [] as string[], activityId: null, existingActivityId: null };
     let tracks: ParsedTrack[];
     try {
-      tracks = format === 'gpx' ? [parseGpxTrack(text)] : parseTcx(text);
+      tracks =
+        item.format === 'fit'
+          ? parseFit(item.bytes)
+          : item.format === 'gpx'
+            ? [parseGpxTrack(item.text)]
+            : parseTcx(item.text);
     } catch (e) {
       return [{ ...base, entry, status: 'failed', message: (e as Error).message }];
     }

@@ -32,7 +32,7 @@ export function fileByteSource(uri: string): AsyncIterable<Uint8Array> {
   };
 }
 
-/** Lets the athlete pick any number of GPX, TCX, .gz or ZIP files. Null when cancelled. */
+/** Lets the athlete pick any number of FIT, GPX, TCX, .gz or ZIP files. Null when cancelled. */
 export async function pickImportFiles(): Promise<PickedFile[] | null> {
   const r = await DocumentPicker.getDocumentAsync({
     multiple: true,

@@ -7,16 +7,26 @@ import {
   type SourceItem,
   bytesSource,
   classifyName,
+  crc32,
   readImportSource,
   unsafeEntryName,
 } from './index';
 import { garminTcx, stravaGpx, withSensors } from './test-fixtures/device-files';
+import { SPORT, fitActivity, fitPoints } from './test-fixtures/fit-encoder';
 
 const T = Date.UTC(2026, 9, 4, 6, 30);
 const gpx = stravaGpx({
   name: 'Run',
   type: 'running',
   points: withSensors(straightTrack({ speedMps: 3, durationSeconds: 60, startTime: T })),
+});
+const fit = fitActivity({
+  sessions: [
+    {
+      sport: SPORT.cycling,
+      laps: [[fitPoints(straightTrack({ speedMps: 8, durationSeconds: 60, startTime: T }))]],
+    },
+  ],
 });
 const tcx = garminTcx({
   sport: 'Biking',
@@ -52,7 +62,8 @@ describe('archive reading', () => {
       gzip: true,
     });
     expect(classifyName('a.tcx')).toEqual({ type: 'activity', format: 'tcx', gzip: false });
-    expect(classifyName('a.fit.gz').type).toBe('fit');
+    expect(classifyName('a.fit.gz')).toEqual({ type: 'activity', format: 'fit', gzip: true });
+    expect(classifyName('A.FIT')).toEqual({ type: 'activity', format: 'fit', gzip: false });
     expect(classifyName('export.zip').type).toBe('zip');
     expect(classifyName('photo.jpg').type).toBe('other');
     expect(unsafeEntryName('activities/run.gpx')).toBeNull();
@@ -86,6 +97,8 @@ describe('archive reading', () => {
       'activities/2.tcx.gz': gzipSync(strToU8(tcx)),
       'activities/3.fit.gz': new Uint8Array([1, 2, 3]),
       'activities/4.gpx': strToU8('<gpx><trk>broken'),
+      'activities/5.fit': fit,
+      'activities/6.fit.gz': gzipSync(fit),
       'media/photo.jpg': new Uint8Array(500).fill(7),
       'activities.csv': strToU8('id,name\n1,Run'),
       'nested.zip': zipSync({ 'x.gpx': strToU8(gpx) }),
@@ -101,6 +114,8 @@ describe('archive reading', () => {
         'rejected:activities/3.fit.gz',
         // Malformed XML is still yielded: the parser reports it per file.
         'file:activities/4.gpx:gpx',
+        'file:activities/5.fit:fit',
+        'file:activities/6.fit.gz:fit',
         'skipped:media/photo.jpg',
         'skipped:activities.csv',
         'rejected:nested.zip',
@@ -112,7 +127,11 @@ describe('archive reading', () => {
         .filter((i) => i.kind !== 'file')
         .map((i) => [i.entry, (i as { reason: string }).reason]),
     );
-    expect(reasons['activities/3.fit.gz']).toMatch(/FIT files are not supported/);
+    // Not valid gzip: refused while reading, before the FIT decoder sees it.
+    expect(reasons['activities/3.fit.gz']).toMatch(/Could not read/);
+    // FIT stays binary: the exact bytes reach the decoder.
+    for (const entry of ['activities/5.fit', 'activities/6.fit.gz'])
+      expect(r.items.find((i) => i.entry === entry)).toMatchObject({ format: 'fit', bytes: fit });
     expect(reasons['nested.zip']).toMatch(/not opened/);
     expect(reasons['../escape.gpx']).toMatch(/Unsafe file name/);
   });
@@ -191,10 +210,49 @@ describe('archive reading', () => {
     expect((await collect('notes.txt', strToU8('hello'))).items[0]).toMatchObject({
       kind: 'rejected',
     });
+    // A .fit name is handed to the FIT decoder, which checks the content (see fit.test.ts).
     expect((await collect('ride.fit', new Uint8Array(20))).items[0]).toMatchObject({
-      kind: 'rejected',
-      reason: expect.stringMatching(/FIT/),
+      kind: 'file',
+      format: 'fit',
     });
+    // A FIT file without a recognisable name is detected by its header.
+    expect((await collect('download', fit)).items[0]).toMatchObject({
+      kind: 'file',
+      format: 'fit',
+    });
+  });
+
+  it('refuses a damaged or cut-off .gz instead of passing on partial content', async () => {
+    const gz = gzipSync(strToU8(gpx));
+    for (const bytes of [
+      gz.subarray(0, gz.length - 12),
+      gz.subarray(0, 30),
+      new Uint8Array([1, 2, 3]),
+    ])
+      expect((await collect('run.gpx.gz', bytes)).items).toEqual([
+        {
+          kind: 'rejected',
+          entry: null,
+          reason: expect.stringMatching(/^Could not read the file: /),
+        },
+      ]);
+    // Truncated inside the trailer: all content decompresses, only the checksum shows the damage.
+    expect((await collect('run.gpx.gz', gz.subarray(0, gz.length - 3))).items[0]).toMatchObject({
+      kind: 'rejected',
+      reason: expect.stringMatching(/incomplete or damaged/),
+    });
+    const corrupt = gz.slice();
+    corrupt[corrupt.length - 6] = corrupt[corrupt.length - 6]! ^ 1;
+    expect((await collect('run.gpx.gz', corrupt)).items[0]).toMatchObject({ kind: 'rejected' });
+    expect(crc32(strToU8('123456789'))).toBe(0xcbf43926); // published CRC-32 check value
+    const zip = zipSync({ 'a.fit.gz': gzipSync(fit).subarray(0, 40) });
+    expect((await collect('x.zip', zip)).items).toEqual([
+      {
+        kind: 'rejected',
+        entry: 'a.fit.gz',
+        reason: expect.stringMatching(/^Could not read: /),
+      },
+    ]);
   });
 
   it('refuses UTF-16 files with an explanation and strips a UTF-8 BOM', async () => {

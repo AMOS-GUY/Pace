@@ -47,6 +47,7 @@ export const activitySourceSchema = z.enum([
   'recorded',
   'imported_gpx',
   'imported_tcx',
+  'imported_fit',
   'imported_backup',
   'manual',
   'healthkit',

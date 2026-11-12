@@ -45,6 +45,16 @@ Plain (unencrypted) backups are never uploaded; the API rejects `encrypted: fals
   and names with `..`, absolute paths or control characters are refused; limits apply to bytes
   actually decompressed (25 MB per file, 2 GB per archive, 50 000 entries, 4 GB read), which stops
   ZIP bombs regardless of the sizes an archive claims; nested archives are not opened.
+- gzip (`.gz` files and `.gz` entries): the gzip header, CRC-32 and length trailer are verified,
+  so a damaged or cut-off file is refused instead of being passed on as a shorter file.
+- FIT: read by PACE's own decoder (D22). Input limited to 25 MB and 2 000 000 messages, at most 64
+  chained files and 200 000 GPS points. Every chained file is framed and its header and file
+  checksums verified before any message is decoded, so a damaged or truncated file imports
+  nothing; every read is bounds-checked; malformed structure (undefined messages, messages past
+  the end, unknown byte order, zero-size fields, trailing data) is refused; values are at most 255
+  bytes and no allocation depends on an unchecked length. Device serial numbers are never stored;
+  developer field names from the file are stripped of control characters and shortened before
+  they are shown.
 - CSV export neutralises spreadsheet formula injection.
 - Backups: magic header, size limit (512 MB), schema validation, checksum, version check.
 - Native → JS samples are validated with Zod before use.

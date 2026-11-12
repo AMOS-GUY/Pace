@@ -4,7 +4,7 @@
 
 | Suite | Command | Environment | Tests | Runs in CI |
 |---|---|---|---|---|
-| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 232 | Linux job |
+| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 245 | Linux job |
 | Mobile logic (display helpers, dashboard, activity and import view models, expo-sqlite adapter incl. migrations, native entry validation) | `pnpm test:unit` | Node | 23 | Linux job |
 | API end-to-end (every endpoint) | `pnpm test:api` | NestJS + real PostgreSQL (PGlite) | 11 | Linux job |
 | **Native Swift core** (journal, recorder, serialisation) | `cd apps/mobile/modules/pace-tracking/ios && swift test` | macOS, XCTest | 29 | macOS job |
@@ -76,6 +76,20 @@ Its tests do not rely only on files written by our own test encoder
   session summaries, device details, HRV, swim chest-strap heart rate and unknown data are all
   listed as not imported; GPS points recorded while the timer was stopped, repeated or
   out-of-order times and device-relative clocks are reported or refused.
+- **Through the pipeline (`core/fit-import.test.ts`):** a FIT run is stored with source
+  `imported_fit`, laps and sensor samples; the same session as FIT, TCX and GPX gives the same
+  moving and elapsed time and the same distance, elevation and pace (distance within 0.05 m); the
+  same session in any format is a duplicate; a damaged or truncated FIT file stores nothing; a FIT
+  triathlon keeps five legs with their own start times and distances and the timer pause inside
+  the run; bulk import of an archive with good, duplicate, corrupted, truncated, non-FIT and
+  mislabelled `.gz` FIT files reports each one, and an earlier activity's rows are unchanged.
+- **Migration 3:** a populated v2 database (recorded activities with every derived table, an
+  imported TCX activity with laps and sensor data, a triathlon with five legs, goals, devices,
+  settings) keeps every row unchanged; v1 → v3 in one go; foreign keys, cascades, the unique
+  external-id index and all four indexes work afterwards; every earlier source is still accepted;
+  a lossy rebuild is rolled back.
+- **gzip integrity:** truncated, cut-inside-the-trailer and corrupted `.gz` files and entries are
+  refused (CRC-32 checked against the published check value).
 
 ## Deterministic GPS replay suite
 

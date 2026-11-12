@@ -1,9 +1,10 @@
 import { IMPORT_LIMITS } from '@pace/validation';
 import { Gunzip, Unzip, UnzipInflate, type UnzipFile, strFromU8 } from 'fflate';
+import { looksLikeFit } from './fit-decoder';
 
 /**
- * Reads activity files out of what the athlete picked: single GPX/TCX files, gzip-compressed
- * files (`.gpx.gz`, `.tcx.gz`) and ZIP archives such as account exports from other services.
+ * Reads activity files out of what the athlete picked: single GPX/TCX/FIT files, gzip-compressed
+ * files (`.gpx.gz`, `.tcx.gz`, `.fit.gz`) and ZIP archives such as account exports from other services.
  *
  * Safety model:
  * - Everything is streamed: the archive is read in chunks and each activity file is handed out
@@ -19,11 +20,13 @@ import { Gunzip, Unzip, UnzipInflate, type UnzipFile, strFromU8 } from 'fflate';
 
 export type ByteSource = AsyncIterable<Uint8Array>;
 
-export type ActivityFileFormat = 'gpx' | 'tcx';
+export type ActivityFileFormat = 'gpx' | 'tcx' | 'fit';
 
 export type SourceItem =
   /** A decompressed activity file ready to parse. `entry` is the path inside an archive. */
-  | { kind: 'file'; entry: string | null; format: ActivityFileFormat; text: string }
+  | { kind: 'file'; entry: string | null; format: 'gpx' | 'tcx'; text: string }
+  /** A decompressed binary FIT file, checked by the FIT decoder when it is parsed. */
+  | { kind: 'file'; entry: string | null; format: 'fit'; bytes: Uint8Array }
   /** Not an activity file (photos, CSV, …). Reported in aggregate, not as a failure. */
   | { kind: 'skipped'; entry: string; reason: string }
   /** An activity-like file that cannot be read safely or is not supported. */
@@ -49,7 +52,6 @@ export class ArchiveError extends Error {}
 type Kind =
   | { type: 'activity'; format: ActivityFileFormat; gzip: boolean }
   | { type: 'zip' }
-  | { type: 'fit' }
   | { type: 'other' };
 
 /** Classifies by name; `.gz` is only unwrapped around an activity file. */
@@ -59,7 +61,7 @@ export function classifyName(name: string): Kind {
   const base = gzip ? n.slice(0, -3) : n;
   if (base.endsWith('.gpx')) return { type: 'activity', format: 'gpx', gzip };
   if (base.endsWith('.tcx')) return { type: 'activity', format: 'tcx', gzip };
-  if (base.endsWith('.fit')) return { type: 'fit' };
+  if (base.endsWith('.fit')) return { type: 'activity', format: 'fit', gzip };
   if (!gzip && n.endsWith('.zip')) return { type: 'zip' };
   return { type: 'other' };
 }
@@ -74,20 +76,24 @@ export function unsafeEntryName(name: string): string | null {
   return null;
 }
 
-const FIT_REASON = 'FIT files are not supported yet. Export the activity as GPX or TCX instead.';
-
 /** Detects what a top-level file is from its first bytes when its name is not conclusive. */
 function sniff(head: Uint8Array): Kind {
   if (head[0] === 0x50 && head[1] === 0x4b && head[2] === 0x03 && head[3] === 0x04)
     return { type: 'zip' };
   if (head[0] === 0x1f && head[1] === 0x8b) return { type: 'other' }; // gzip of unknown content
-  if (head.length >= 12 && String.fromCharCode(...head.slice(8, 12)) === '.FIT')
-    return { type: 'fit' };
+  if (looksLikeFit(head)) return { type: 'activity', format: 'fit', gzip: false };
   const start = strFromU8(head.slice(0, Math.min(head.length, 512))).replace(/^\uFEFF/, '');
   if (/<gpx[\s>]/i.test(start)) return { type: 'activity', format: 'gpx', gzip: false };
   if (/<TrainingCenterDatabase[\s>]/.test(start))
     return { type: 'activity', format: 'tcx', gzip: false };
   return { type: 'other' };
+}
+
+/** The item for a decompressed activity file: bytes for FIT, checked UTF-8 text for XML. */
+function fileItem(entry: string | null, format: ActivityFileFormat, bytes: Uint8Array): SourceItem {
+  return format === 'fit'
+    ? { kind: 'file', entry, format, bytes }
+    : { kind: 'file', entry, format, text: decodeText(bytes) };
 }
 
 /** UTF-8 text of a decompressed activity file; refuses encodings the XML parsers cannot read. */
@@ -137,12 +143,40 @@ class Collector {
   }
 }
 
-/** Decompresses a gzip stream with a size cap. */
+const CRC32_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) c = c & 1 ? (c >>> 1) ^ 0xedb88320 : c >>> 1;
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+
+/** CRC-32 as stored in a gzip trailer. */
+export function crc32(bytes: Uint8Array): number {
+  let c = 0xffffffff;
+  for (let i = 0; i < bytes.length; i++) c = (c >>> 8) ^ CRC32_TABLE[(c ^ bytes[i]!) & 0xff]!;
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+const u32le = (b: Uint8Array, p: number): number =>
+  (b[p]! | (b[p + 1]! << 8) | (b[p + 2]! << 16) | (b[p + 3]! << 24)) >>> 0;
+
+/**
+ * Decompresses a gzip stream with a size cap. The decompressor does not check the gzip header
+ * or trailer, so both are verified here: a damaged or cut-off .gz must never pass as a shorter
+ * file. (Only single-member gzip files are accepted, which is what export services write.)
+ */
 function gunzipCapped(data: Uint8Array, max: number, budget: Budget): Uint8Array {
+  if (data[0] !== 0x1f || data[1] !== 0x8b || data[2] !== 8)
+    throw new Error('the file is not gzip-compressed data');
   const out = new Collector(max);
-  const g = new Gunzip((chunk) => {
+  let complete = false;
+  const g = new Gunzip((chunk, final) => {
     out.push(chunk);
     budget.add(chunk.length);
+    if (final) complete = true;
   });
   // Push in slices so an overflow is noticed early rather than after inflating everything.
   const step = 64 * 1024;
@@ -150,7 +184,13 @@ function gunzipCapped(data: Uint8Array, max: number, budget: Budget): Uint8Array
     g.push(data.subarray(i, i + step), i + step >= data.length);
   if (out.overflow)
     throw new Error(`decompresses to more than ${Math.round(max / 1024 / 1024)} MB`);
-  return out.bytes();
+  const bytes = out.bytes();
+  const damaged = new Error('the compressed data is incomplete or damaged');
+  if (!complete || data.length < 18) throw damaged;
+  const end = data.length - 8;
+  if (u32le(data, end) !== crc32(bytes) || u32le(data, end + 4) !== bytes.length % 2 ** 32)
+    throw damaged;
+  return bytes;
 }
 
 const mb = (n: number): string => `${Math.round(n / 1024 / 1024)} MB`;
@@ -188,16 +228,12 @@ export async function* readImportSource(
   if (kind.type === 'other') kind = sniff(first);
   const budget = new Budget(limits);
 
-  if (kind.type === 'fit') {
-    yield { kind: 'rejected', entry: null, reason: FIT_REASON };
-    return;
-  }
   if (kind.type === 'other') {
     yield {
       kind: 'rejected',
       entry: null,
       reason:
-        'Not a GPX, TCX or ZIP file. PACE imports .gpx, .tcx, their .gz versions and .zip archives.',
+        'Not a GPX, TCX, FIT or ZIP file. PACE imports .gpx, .tcx, .fit, their .gz versions and .zip archives.',
     };
     return;
   }
@@ -220,7 +256,7 @@ export async function* readImportSource(
       const bytes = kind.gzip
         ? gunzipCapped(raw.bytes(), limits.maxEntryBytes, budget)
         : raw.bytes();
-      yield { kind: 'file', entry: null, format: kind.format, text: decodeText(bytes) };
+      yield fileItem(null, kind.format, bytes);
     } catch (e) {
       if (e instanceof ArchiveError) throw e;
       yield {
@@ -260,10 +296,6 @@ export async function* readImportSource(
       });
       return;
     }
-    if (k.type === 'fit') {
-      ready.push({ kind: 'rejected', entry, reason: FIT_REASON });
-      return;
-    }
     if (k.type === 'other') {
       ready.push({ kind: 'skipped', entry, reason: 'Not an activity file' });
       return;
@@ -300,7 +332,7 @@ export async function* readImportSource(
         const bytes = k.gzip
           ? gunzipCapped(out.bytes(), limits.maxEntryBytes, budget)
           : out.bytes();
-        ready.push({ kind: 'file', entry, format: k.format, text: decodeText(bytes) });
+        ready.push(fileItem(entry, k.format, bytes));
       } catch (e) {
         if (e instanceof ArchiveError) fatal = e;
         else
