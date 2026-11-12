@@ -166,7 +166,8 @@ export class SqliteRecordingStore implements RecordingStore {
   }
 }
 
-function eventPayload(e: SessionEvent): string | null {
+/** Serialised event payload (only laps with a pool length count carry one). */
+export function eventPayload(e: SessionEvent): string | null {
   return e.type === 'lap' && e.lengthCount != null
     ? JSON.stringify({ lengthCount: e.lengthCount })
     : null;

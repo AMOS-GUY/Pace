@@ -115,7 +115,11 @@ export default function Home() {
 
       {data && data.totalActivityCount === 0 ? (
         <FadeIn>
-          <Welcome onRecord={() => void start()} onImport={openHistory} onSetGoal={openGoals} />
+          <Welcome
+            onRecord={() => void start()}
+            onImport={() => router.push('/import')}
+            onSetGoal={openGoals}
+          />
         </FadeIn>
       ) : null}
 

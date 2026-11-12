@@ -5,13 +5,51 @@ export interface Migration {
   version: number;
   name: string;
   statements: readonly string[];
+  /**
+   * Run with foreign-key enforcement off (needed to rebuild a parent table without cascading
+   * deletes). The runner restores the previous setting and refuses to commit if
+   * `PRAGMA foreign_key_check` reports any violation.
+   */
+  disableForeignKeys?: boolean;
 }
 
 const sportCheck = `CHECK (sport_type IN (${SPORT_TYPES.map((s) => `'${s}'`).join(',')}))`;
 
+/** Every column of `activities` as created by migration 1 (copied verbatim by rebuilds). */
+const ACTIVITY_COLUMNS_V1 = [
+  'id',
+  'user_id',
+  'sport_type',
+  'title',
+  'description',
+  'started_at',
+  'ended_at',
+  'timezone',
+  'status',
+  'source',
+  'swim_mode',
+  'pool_length_meters',
+  'elapsed_duration_ms',
+  'moving_duration_ms',
+  'distance_meters',
+  'elevation_gain_meters',
+  'elevation_loss_meters',
+  'average_speed_mps',
+  'maximum_speed_mps',
+  'average_pace_ms_per_km',
+  'session_config',
+  'has_reliable_track',
+  'external_id',
+  'created_at',
+  'updated_at',
+  'deleted_at',
+  'version',
+].join(', ');
+
 /**
  * Local schema. Rules:
- * - migrations are append-only and never drop or rewrite user data;
+ * - migrations are append-only and never lose user data (a table rebuild copies every row and
+ *   column and is verified by a foreign-key check);
  * - every measurement column carries its unit in the name;
  * - timestamps are UTC epoch milliseconds (INTEGER); the activity keeps its IANA time zone.
  */
@@ -213,6 +251,54 @@ export const MIGRATIONS: readonly Migration[] = [
       )`,
     ],
   },
+  {
+    // SQLite cannot alter a CHECK constraint, so `activities` is rebuilt with the extended
+    // `source` list. The runner disables foreign-key enforcement for this migration only:
+    // with it on, DROP TABLE would cascade-delete every route point, lap and record. Every
+    // column and row is copied, indexes are recreated, and the runner verifies
+    // `PRAGMA foreign_key_check` before committing.
+    version: 2,
+    name: 'activity_source_imported_tcx',
+    disableForeignKeys: true,
+    statements: [
+      `CREATE TABLE activities_v2 (
+        id TEXT PRIMARY KEY NOT NULL,
+        user_id TEXT,
+        sport_type TEXT NOT NULL ${sportCheck},
+        title TEXT NOT NULL,
+        description TEXT,
+        started_at INTEGER NOT NULL,
+        ended_at INTEGER,
+        timezone TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('recording','paused','interrupted','completed','discarded')),
+        source TEXT NOT NULL CHECK (source IN ('recorded','imported_gpx','imported_tcx','imported_backup','manual','healthkit')),
+        swim_mode TEXT CHECK (swim_mode IS NULL OR swim_mode IN ('pool','open_water')),
+        pool_length_meters REAL,
+        elapsed_duration_ms INTEGER NOT NULL DEFAULT 0 CHECK (elapsed_duration_ms >= 0),
+        moving_duration_ms INTEGER NOT NULL DEFAULT 0 CHECK (moving_duration_ms >= 0),
+        distance_meters REAL NOT NULL DEFAULT 0 CHECK (distance_meters >= 0),
+        elevation_gain_meters REAL NOT NULL DEFAULT 0,
+        elevation_loss_meters REAL NOT NULL DEFAULT 0,
+        average_speed_mps REAL,
+        maximum_speed_mps REAL,
+        average_pace_ms_per_km REAL,
+        session_config TEXT,
+        has_reliable_track INTEGER NOT NULL DEFAULT 0,
+        external_id TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        deleted_at INTEGER,
+        version INTEGER NOT NULL DEFAULT 1
+      )`,
+      `INSERT INTO activities_v2 (${ACTIVITY_COLUMNS_V1}) SELECT ${ACTIVITY_COLUMNS_V1} FROM activities`,
+      'DROP TABLE activities',
+      'ALTER TABLE activities_v2 RENAME TO activities',
+      'CREATE INDEX idx_activities_history ON activities (deleted_at, started_at DESC)',
+      'CREATE INDEX idx_activities_sport ON activities (sport_type, started_at DESC)',
+      'CREATE INDEX idx_activities_status ON activities (status)',
+      'CREATE UNIQUE INDEX idx_activities_external ON activities (external_id) WHERE external_id IS NOT NULL',
+    ],
+  },
 ];
 
 export interface MigrationResult {
@@ -251,14 +337,30 @@ export async function migrate(
   const applied: number[] = [];
   for (const m of sorted) {
     if (m.version <= current) continue;
-    await db.transaction(async (tx) => {
-      for (const s of m.statements) await tx.exec(s);
-      await tx.run('INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)', [
-        m.version,
-        m.name,
-        now(),
-      ]);
-    });
+    // PRAGMA foreign_keys is a no-op inside a transaction, so it is switched around it.
+    const fkWasOn = m.disableForeignKeys
+      ? ((await db.get<{ foreign_keys: number }>('PRAGMA foreign_keys'))?.foreign_keys ?? 0) === 1
+      : false;
+    if (m.disableForeignKeys) await db.exec('PRAGMA foreign_keys = OFF');
+    try {
+      await db.transaction(async (tx) => {
+        for (const s of m.statements) await tx.exec(s);
+        if (m.disableForeignKeys) {
+          const violations = await tx.all('PRAGMA foreign_key_check');
+          if (violations.length > 0)
+            throw new Error(
+              `Migration ${m.version} (${m.name}) would leave ${violations.length} foreign-key violation(s); rolled back`,
+            );
+        }
+        await tx.run('INSERT INTO schema_migrations (version, name, applied_at) VALUES (?, ?, ?)', [
+          m.version,
+          m.name,
+          now(),
+        ]);
+      });
+    } finally {
+      if (m.disableForeignKeys && fkWasOn) await db.exec('PRAGMA foreign_keys = ON');
+    }
     applied.push(m.version);
   }
   return { fromVersion: current, toVersion: Math.max(current, latest), applied };

@@ -1,5 +1,11 @@
 import { RecordingCoordinator } from '@pace/activity-engine';
-import { ActivityService, AnalyticsService, BackupService } from '@pace/core';
+import {
+  ActivityService,
+  AnalyticsService,
+  BackupService,
+  BulkImportService,
+  PortableExportService,
+} from '@pace/core';
 import {
   ActivityRepository,
   type DatabaseContext,
@@ -31,6 +37,8 @@ export interface AppServices {
   activityService: ActivityService;
   analytics: AnalyticsService;
   backup: BackupService;
+  bulkImport: BulkImportService;
+  portableExport: PortableExportService;
   coordinator: RecordingCoordinator;
   bridge: ReturnType<typeof createNativeTrackingBridge>;
   secureKv: EncryptedKeyValueStore;
@@ -86,6 +94,8 @@ async function create(): Promise<AppServices> {
     activityService: new ActivityService(ctx),
     analytics: new AnalyticsService(ctx),
     backup: new BackupService(ctx, appVersion),
+    bulkImport: new BulkImportService(ctx),
+    portableExport: new PortableExportService(ctx),
     coordinator,
     bridge,
     secureKv: new EncryptedKeyValueStore(db),

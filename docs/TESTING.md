@@ -4,8 +4,8 @@
 
 | Suite | Command | Environment | Tests | Runs in CI |
 |---|---|---|---|---|
-| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 163 | Linux job |
-| Mobile logic (display helpers, dashboard and activity view models, expo-sqlite adapter, native entry validation) | `pnpm test:unit` | Node | 19 | Linux job |
+| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 204 | Linux job |
+| Mobile logic (display helpers, dashboard, activity and import view models, expo-sqlite adapter incl. migrations, native entry validation) | `pnpm test:unit` | Node | 23 | Linux job |
 | API end-to-end (every endpoint) | `pnpm test:api` | NestJS + real PostgreSQL (PGlite) | 11 | Linux job |
 | **Native Swift core** (journal, recorder, serialisation) | `cd apps/mobile/modules/pace-tracking/ios && swift test` | macOS, XCTest | 29 | macOS job |
 | iOS app compile incl. Swift module | `expo prebuild` + `xcodebuild` | macOS, iOS Simulator SDK | — | macOS job |
@@ -15,6 +15,34 @@
 The macOS job runs with `shell: bash` (`-eo pipefail`) and fails if the `PaceTracking` pod is
 not autolinked. Before the reliability audit it ran without `pipefail`, so its earlier "success"
 did not prove the native code compiled (see GPS_RELIABILITY_AUDIT.md, F1).
+
+## Data portability suite (M4.5)
+
+Runs locally with real SQLite (`node:sqlite`) and realistic files: Garmin-style TCX
+(TrainingCenterDatabase v2, ActivityExtension `TPX`, laps with calories and device summaries,
+`Creator`) and Strava-style GPX (TrackPointExtension hr/cad/atemp, power, waypoints), built from
+the deterministic synthetic tracks (`packages/formats/src/test-fixtures/device-files.ts`).
+
+- **Parsing:** sport, notes, laps, pauses (a lap boundary is not a pause), heart rate, cadence,
+  power; implausible sensor values skipped and counted; every kind of unimported information
+  listed; indoor files refused with an explanation; DTD/entity, oversize and non-activity files
+  refused.
+- **Shared pipeline:** the same track as GPX and as TCX gives identical distance, moving and
+  elapsed time, elevation, pace and max speed.
+- **Duplicates:** same file again (either format), a differently sampled copy of the same session
+  and PACE's own GPX export of a recorded activity are refused and name the existing activity;
+  back-to-back sessions are not.
+- **Archives:** mixed archive (valid, malformed, duplicate, FIT, photos, CSV, nested ZIP, `../`
+  path); ZIP and gzip bombs stopped by bytes actually produced; entry-count and size limits;
+  truncated archive keeps earlier imports and reports the cut-off file; retry completes it;
+  repeated import adds nothing; 250-activity archive; cancellation between files; progress.
+- **Export:** archive contents and row counts match the database; planted secrets, deleted
+  activities, account/sync identifiers and coordinates (outside GPX) never appear; the privacy
+  zone holds for every point of every track; export → import into a new database reproduces the
+  activities and metrics (moving time within one GPS fix per segment edge for recorded activities,
+  exact for imported ones); importing an export back into its source adds nothing.
+- **Migration 2:** a populated v1 database keeps every row and child row; foreign keys are
+  enforced again afterwards; a lossy rebuild is rolled back.
 
 ## Deterministic GPS replay suite
 
@@ -96,6 +124,7 @@ For every run, record:
 | Swift XCTests and native compile | Written; first run on the next macOS CI job |
 | Maestro flows (`apps/mobile/maestro`) | Written, not run |
 | Home dashboard, activity history and activity detail UI (rendering, layout on iPhone SE to Pro Max, animation, VoiceOver) | Typechecked, linted and bundled for iOS (`expo export`); not yet rendered on a simulator or device |
+| Import and export on iOS: Files-app picker with several files, reading large archives through `FileHandle` (memory, time for a multi-GB Strava export), share sheet for the ZIP, cache cleanup, migration 2 on an existing install | Logic tested in Node; device behaviour not yet verified |
 | Supabase auth against a real project | Not run |
 | API against real Postgres + S3/MinIO | Not run (PGlite used in tests) |
 | Docker image build | Not run |

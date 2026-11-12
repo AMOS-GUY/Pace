@@ -24,6 +24,7 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - [x] Deterministic GPS replay suite (realistic run/ride, drift, poor accuracy, tunnel, jumps; correlated error)
 - [x] Data-integrity suite (delivery, lifecycle, recovery, SQLite atomicity)
 - [x] Training-consistency analytics: week days, active weeks, weekly streak, week-over-week change, 4-week average only when history covers it (unit-tested)
+- [x] Data portability (M4.5): TCX import, GPX cadence/power, bulk import of files/ZIP/gzip with safety limits and report, full portable export, migration 2 — logic tested; screens bundled, **not yet run on a device**
 - [x] Home dashboard, activity history and activity detail redesign — logic unit-tested; UI typechecked, linted and bundled for iOS, **not yet rendered on a simulator or iPhone**
 
 ## Implemented, awaiting first macOS CI run
@@ -33,6 +34,7 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 ## Implemented, not yet verified (requires external environment)
 - [ ] iOS app run on simulator/device
 - [ ] Visual check of the new Home, Activities and Activity detail screens (sizes, Dynamic Type, VoiceOver, Reduce Motion)
+- [ ] Import/export on iPhone: Files picker, large Strava/Garmin archives, share sheet, migration 2 on an existing install
 - [ ] Background recording on a physical iPhone (TESTING.md device plan)
 - [ ] Supabase auth flows against a real project
 - [ ] MapLibre rendering with a licensed tile provider
@@ -48,8 +50,8 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - Supabase project credentials, map tile provider, S3 bucket (user-provided services).
 
 ## Tests
-- Packages (real SQLite, replay & integrity suites): 163 passing
-- Mobile logic: 19 passing
+- Packages (real SQLite, replay, integrity & portability suites): 204 passing
+- Mobile logic: 23 passing
 - API end-to-end (NestJS + PGlite): 11 passing
 - Native (XCTest): 29 written, run on macOS CI
 - UI (Maestro): 2 flows written, not executed

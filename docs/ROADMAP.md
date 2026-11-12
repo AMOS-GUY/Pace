@@ -10,6 +10,7 @@ validation · ⬜ not started.
 | M2 Native GPS engine | 🟡 | Swift recorder + journal, state machine, incremental persistence, distance, recovery — engine ✅, Swift not compiled/tested on device. |
 | M3 Core activity experience | 🟡 | Run/ride/walk/hike recording UI, live metrics, summaries. |
 | M4 History & analytics | ✅/🟡 | List/filter/search, detail, splits, laps, maps, weekly/monthly stats, records, GPX import/export — logic ✅, UI on device 🟡. |
+| M4.5 Data portability | ✅/🟡 | TCX import, GPX cadence/power, bulk import (files, ZIP, gzip) with ZIP-bomb/path protection and a per-file report, duplicate detection across sources, full export (JSON, CSV, GPX) with privacy zone — logic ✅, iOS file handling 🟡. FIT import not started. |
 | M5 Backup & sync | ✅/🟡 | Encrypted local/cloud backup, restore by replay, outbox sync, conflict rules, account deletion — needs S3 + Supabase to validate end to end. |
 | M6 Swimming & triathlon | ✅/🟡 | Pool laps, open-water policy + limitation notice, triathlon legs and transitions. |
 | M7 Private beta | ⬜ | Device test plan, battery tuning, Sentry, TestFlight. |

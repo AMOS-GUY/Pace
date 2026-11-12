@@ -41,8 +41,8 @@ export function Welcome({
         />
         <Step
           icon="document-attach-outline"
-          title="Import a GPX file"
-          detail="Bring a past activity from another app or device."
+          title="Import your history"
+          detail="GPX, TCX or a whole ZIP export from Strava, Garmin and others."
           onPress={onImport}
         />
         <Step

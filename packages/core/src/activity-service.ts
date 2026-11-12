@@ -4,12 +4,20 @@ import {
   ROUTE_POINT_COLUMNS,
   ActivityRepository,
   RouteRepository,
+  eventPayload,
   insertMany,
   sampleValues,
   writeCompletedActivity,
 } from '@pace/database';
 import type { Activity, LocationSample, SportType } from '@pace/domain';
-import { activitiesToCsv, parseGpx, toGpx, trimPrivacyZone } from '@pace/formats';
+import {
+  type ParsedTrack,
+  activitiesToCsv,
+  parseGpxTrack,
+  parseTcx,
+  toGpx,
+  trimPrivacyZone,
+} from '@pace/formats';
 import { sha256 } from '@noble/hashes/sha2';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils';
 
@@ -17,6 +25,8 @@ export class ImportError extends Error {
   constructor(
     message: string,
     readonly code: 'sport_required' | 'duplicate' | 'unsupported_sport' | 'invalid_file',
+    /** For duplicates: the activity already in PACE. */
+    readonly existingActivityId?: string,
   ) {
     super(message);
   }
@@ -26,6 +36,21 @@ export interface ImportResult {
   activityId: string;
   warnings: string[];
 }
+
+export interface ImportOptions {
+  /** Overrides the file's sport (or supplies it when the file has none). */
+  sportType?: SportType;
+  timezone: string;
+  userId?: string | null;
+}
+
+/**
+ * Share of the shorter time span two activities must overlap to be the same session (e.g. the
+ * same run exported from two services, or a PACE export imported back).
+ */
+const DUPLICATE_OVERLAP = 0.5;
+
+const SOURCE_FOR_FORMAT = { gpx: 'imported_gpx', tcx: 'imported_tcx' } as const;
 
 /** Stable fingerprint of an imported track so the same file is never imported twice. */
 export function importFingerprint(samples: readonly LocationSample[]): string {
@@ -49,20 +74,52 @@ export class ActivityService {
    * engine as live recordings (GPX segments become pause/resume), and the raw points,
    * events and session config are stored so it can be re-derived or restored later.
    */
-  async importGpx(
-    xml: string,
-    options: { sportType?: SportType; timezone: string; userId?: string | null },
-  ): Promise<ImportResult> {
-    let parsed;
+  async importGpx(xml: string, options: ImportOptions): Promise<ImportResult> {
+    let parsed: ParsedTrack;
     try {
-      parsed = parseGpx(xml);
+      parsed = parseGpxTrack(xml);
     } catch (e) {
       throw new ImportError(e instanceof Error ? e.message : 'Invalid GPX', 'invalid_file');
     }
+    return this.importTrack(parsed, options);
+  }
+
+  /**
+   * Imports every activity in a TCX file. Each activity succeeds or fails on its own; the
+   * result lists them in file order.
+   */
+  async importTcx(
+    xml: string,
+    options: ImportOptions,
+  ): Promise<Array<{ ok: true; result: ImportResult } | { ok: false; error: ImportError }>> {
+    let tracks: ParsedTrack[];
+    try {
+      tracks = parseTcx(xml);
+    } catch (e) {
+      throw new ImportError(e instanceof Error ? e.message : 'Invalid TCX', 'invalid_file');
+    }
+    const out: Array<{ ok: true; result: ImportResult } | { ok: false; error: ImportError }> = [];
+    for (const t of tracks) {
+      try {
+        out.push({ ok: true, result: await this.importTrack(t, options) });
+      } catch (e) {
+        if (!(e instanceof ImportError)) throw e;
+        out.push({ ok: false, error: e });
+      }
+    }
+    return out;
+  }
+
+  /**
+   * Imports one parsed track (GPX or TCX) through the same session engine as live recordings.
+   * Duplicates are refused by exact fingerprint and by time overlap with an existing activity.
+   */
+  async importTrack(parsed: ParsedTrack, options: ImportOptions): Promise<ImportResult> {
+    const label = parsed.format.toUpperCase();
     const sport = options.sportType ?? parsed.sportType;
     if (!sport) throw new ImportError('Choose the sport for this activity', 'sport_required');
     if (sport === 'triathlon')
-      throw new ImportError('Triathlons cannot be imported from GPX', 'unsupported_sport');
+      throw new ImportError(`Triathlons cannot be imported from ${label}`, 'unsupported_sport');
 
     const all = parsed.segments.flat();
     const externalId = importFingerprint(all);
@@ -70,7 +127,18 @@ export class ActivityService {
       'SELECT id FROM activities WHERE external_id = ? AND deleted_at IS NULL',
       [externalId],
     );
-    if (existing) throw new ImportError('This activity has already been imported', 'duplicate');
+    if (existing)
+      throw new ImportError('This activity has already been imported', 'duplicate', existing.id);
+    const overlap = await this.overlappingActivity(
+      all[0]!.recordedAt,
+      all[all.length - 1]!.recordedAt,
+    );
+    if (overlap)
+      throw new ImportError(
+        `This overlaps “${overlap.title}” already in PACE (${new Date(overlap.started_at).toISOString().slice(0, 16).replace('T', ' ')} UTC)`,
+        'duplicate',
+        overlap.id,
+      );
 
     const id = this.ctx.newId();
     const config = sessionConfigFor(id, sport, {
@@ -81,15 +149,28 @@ export class ActivityService {
     const events: RecordedEvent[] = [];
     const first = all[0]!;
     events.push(...session.start(first.recordedAt, { withoutFix: true }));
+    // Lap boundaries from the file become lap events at their time, so lap figures are computed
+    // by the engine from the track exactly as for a lap pressed during a live recording.
+    const laps = [...parsed.lapStarts];
+    const flushLaps = (until: number): void => {
+      while (laps.length > 0 && laps[0]! <= until) events.push(...session.lap(laps.shift()!));
+    };
     parsed.segments.forEach((seg, i) => {
       if (i > 0) {
         events.push(
           ...session.pause(parsed.segments[i - 1]![parsed.segments[i - 1]!.length - 1]!.recordedAt),
         );
+        flushLaps(seg[0]!.recordedAt - 1);
         events.push(...session.resume(seg[0]!.recordedAt));
       }
-      for (const s of seg) events.push(...session.ingestSample(s, { detectAutoPause: false }));
+      for (const s of seg) {
+        flushLaps(s.recordedAt);
+        events.push(...session.ingestSample(s, { detectAutoPause: false }));
+      }
     });
+    const warnings = [...parsed.warnings];
+    if (laps.length > 0)
+      warnings.push(`${laps.length} lap(s) starting after the last GPS point were not imported.`);
     events.push(...session.finish(all[all.length - 1]!.recordedAt));
     const summary = session.summary();
     const now = this.ctx.now();
@@ -98,7 +179,7 @@ export class ActivityService {
       await tx.run(
         `INSERT INTO activities (id, user_id, sport_type, title, description, started_at, ended_at, timezone, status, source,
            swim_mode, pool_length_meters, session_config, external_id, created_at, updated_at, version)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'recording', 'imported_gpx', ?, NULL, ?, ?, ?, ?, 1)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'recording', ?, ?, NULL, ?, ?, ?, ?, 1)`,
         [
           id,
           options.userId ?? null,
@@ -108,6 +189,7 @@ export class ActivityService {
           summary.startedAt,
           null,
           options.timezone,
+          SOURCE_FOR_FORMAT[parsed.format],
           sport === 'swimming' ? 'open_water' : null,
           JSON.stringify(config),
           externalId,
@@ -132,25 +214,57 @@ export class ActivityService {
           'after_sample_count',
           'payload',
         ],
-        events.map((e, i) => [id, i, e.event.type, e.event.at, e.afterSampleCount, null]),
+        events.map((e, i) => [
+          id,
+          i,
+          e.event.type,
+          e.event.at,
+          e.afterSampleCount,
+          eventPayload(e.event),
+        ]),
       );
       await insertMany(
         tx,
         'sensor_samples',
         ['id', 'activity_id', 'sensor_type', 'value', 'unit', 'recorded_at', 'source_device_id'],
-        parsed.heartRate.map((h) => [
+        parsed.sensors.map((x) => [
           this.ctx.newId(),
           id,
-          'heart_rate',
-          h.bpm,
-          'bpm',
-          h.recordedAt,
+          x.type,
+          x.value,
+          x.unit,
+          x.recordedAt,
           null,
         ]),
       );
       await writeCompletedActivity(tx, this.ctx, id, sport, summary);
     });
-    return { activityId: id, warnings: parsed.warnings };
+    return { activityId: id, warnings };
+  }
+
+  /** A completed activity sharing at least half of the shorter time span with [start, end]. */
+  private async overlappingActivity(
+    start: number,
+    end: number,
+  ): Promise<{ id: string; title: string; started_at: number } | null> {
+    const candidates = await this.ctx.db.all<{
+      id: string;
+      title: string;
+      started_at: number;
+      ended_at: number;
+    }>(
+      `SELECT id, title, started_at, ended_at FROM activities
+       WHERE deleted_at IS NULL AND status = 'completed' AND ended_at IS NOT NULL
+         AND started_at < ? AND ended_at > ?
+       ORDER BY started_at`,
+      [end, start],
+    );
+    for (const c of candidates) {
+      const shared = Math.min(end, c.ended_at) - Math.max(start, c.started_at);
+      const shorter = Math.min(end - start, c.ended_at - c.started_at);
+      if (shorter > 0 && shared >= DUPLICATE_OVERLAP * shorter) return c;
+    }
+    return null;
   }
 
   /** GPX 1.1 export of the raw samples, split by recording segment, with optional privacy trim. */
@@ -162,10 +276,13 @@ export class ActivityService {
     if (!a || a.deletedAt != null) throw new Error('Activity not found');
     const samples = await this.routes.allRaw(activityId);
     const segments = await this.rawSegments(activityId, samples);
-    const hr = await this.ctx.db.all<{ recorded_at: number; value: number }>(
-      "SELECT recorded_at, value FROM sensor_samples WHERE activity_id = ? AND sensor_type = 'heart_rate' ORDER BY recorded_at",
-      [activityId],
-    );
+    const series = async (type: 'heart_rate' | 'cadence') =>
+      this.ctx.db.all<{ recorded_at: number; value: number }>(
+        'SELECT recorded_at, value FROM sensor_samples WHERE activity_id = ? AND sensor_type = ? ORDER BY recorded_at',
+        [activityId, type],
+      );
+    const hr = await series('heart_rate');
+    const cadence = await series('cadence');
     const trimmed = trimPrivacyZone(segments, options.privacyZoneMeters ?? 0);
     const content = toGpx({
       name: a.title,
@@ -174,6 +291,7 @@ export class ActivityService {
       startedAt: a.startedAt,
       segments: trimmed,
       heartRate: hr.map((h) => ({ recordedAt: h.recorded_at, bpm: h.value })),
+      cadence: cadence.map((c) => ({ recordedAt: c.recorded_at, rpm: c.value })),
     });
     const date = new Date(a.startedAt).toISOString().slice(0, 10);
     const safe =

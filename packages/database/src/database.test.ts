@@ -67,25 +67,25 @@ describe('migrations', () => {
   it('applies the schema once and is idempotent', async () => {
     const db = new NodeSqliteDriver();
     const first = await migrate(db);
-    expect(first.applied).toEqual([1]);
+    expect(first.applied).toEqual(MIGRATIONS.map((m) => m.version));
     const second = await migrate(db);
     expect(second.applied).toEqual([]);
-    expect(second.toVersion).toBe(1);
+    expect(second.toVersion).toBe(MIGRATIONS.length);
   });
 
   it('preserves existing data when a later migration is applied', async () => {
     const { ctx } = await setup();
     await new SettingsRepository(ctx).set('units', 'imperial');
-    const v2 = [
+    const next = [
       ...MIGRATIONS,
       {
-        version: 2,
+        version: MIGRATIONS.length + 1,
         name: 'add_test_column',
         statements: ['ALTER TABLE settings ADD COLUMN note TEXT'],
       },
     ];
-    const r = await migrate(ctx.db, v2);
-    expect(r.applied).toEqual([2]);
+    const r = await migrate(ctx.db, next);
+    expect(r.applied).toEqual([MIGRATIONS.length + 1]);
     expect(await new SettingsRepository(ctx).get('units')).toBe('imperial');
   });
 
@@ -99,11 +99,15 @@ describe('migrations', () => {
     const db = new NodeSqliteDriver();
     const broken = [
       ...MIGRATIONS,
-      { version: 2, name: 'broken', statements: ['CREATE TABLE ok_table (x)', 'NOT VALID SQL'] },
+      {
+        version: MIGRATIONS.length + 1,
+        name: 'broken',
+        statements: ['CREATE TABLE ok_table (x)', 'NOT VALID SQL'],
+      },
     ];
     await expect(migrate(db, broken)).rejects.toThrow();
     expect(await db.get("SELECT name FROM sqlite_master WHERE name = 'ok_table'")).toBeNull();
-    expect((await migrate(db)).toVersion).toBe(1);
+    expect((await migrate(db)).toVersion).toBe(MIGRATIONS.length);
   });
 
   it('enforces foreign keys', async () => {

@@ -102,6 +102,16 @@ export default function RootLayout() {
                   }}
                 />
                 <Stack.Screen name="settings" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="import"
+                  options={{
+                    presentation: 'modal',
+                    headerShown: true,
+                    title: 'Import activities',
+                    headerStyle: { backgroundColor: darkColors.background },
+                    headerTintColor: darkColors.textPrimary,
+                  }}
+                />
               </Stack>
             )}
           </QueryClientProvider>

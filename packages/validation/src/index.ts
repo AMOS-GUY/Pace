@@ -46,6 +46,7 @@ export const activityStatusSchema = z.enum([
 export const activitySourceSchema = z.enum([
   'recorded',
   'imported_gpx',
+  'imported_tcx',
   'imported_backup',
   'manual',
   'healthkit',
@@ -160,8 +161,20 @@ export const credentialsSchema = z.object({
 /** Limits applied to user-supplied files before parsing, to avoid resource exhaustion. */
 export const IMPORT_LIMITS = {
   maxGpxBytes: 25 * 1024 * 1024,
+  /** Also the point limit for one TCX file (shared across its activities). */
   maxGpxPoints: 200_000,
+  maxTcxBytes: 25 * 1024 * 1024,
   maxBackupBytes: 512 * 1024 * 1024,
+  /** Bulk import: compressed archive size (streamed from disk, never held in memory). */
+  maxArchiveBytes: 4 * 1024 * 1024 * 1024,
+  /** Bulk import: entries examined in one archive. */
+  maxArchiveEntries: 50_000,
+  /** Bulk import: decompressed size of one activity file inside an archive or .gz. */
+  maxEntryBytes: 25 * 1024 * 1024,
+  /** Bulk import: total decompressed bytes of activity files in one archive (ZIP-bomb guard). */
+  maxTotalUncompressedBytes: 2 * 1024 * 1024 * 1024,
+  /** Bulk import: activity files imported from one selection. */
+  maxImportFiles: 20_000,
 } as const;
 
 export { z };

@@ -1,4 +1,4 @@
-import { SettingsRepository, configureConnection, migrate } from '@pace/database';
+import { MIGRATIONS, SettingsRepository, configureConnection, migrate } from '@pace/database';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { createExpoSqliteDriver } from './expo-sqlite-driver';
@@ -53,7 +53,10 @@ describe('expo-sqlite driver adapter', () => {
   it('runs migrations and repositories', async () => {
     const driver = createExpoSqliteDriver(fakeExpoDb().db);
     await configureConnection(driver);
-    expect((await migrate(driver)).applied).toEqual([1]);
+    expect((await migrate(driver)).applied).toEqual(MIGRATIONS.map((m) => m.version));
+    // The table-rebuild migration switches foreign keys off around its transaction; the adapter
+    // must end with them enforced again.
+    expect(await driver.get('PRAGMA foreign_keys')).toEqual({ foreign_keys: 1 });
     const settings = new SettingsRepository({ db: driver, now: () => 1, newId: () => 'x' });
     await settings.set('units', 'metric');
     expect(await settings.get('units')).toBe('metric');
