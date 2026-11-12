@@ -4,3 +4,4 @@ export * from './privacy';
 export * from './track';
 export * from './tcx';
 export * from './archive';
+export * from './fit-decoder';

@@ -109,3 +109,28 @@ with coordinates only in GPX and the privacy zone applied to every track. Adding
 `imported_tcx` source required rebuilding `activities` (see DATABASE.md rules). FIT import is
 deferred: it is a binary format that needs its own parser, and FIT files are reported, not
 dropped.
+
+### D22 — FIT import: an independent decoder, not Garmin's SDK
+FIT files are read by PACE's own small, read-only decoder in `@pace/formats`, written from the
+publicly documented FIT file structure. It contains no code and no generated profile tables from
+Garmin's FIT SDK; the handful of message and field numbers PACE interprets are written by hand in
+`fit.ts`, and unknown messages and fields are skipped and reported, so new device profiles degrade
+gracefully instead of needing SDK updates.
+
+Why not the official `@garmin/fitsdk` package: its licence (the FIT Protocol License Agreement,
+last updated 12 October 2022) grants use for the licensee's "internal business purposes" and
+forbids distributing or otherwise making the SDK available to third parties; Garmin may end it on
+30 days' notice, after which all copies must be deleted. Shipping it inside a commercial iOS app
+therefore appears not to be permitted without a separate written agreement. The MIT-licensed
+`fit-file-parser` was the fallback option; it was not chosen because of its size (≈1.6 MB with a
+`buffer` polyfill), checksum validation being off by default, a copyright-holder discrepancy
+between its LICENSE file and README, and profile tables that were checked against Garmin's SDK
+profile, which leaves their provenance less clear than an implementation of our own.
+
+**Outstanding legal review.** This approach has NOT received legal clearance. Garmin's
+agreement does not clearly state whether it governs an independent implementation of the
+protocol (sections 2(h) and 3 refer to complying with the FIT protocol and keeping
+interoperability), and Garmin's separate protocol licence page could not be read during the
+investigation. Before a commercial release, someone with legal authority should confirm that an
+independent FIT reader is acceptable or obtain a written agreement from Garmin. Until then the
+decoder must stay independent: no copying of SDK source, generated tables or SDK test files.

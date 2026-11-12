@@ -4,7 +4,7 @@
 
 | Suite | Command | Environment | Tests | Runs in CI |
 |---|---|---|---|---|
-| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 204 | Linux job |
+| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 219 | Linux job |
 | Mobile logic (display helpers, dashboard, activity and import view models, expo-sqlite adapter incl. migrations, native entry validation) | `pnpm test:unit` | Node | 23 | Linux job |
 | API end-to-end (every endpoint) | `pnpm test:api` | NestJS + real PostgreSQL (PGlite) | 11 | Linux job |
 | **Native Swift core** (journal, recorder, serialisation) | `cd apps/mobile/modules/pace-tracking/ios && swift test` | macOS, XCTest | 29 | macOS job |
@@ -43,6 +43,25 @@ the deterministic synthetic tracks (`packages/formats/src/test-fixtures/device-f
   exact for imported ones); importing an export back into its source adds nothing.
 - **Migration 2:** a populated v1 database keeps every row and child row; foreign keys are
   enforced again afterwards; a lossy rebuild is rolled back.
+
+## FIT import suite (M4.6)
+
+PACE reads FIT with its own decoder (`packages/formats/src/fit-decoder.ts`, see DECISIONS.md D22).
+Its tests do not rely only on files written by our own test encoder
+(`test-fixtures/fit-encoder.ts`, which has its own bit-by-bit CRC and value encoding):
+
+- **Independent checks:** the CRC matches the published CRC-16/ARC check value (`123456789` →
+  0xBB3D); a hand-assembled byte fixture with exactly known values (45°, 22.5°, 100 m, FIT time
+  10⁹ s = 2021-09-08T01:46:40Z, a compressed timestamp) decodes exactly.
+- **Container:** 12- and 14-byte headers, header checksum 0, both byte orders, every base type,
+  arrays, UTF-8 strings, "not set" markers never turned into numbers, uninterpretable fields
+  skipped and counted, compressed timestamps including the 32-second rollover, developer fields,
+  chained files with their own definitions and timestamps.
+- **Damaged and hostile files:** truncation at every byte and any single corrupted byte are
+  rejected before anything is decoded; structurally broken files with a correct checksum
+  (undefined local message, message past the end, short definition, unknown byte order, zero-size
+  field, compressed timestamp first, trailing garbage) are rejected; size, message-count and
+  chained-file limits; 3 000 seeded random files never fail with anything but a FIT error.
 
 ## Deterministic GPS replay suite
 
