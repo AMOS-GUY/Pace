@@ -5,3 +5,4 @@ export * from './best-effort';
 export * from './analytics';
 export * from './records';
 export * from './goals';
+export * from './training-load';
