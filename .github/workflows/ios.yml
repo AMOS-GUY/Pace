@@ -4,8 +4,10 @@ name: iOS
 # 17-28 minutes, so the expensive jobs run only when asked for:
 #
 #   swift-tests     Swift XCTests of the native recorder core (about 2 minutes). Runs
-#                   automatically on a push that changes native module code or this workflow,
-#                   or manually (suite: swift-tests).
+#                   automatically on a push that changes a native module's ios/ directory
+#                   (Swift sources, tests, Package.swift) or this workflow, or manually
+#                   (suite: swift-tests). TypeScript-only module changes are covered by the
+#                   Linux checks in ci.yml.
 #   full            Complete iOS verification (about 55 minutes): Swift tests, toolchain check,
 #                   prebuild, pods, autolink check, Release simulator build, launch check on a
 #                   simulator, Maestro first-screen flow, and the Debug (development build)
@@ -17,7 +19,7 @@ on:
   push:
     branches: ['**']
     paths:
-      - 'apps/mobile/modules/**'
+      - 'apps/mobile/modules/*/ios/**'
       - '.github/workflows/ios.yml'
   pull_request:
     # Only for the label trigger below. Pushes to same-repo branches are covered by `push`,

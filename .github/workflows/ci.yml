@@ -1,12 +1,11 @@
 name: CI
 
-# Linux checks only: they run on pushes to main and ci/** and on every pull request. The macOS (iOS) jobs live in
-# ios.yml, which runs only when native code changes or when started manually, because macOS
-# runner minutes are billed at 10x on private repositories.
+# Linux checks only: they run on every push and every pull request, and do not depend on any
+# macOS job. The macOS (iOS) jobs live in ios.yml, which runs only when native code changes or
+# when started manually, because macOS minutes count 10x against the included Actions minutes.
 on:
   push:
-    # ci/** branches let native CI changes be verified before they reach main.
-    branches: [main, 'ci/**']
+    branches: ['**']
   pull_request:
 
 permissions:

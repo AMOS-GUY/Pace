@@ -89,8 +89,9 @@ macOS minutes are billed at 10x on private repositories. Measured job times (run
 43137368039): setup ~3 min, Swift tests ~0.5 min, Debug build 17-26 min, Release build ~28 min.
 Before: every push to `main`/`ci/**` ran a Debug job and a Release launch job (~55-65 macOS min,
 ~550-650 billed min), and a pull request from a `ci/**` branch ran them twice. Now: Linux checks
-on every change (unchanged); Swift tests (~2 min, ~20 billed) only when native module code
-changes; the full suite (~55 min, ~550 billed; ~35 min without the Debug build) as one job,
+on every push and pull request; Swift tests (~2 min, ~20 billed) only when a native module's
+`ios/` directory changes; the full suite (~55 min, ~550 billed; ~35 min without the Debug build) as one job,
 manually or via the `ios-full-verification` PR label, before releases and native merges.
 Trade-off: a dependency or config change can break the iOS build without an automatic signal
 until the next full run, so the full suite is required before merging such changes.
+The repository stays private. Estimate and remaining duplicates: docs/TESTING.md.
