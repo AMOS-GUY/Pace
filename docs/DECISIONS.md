@@ -93,3 +93,19 @@ screens only format them. Running and cycling distances are always listed for th
 a zero there is a real measurement; other sports appear once they have an activity. Notifications
 are not shown on Home because the app has no notification system yet. A new `primaryMuted`
 token replaces ad-hoc translucent colours.
+
+### D21 — Data portability: one import path, honest reports, coordinates only in GPX
+GPX and TCX are parsed into one format-neutral track and imported through the same session
+engine as live recordings, so the same track gives identical metrics in either format. A TCX lap
+boundary is not a pause (Garmin opens a `<Track>` per lap); file laps become lap events and lap
+figures are recalculated from the track. Distance and speed are always computed from GPS; device
+distance, calories and device lap summaries are reported as not imported rather than stored as
+truth. Duplicates are refused by exact fingerprint or by at least 50 % time overlap with an
+existing activity, which also catches the same session from another service and PACE's own
+exports. Bulk import commits each activity separately, so cancelling or a damaged archive never
+undoes earlier imports and re-running is safe. Archives are streamed with limits on decompressed
+bytes. The portable export is separate from the encrypted backup: readable JSON/CSV plus GPX,
+with coordinates only in GPX and the privacy zone applied to every track. Adding the
+`imported_tcx` source required rebuilding `activities` (see DATABASE.md rules). FIT import is
+deferred: it is a binary format that needs its own parser, and FIT files are reported, not
+dropped.

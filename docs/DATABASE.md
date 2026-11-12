@@ -26,6 +26,13 @@ GPS batch survives power loss).
 ### Rules
 
 - Migrations are append-only, each in a transaction; a failing migration rolls back fully.
+- A table rebuild (needed because SQLite cannot alter a CHECK constraint) copies every column and
+  row, runs with foreign-key enforcement switched off around its transaction (otherwise DROP
+  TABLE cascades), recreates indexes, and is committed only if `PRAGMA foreign_key_check` is
+  clean; enforcement is restored afterwards. Migration 2 does this for `activities` to add the
+  `imported_tcx` source.
+- Sensor samples (`heart_rate` bpm, `cadence` rpm as GPX/TCX define it, `power` W) keep the unit
+  of the source format.
 - A database created by a newer app version is refused (downgrade protection) instead of guessed.
 - Timestamps are UTC epoch milliseconds; each activity stores its IANA time zone for local-day
   bucketing.

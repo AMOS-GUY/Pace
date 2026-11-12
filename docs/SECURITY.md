@@ -38,8 +38,13 @@ Plain (unencrypted) backups are never uploaded; the API rejects `encrypted: fals
 
 ## Input handling
 
-- GPX: size (25 MB) and point (200 000) limits; DOCTYPE/ENTITY declarations refused (prevents
-  entity-expansion attacks); every point validated; XML-escaped on export.
+- GPX and TCX: size (25 MB) and point (200 000) limits; DOCTYPE/ENTITY declarations refused
+  (prevents entity-expansion attacks); every point and sensor value validated; XML-escaped on
+  export.
+- Archives (ZIP, gzip): streamed, never extracted to disk; entry names are never used as paths
+  and names with `..`, absolute paths or control characters are refused; limits apply to bytes
+  actually decompressed (25 MB per file, 2 GB per archive, 50 000 entries, 4 GB read), which stops
+  ZIP bombs regardless of the sizes an archive claims; nested archives are not opened.
 - CSV export neutralises spreadsheet formula injection.
 - Backups: magic header, size limit (512 MB), schema validation, checksum, version check.
 - Native → JS samples are validated with Zod before use.
@@ -51,7 +56,11 @@ Plain (unencrypted) backups are never uploaded; the API rejects `encrypted: fals
   explanations before the system prompt.
 - No location collection outside a recording; the iOS indicator is visible while recording.
 - No live location sharing. Diagnostics and logs never contain coordinates.
-- Export privacy zone trims route start/end in shared GPX files.
+- Export privacy zone trims route start/end in shared GPX files, single or in the full export;
+  the full export contains coordinates only in its GPX files.
+- The full export includes only allow-listed settings (profile, preferences); credentials and
+  keys stay in the Keychain, and account/sync identifiers, devices and the sync queue are left
+  out.
 
 ## Secrets
 
