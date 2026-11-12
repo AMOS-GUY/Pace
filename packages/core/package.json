@@ -31,6 +31,7 @@
     "@pace/metrics-engine": "workspace:*",
     "@pace/sports": "workspace:*",
     "@pace/validation": "workspace:*",
-    "@noble/hashes": "^1.8.0"
+    "@noble/hashes": "^1.8.0",
+    "fflate": "^0.8.3"
   }
 }

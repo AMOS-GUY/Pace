@@ -276,10 +276,13 @@ export class ActivityService {
     if (!a || a.deletedAt != null) throw new Error('Activity not found');
     const samples = await this.routes.allRaw(activityId);
     const segments = await this.rawSegments(activityId, samples);
-    const hr = await this.ctx.db.all<{ recorded_at: number; value: number }>(
-      "SELECT recorded_at, value FROM sensor_samples WHERE activity_id = ? AND sensor_type = 'heart_rate' ORDER BY recorded_at",
-      [activityId],
-    );
+    const series = async (type: 'heart_rate' | 'cadence') =>
+      this.ctx.db.all<{ recorded_at: number; value: number }>(
+        'SELECT recorded_at, value FROM sensor_samples WHERE activity_id = ? AND sensor_type = ? ORDER BY recorded_at',
+        [activityId, type],
+      );
+    const hr = await series('heart_rate');
+    const cadence = await series('cadence');
     const trimmed = trimPrivacyZone(segments, options.privacyZoneMeters ?? 0);
     const content = toGpx({
       name: a.title,
@@ -288,6 +291,7 @@ export class ActivityService {
       startedAt: a.startedAt,
       segments: trimmed,
       heartRate: hr.map((h) => ({ recordedAt: h.recorded_at, bpm: h.value })),
+      cadence: cadence.map((c) => ({ recordedAt: c.recorded_at, rpm: c.value })),
     });
     const date = new Date(a.startedAt).toISOString().slice(0, 10);
     const safe =
