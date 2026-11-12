@@ -91,6 +91,24 @@ Its tests do not rely only on files written by our own test encoder
 - **gzip integrity:** truncated, cut-inside-the-trailer and corrupted `.gz` files and entries are
   refused (CRC-32 checked against the published check value).
 
+### FIT validation with real device files
+
+No real device FIT files are in the repository, and none were tested in M4.6. Files from
+Garmin's SDK must not be used (D22), sample files in other open-source projects often come from
+that SDK or have unclear provenance, and personal recordings must never be committed (`.fit`
+files are git-ignored). The automated suite therefore relies on the independent checks above;
+the remaining gap is closed with real files kept outside the repository:
+
+1. Collect files with clear permission to use them: your own recordings from different devices
+   (Garmin watch and bike computer, Wahoo, Coros, Suunto, Zwift), each ideally with a GPX or TCX
+   export of the same activity saved next to it under the same name.
+2. Run `pnpm validate:fit <folder>` (add `--expect-valid` when every file should import). It runs
+   the app's parser and checks increasing times, valid coordinates, sensor ranges and units, lap
+   and leg order, and — with a companion file — start/end time and positions at matching times
+   (≤ 5 m). Output is aggregate only and never contains coordinates; nothing is written.
+3. Import the same files on an iPhone and compare distance, moving time and laps with the
+   device or Garmin Connect.
+
 ## Deterministic GPS replay suite
 
 `packages/activity-engine/src/gps-replay-suite.test.ts`, using scenario generators in
@@ -172,6 +190,8 @@ For every run, record:
 | Maestro flows (`apps/mobile/maestro`) | Written, not run |
 | Home dashboard, activity history and activity detail UI (rendering, layout on iPhone SE to Pro Max, animation, VoiceOver) | Typechecked, linted and bundled for iOS (`expo export`); not yet rendered on a simulator or device |
 | Import and export on iOS: Files-app picker with several files, reading large archives through `FileHandle` (memory, time for a multi-GB Strava export), share sheet for the ZIP, cache cleanup, migration 2 on an existing install | Logic tested in Node; device behaviour not yet verified |
+| FIT import with real device files (Garmin, Wahoo, Coros, Suunto, Zwift) | No legally usable real files available yet; `pnpm validate:fit` is ready (see "FIT validation with real device files") |
+| FIT import on iOS: picking `.fit` files, a Garmin Connect export archive, migration 3 on an existing install | Logic tested in Node; device behaviour not yet verified |
 | Supabase auth against a real project | Not run |
 | API against real Postgres + S3/MinIO | Not run (PGlite used in tests) |
 | Docker image build | Not run |

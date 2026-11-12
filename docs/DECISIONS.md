@@ -134,3 +134,10 @@ interoperability), and Garmin's separate protocol licence page could not be read
 investigation. Before a commercial release, someone with legal authority should confirm that an
 independent FIT reader is acceptable or obtain a written agreement from Garmin. Until then the
 decoder must stay independent: no copying of SDK source, generated tables or SDK test files.
+
+Scope decisions in M4.6: timer stop/start gaps are pauses, laps and leg changes are not; only
+swim–T1–bike–T2–run multisport files become triathlons (other sequences and pool-swim
+triathlons are refused with the reason, rather than guessed); sensor values are kept exactly as
+recorded and never interpolated; developer fields, HRV, swim chest-strap heart rate, device
+distance/speed and summaries are listed as not imported; a damaged, truncated or malformed file
+is refused as a whole (no partial import).
