@@ -141,3 +141,30 @@ triathlons are refused with the reason, rather than guessed); sensor values are 
 recorded and never interpolated; developer fields, HRV, swim chest-strap heart rate, device
 distance/speed and summaries are listed as not imported; a damaged, truncated or malformed file
 is refused as a whole (no partial import).
+
+### D23 — Real-world validation as separate Node-only tooling, privacy guard last
+Validation against real device files (M4.7) lives in `@pace/import-validation`, a private
+workspace package that is never bundled into the app. It uses the app's parsers, archive reader,
+`ActivityService.importTrack` and migrations unchanged, against an in-memory `node:sqlite`
+database. That gives one source of truth for import behaviour, and validation cannot drift from it.
+It carries its own small copy of the `node:sqlite` driver, because the database package's copy is
+a test fixture excluded from its build so `node:sqlite` can never reach the mobile bundle. A test
+checks that both copies produce the same migrated schema.
+
+Comparisons are split into integrity, format, PACE-processing, device-total and expectation
+tiers:
+- **Device totals are informational.** A difference is a WARNING, never a FAIL, and never a
+  reason to change a calculation.
+- **Unknown expectations are NOT TESTED.**
+- **Known representation differences are counted explicitly, with an explanation:** no lap rows
+  for a lap-less activity, and leg changes counted as device laps.
+
+Privacy is enforced in three layers:
+1. Output is aggregate and keyed by anonymous IDs.
+2. Free text is scrubbed.
+3. A final check refuses any output containing a collected secret (paths, file names, archive
+   entry names, serial numbers) or an email, path, coordinate or long-number pattern. The
+   refusal names the kind of data, never the value.
+
+The importer never sees real file names. Recordings, manifests and reports must be outside the
+repository, and the harness refuses otherwise.
