@@ -1,6 +1,6 @@
 # PACE Development Progress
 
-_Last updated: 2026-11-12 (GPS reliability & data-integrity audit)_
+_Last updated: 2026-11-12 (M4.6 FIT import)_
 
 ## Current Milestone
 M0–M6 implemented in software. GPS reliability audit complete: 18 defects fixed, 8 residual risks
@@ -24,6 +24,7 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - [x] Deterministic GPS replay suite (realistic run/ride, drift, poor accuracy, tunnel, jumps; correlated error)
 - [x] Data-integrity suite (delivery, lifecycle, recovery, SQLite atomicity)
 - [x] Training-consistency analytics: week days, active weeks, weekly streak, week-over-week change, 4-week average only when history covers it (unit-tested)
+- [x] FIT import (M4.6): independent read-only decoder (D22), FIT activities, laps, pauses, sensors and swim–bike–run triathlons through the shared import pipeline, bulk import of .fit/.fit.gz, migration 3 — logic tested with synthetic and hand-assembled files; **no real device FIT files tested yet**; screens bundled, not yet run on a device
 - [x] Data portability (M4.5): TCX import, GPX cadence/power, bulk import of files/ZIP/gzip with safety limits and report, full portable export, migration 2 — logic tested; screens bundled, **not yet run on a device**
 - [x] Home dashboard, activity history and activity detail redesign — logic unit-tested; UI typechecked, linted and bundled for iOS, **not yet rendered on a simulator or iPhone**
 
@@ -35,6 +36,8 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - [ ] iOS app run on simulator/device
 - [ ] Visual check of the new Home, Activities and Activity detail screens (sizes, Dynamic Type, VoiceOver, Reduce Motion)
 - [ ] Import/export on iPhone: Files picker, large Strava/Garmin archives, share sheet, migration 2 on an existing install
+- [ ] FIT import with real device files (`pnpm validate:fit <folder>`, see TESTING.md) and on iPhone: picking .fit files, a Garmin Connect export archive, migration 3 on an existing install
+- [ ] Legal review of the independent FIT decoder before a commercial release (DECISIONS.md D22)
 - [ ] Background recording on a physical iPhone (TESTING.md device plan)
 - [ ] Supabase auth flows against a real project
 - [ ] MapLibre rendering with a licensed tile provider
@@ -50,7 +53,7 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - Supabase project credentials, map tile provider, S3 bucket (user-provided services).
 
 ## Tests
-- Packages (real SQLite, replay, integrity & portability suites): 204 passing
+- Packages (real SQLite, replay, integrity, portability & FIT suites): 245 passing
 - Mobile logic: 23 passing
 - API end-to-end (NestJS + PGlite): 11 passing
 - Native (XCTest): 29 written, run on macOS CI
@@ -59,6 +62,7 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 ## Known Issues / residual risks
 - See audit R1–R8: permission revoked mid-recording keeps `RECORDING`; main-thread fsync cost; brief window where a failed write + crash loses a control event; GPS on while paused; OS termination gap; GPS-only elevation ±5–20 %.
 - Goal sync and multi-device pull are not implemented (goals stay queued locally).
+- FIT: validated only against synthetic and hand-assembled files; indoor FIT sessions (no GPS), pool-swim triathlons, multisport other than swim–bike–run, and swim chest-strap (HRM-Swim/Tri) heart rate are reported but not imported. The FIT decoder's licensing position has not had legal review (D22).
 - OpenAPI document not generated yet; Sentry not wired.
 - `react-dom` peer warning from a web-only dependency (iOS unaffected).
 

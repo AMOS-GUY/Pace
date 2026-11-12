@@ -13,6 +13,7 @@ import type { Activity, LocationSample, SportType } from '@pace/domain';
 import {
   type ParsedTrack,
   activitiesToCsv,
+  parseFit,
   parseGpxTrack,
   parseTcx,
   toGpx,
@@ -37,6 +38,10 @@ export interface ImportResult {
   warnings: string[];
 }
 
+export type MultiImportResult = Array<
+  { ok: true; result: ImportResult } | { ok: false; error: ImportError }
+>;
+
 export interface ImportOptions {
   /** Overrides the file's sport (or supplies it when the file has none). */
   sportType?: SportType;
@@ -44,13 +49,20 @@ export interface ImportOptions {
   userId?: string | null;
 }
 
+/** T1, bike, T2 and run: the leg changes of a PACE triathlon. */
+const TRIATHLON_LEG_CHANGES = 4;
+
 /**
  * Share of the shorter time span two activities must overlap to be the same session (e.g. the
  * same run exported from two services, or a PACE export imported back).
  */
 const DUPLICATE_OVERLAP = 0.5;
 
-const SOURCE_FOR_FORMAT = { gpx: 'imported_gpx', tcx: 'imported_tcx' } as const;
+const SOURCE_FOR_FORMAT = {
+  gpx: 'imported_gpx',
+  tcx: 'imported_tcx',
+  fit: 'imported_fit',
+} as const;
 
 /** Stable fingerprint of an imported track so the same file is never imported twice. */
 export function importFingerprint(samples: readonly LocationSample[]): string {
@@ -88,17 +100,35 @@ export class ActivityService {
    * Imports every activity in a TCX file. Each activity succeeds or fails on its own; the
    * result lists them in file order.
    */
-  async importTcx(
-    xml: string,
-    options: ImportOptions,
-  ): Promise<Array<{ ok: true; result: ImportResult } | { ok: false; error: ImportError }>> {
+  async importTcx(xml: string, options: ImportOptions): Promise<MultiImportResult> {
     let tracks: ParsedTrack[];
     try {
       tracks = parseTcx(xml);
     } catch (e) {
       throw new ImportError(e instanceof Error ? e.message : 'Invalid TCX', 'invalid_file');
     }
-    const out: Array<{ ok: true; result: ImportResult } | { ok: false; error: ImportError }> = [];
+    return this.importTracks(tracks, options);
+  }
+
+  /**
+   * Imports every activity in a FIT file (several when FIT files are chained). A damaged or
+   * malformed file is refused as a whole before anything is stored.
+   */
+  async importFit(bytes: Uint8Array, options: ImportOptions): Promise<MultiImportResult> {
+    let tracks: ParsedTrack[];
+    try {
+      tracks = parseFit(bytes);
+    } catch (e) {
+      throw new ImportError(e instanceof Error ? e.message : 'Invalid FIT', 'invalid_file');
+    }
+    return this.importTracks(tracks, options);
+  }
+
+  private async importTracks(
+    tracks: ParsedTrack[],
+    options: ImportOptions,
+  ): Promise<MultiImportResult> {
+    const out: MultiImportResult = [];
     for (const t of tracks) {
       try {
         out.push({ ok: true, result: await this.importTrack(t, options) });
@@ -111,15 +141,20 @@ export class ActivityService {
   }
 
   /**
-   * Imports one parsed track (GPX or TCX) through the same session engine as live recordings.
-   * Duplicates are refused by exact fingerprint and by time overlap with an existing activity.
+   * Imports one parsed track (GPX, TCX or FIT) through the same session engine as live
+   * recordings. Duplicates are refused by exact fingerprint and by time overlap with an existing
+   * activity. Triathlons need the four leg start times only FIT multisport files provide.
    */
   async importTrack(parsed: ParsedTrack, options: ImportOptions): Promise<ImportResult> {
     const label = parsed.format.toUpperCase();
     const sport = options.sportType ?? parsed.sportType;
     if (!sport) throw new ImportError('Choose the sport for this activity', 'sport_required');
-    if (sport === 'triathlon')
-      throw new ImportError(`Triathlons cannot be imported from ${label}`, 'unsupported_sport');
+    const legStarts = sport === 'triathlon' ? (parsed.legStarts ?? []) : [];
+    if (sport === 'triathlon' && legStarts.length !== TRIATHLON_LEG_CHANGES)
+      throw new ImportError(
+        `Triathlons cannot be imported from ${label} without their swim, transition, bike and run legs`,
+        'unsupported_sport',
+      );
 
     const all = parsed.segments.flat();
     const externalId = importFingerprint(all);
@@ -151,9 +186,19 @@ export class ActivityService {
     events.push(...session.start(first.recordedAt, { withoutFix: true }));
     // Lap boundaries from the file become lap events at their time, so lap figures are computed
     // by the engine from the track exactly as for a lap pressed during a live recording.
+    // Leg changes become leg events the same way; a leg change and a lap at the same moment
+    // apply the leg change first, so the lap belongs to the new leg.
     const laps = [...parsed.lapStarts];
+    const legs = [...legStarts];
     const flushLaps = (until: number): void => {
-      while (laps.length > 0 && laps[0]! <= until) events.push(...session.lap(laps.shift()!));
+      for (;;) {
+        const leg = legs[0];
+        const lap = laps[0];
+        if (leg != null && leg <= until && (lap == null || leg <= lap))
+          events.push(...session.advanceLeg(legs.shift()!));
+        else if (lap != null && lap <= until) events.push(...session.lap(laps.shift()!));
+        else break;
+      }
     };
     parsed.segments.forEach((seg, i) => {
       if (i > 0) {
@@ -171,6 +216,11 @@ export class ActivityService {
     const warnings = [...parsed.warnings];
     if (laps.length > 0)
       warnings.push(`${laps.length} lap(s) starting after the last GPS point were not imported.`);
+    if (legs.length > 0)
+      throw new ImportError(
+        'The triathlon has legs without any GPS data after them; it cannot be imported',
+        'invalid_file',
+      );
     events.push(...session.finish(all[all.length - 1]!.recordedAt));
     const summary = session.summary();
     const now = this.ctx.now();

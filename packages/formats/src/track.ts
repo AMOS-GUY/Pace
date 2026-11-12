@@ -1,7 +1,7 @@
 import type { LocationSample, SportType } from '@pace/domain';
 
 /**
- * Format-neutral result of parsing one activity from a file (GPX or TCX). Importers turn this
+ * Format-neutral result of parsing one activity from a file (GPX, TCX or FIT). Importers turn this
  * into an activity through the same session/GPS pipeline as live recordings.
  */
 export type ImportedSensorType = 'heart_rate' | 'cadence' | 'power';
@@ -12,13 +12,14 @@ export interface ImportedSensorSample {
   value: number;
   /**
    * Unit exactly as defined by the source format: `bpm`, `rpm` (cadence: revolutions — or, for
-   * running, strides of one leg — per minute, as GPX TrackPointExtension and TCX define it) or `W`.
+   * running, strides of one leg — per minute, as GPX TrackPointExtension, TCX and FIT define
+   * it; FIT fractional cadence is kept, e.g. 85.5) or `W`.
    */
   unit: 'bpm' | 'rpm' | 'W';
 }
 
 export interface ParsedTrack {
-  format: 'gpx' | 'tcx';
+  format: 'gpx' | 'tcx' | 'fit';
   name: string | null;
   description: string | null;
   /** Null when the file does not say which sport it is. */
@@ -26,8 +27,13 @@ export interface ParsedTrack {
   /** Timed, positioned points; each inner array is a recording segment (breaks = pauses). */
   segments: LocationSample[][];
   sensors: ImportedSensorSample[];
-  /** Start times of laps after the first (TCX); applied as lap events during import. */
+  /** Start times of laps after the first (TCX, FIT); applied as lap events during import. */
   lapStarts: number[];
+  /**
+   * Triathlon only (sportType 'triathlon', FIT multisport files): start times of T1, bike, T2
+   * and run, in order. Leg changes are not pauses; they become leg events during import.
+   */
+  legStarts?: number[];
   /**
    * Human-readable notes: skipped points and every kind of information in the file that PACE
    * did not import. Nothing is dropped without a note here.

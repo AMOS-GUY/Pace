@@ -130,6 +130,8 @@ describe('activity view model', () => {
     );
     expect(pausedDurationMs({ elapsedDurationMs: 100, movingDurationMs: 200 })).toBe(0);
     expect(sourceLabel('imported_gpx')).toBe('Imported GPX');
+    expect(sourceLabel('imported_tcx')).toBe('Imported TCX');
+    expect(sourceLabel('imported_fit')).toBe('Imported FIT');
   });
 
   it("formats the start time in the activity's own time zone", () => {

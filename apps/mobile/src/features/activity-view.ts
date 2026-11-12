@@ -57,6 +57,8 @@ export function sourceLabel(source: ActivitySource): string {
       return 'Imported GPX';
     case 'imported_tcx':
       return 'Imported TCX';
+    case 'imported_fit':
+      return 'Imported FIT';
     case 'imported_backup':
       return 'Restored from backup';
     case 'manual':

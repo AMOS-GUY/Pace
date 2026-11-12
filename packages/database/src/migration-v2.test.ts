@@ -88,7 +88,7 @@ describe('migration 2 (activity source imported_tcx)', () => {
     const before = await snapshot(ctx);
     for (const t of CHILD_TABLES) expect(before[t]).toBeGreaterThan(0);
 
-    const r = await migrate(ctx.db);
+    const r = await migrate(ctx.db, MIGRATIONS.slice(0, 2));
     expect(r).toEqual({ fromVersion: 1, toVersion: 2, applied: [2] });
     expect(await snapshot(ctx)).toEqual(before);
     expect(await ctx.db.all('PRAGMA foreign_key_check')).toEqual([]);
@@ -96,7 +96,7 @@ describe('migration 2 (activity source imported_tcx)', () => {
 
   it('restores foreign-key enforcement and recreates the indexes', async () => {
     const ctx = await v1DatabaseWithActivities();
-    await migrate(ctx.db);
+    await migrate(ctx.db, MIGRATIONS.slice(0, 2));
     expect((await ctx.db.get<{ foreign_keys: number }>('PRAGMA foreign_keys'))!.foreign_keys).toBe(
       1,
     );
@@ -136,7 +136,7 @@ describe('migration 2 (activity source imported_tcx)', () => {
         [id, source],
       );
     await expect(insert('before', 'imported_tcx')).rejects.toThrow(/CHECK/);
-    await migrate(ctx.db);
+    await migrate(ctx.db, MIGRATIONS.slice(0, 2));
     await insert('after', 'imported_tcx');
     await expect(insert('bad', 'imported_fit')).rejects.toThrow(/CHECK/);
   });

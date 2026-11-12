@@ -299,6 +299,52 @@ export const MIGRATIONS: readonly Migration[] = [
       'CREATE UNIQUE INDEX idx_activities_external ON activities (external_id) WHERE external_id IS NOT NULL',
     ],
   },
+  {
+    // Same procedure as migration 2 (see the rules in docs/DATABASE.md): rebuild `activities`
+    // to add the `imported_fit` source, with foreign-key enforcement off so DROP TABLE cannot
+    // cascade, every column and row copied, indexes recreated and `foreign_key_check` verified.
+    version: 3,
+    name: 'activity_source_imported_fit',
+    disableForeignKeys: true,
+    statements: [
+      `CREATE TABLE activities_v3 (
+        id TEXT PRIMARY KEY NOT NULL,
+        user_id TEXT,
+        sport_type TEXT NOT NULL ${sportCheck},
+        title TEXT NOT NULL,
+        description TEXT,
+        started_at INTEGER NOT NULL,
+        ended_at INTEGER,
+        timezone TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('recording','paused','interrupted','completed','discarded')),
+        source TEXT NOT NULL CHECK (source IN ('recorded','imported_gpx','imported_tcx','imported_fit','imported_backup','manual','healthkit')),
+        swim_mode TEXT CHECK (swim_mode IS NULL OR swim_mode IN ('pool','open_water')),
+        pool_length_meters REAL,
+        elapsed_duration_ms INTEGER NOT NULL DEFAULT 0 CHECK (elapsed_duration_ms >= 0),
+        moving_duration_ms INTEGER NOT NULL DEFAULT 0 CHECK (moving_duration_ms >= 0),
+        distance_meters REAL NOT NULL DEFAULT 0 CHECK (distance_meters >= 0),
+        elevation_gain_meters REAL NOT NULL DEFAULT 0,
+        elevation_loss_meters REAL NOT NULL DEFAULT 0,
+        average_speed_mps REAL,
+        maximum_speed_mps REAL,
+        average_pace_ms_per_km REAL,
+        session_config TEXT,
+        has_reliable_track INTEGER NOT NULL DEFAULT 0,
+        external_id TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        deleted_at INTEGER,
+        version INTEGER NOT NULL DEFAULT 1
+      )`,
+      `INSERT INTO activities_v3 (${ACTIVITY_COLUMNS_V1}) SELECT ${ACTIVITY_COLUMNS_V1} FROM activities`,
+      'DROP TABLE activities',
+      'ALTER TABLE activities_v3 RENAME TO activities',
+      'CREATE INDEX idx_activities_history ON activities (deleted_at, started_at DESC)',
+      'CREATE INDEX idx_activities_sport ON activities (sport_type, started_at DESC)',
+      'CREATE INDEX idx_activities_status ON activities (status)',
+      'CREATE UNIQUE INDEX idx_activities_external ON activities (external_id) WHERE external_id IS NOT NULL',
+    ],
+  },
 ];
 
 export interface MigrationResult {

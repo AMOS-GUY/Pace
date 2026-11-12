@@ -4,7 +4,7 @@
 
 | Suite | Command | Environment | Tests | Runs in CI |
 |---|---|---|---|---|
-| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 204 | Linux job |
+| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 245 | Linux job |
 | Mobile logic (display helpers, dashboard, activity and import view models, expo-sqlite adapter incl. migrations, native entry validation) | `pnpm test:unit` | Node | 23 | Linux job |
 | API end-to-end (every endpoint) | `pnpm test:api` | NestJS + real PostgreSQL (PGlite) | 11 | Linux job |
 | **Native Swift core** (journal, recorder, serialisation) | `cd apps/mobile/modules/pace-tracking/ios && swift test` | macOS, XCTest | 29 | macOS job |
@@ -43,6 +43,71 @@ the deterministic synthetic tracks (`packages/formats/src/test-fixtures/device-f
   exact for imported ones); importing an export back into its source adds nothing.
 - **Migration 2:** a populated v1 database keeps every row and child row; foreign keys are
   enforced again afterwards; a lossy rebuild is rolled back.
+
+## FIT import suite (M4.6)
+
+PACE reads FIT with its own decoder (`packages/formats/src/fit-decoder.ts`, see DECISIONS.md D22).
+Its tests do not rely only on files written by our own test encoder
+(`test-fixtures/fit-encoder.ts`, which has its own bit-by-bit CRC and value encoding):
+
+- **Independent checks:** the CRC matches the published CRC-16/ARC check value (`123456789` →
+  0xBB3D); a hand-assembled byte fixture with exactly known values (45°, 22.5°, 100 m, FIT time
+  10⁹ s = 2021-09-08T01:46:40Z, a compressed timestamp) decodes exactly.
+- **Container:** 12- and 14-byte headers, header checksum 0, both byte orders, every base type,
+  arrays, UTF-8 strings, "not set" markers never turned into numbers, uninterpretable fields
+  skipped and counted, compressed timestamps including the 32-second rollover, developer fields,
+  chained files with their own definitions and timestamps.
+- **Damaged and hostile files:** truncation at every byte and any single corrupted byte are
+  rejected before anything is decoded; structurally broken files with a correct checksum
+  (undefined local message, message past the end, short definition, unknown byte order, zero-size
+  field, compressed timestamp first, trailing garbage) are rejected; size, message-count and
+  chained-file limits; 3 000 seeded random files never fail with anything but a FIT error.
+- **Activity mapping (`fit.ts`):** a lap boundary is not a pause, a timer stop/start is; the
+  same run as FIT and as TCX gives identical point times, laps and sensor samples, with
+  positions within 2·10⁻⁷° and altitude within 0.16 m (FIT stores 0.2 m steps); compressed
+  timestamps, big-endian messages and 12-byte headers give identical results; chained activity
+  files become separate activities and other chained files are reported; sports map (unknown
+  ones need a choice); triathlon swim–T1–bike–T2–run keeps its four leg starts and only real lap
+  changes; other multisport sequences and pool-swim triathlons are refused with the reason.
+- **Sensor fidelity:** heart rate, cadence (with fractional cadence, e.g. 86.5) and power keep
+  their own record times and units; sparse values stay sparse (nothing is interpolated);
+  implausible values are skipped and counted; records without a position keep their sensors.
+- **Reporting:** developer fields by name, device distance, temperature, calories, device and
+  session summaries, device details, HRV, swim chest-strap heart rate and unknown data are all
+  listed as not imported; GPS points recorded while the timer was stopped, repeated or
+  out-of-order times and device-relative clocks are reported or refused.
+- **Through the pipeline (`core/fit-import.test.ts`):** a FIT run is stored with source
+  `imported_fit`, laps and sensor samples; the same session as FIT, TCX and GPX gives the same
+  moving and elapsed time and the same distance, elevation and pace (distance within 0.05 m); the
+  same session in any format is a duplicate; a damaged or truncated FIT file stores nothing; a FIT
+  triathlon keeps five legs with their own start times and distances and the timer pause inside
+  the run; bulk import of an archive with good, duplicate, corrupted, truncated, non-FIT and
+  mislabelled `.gz` FIT files reports each one, and an earlier activity's rows are unchanged.
+- **Migration 3:** a populated v2 database (recorded activities with every derived table, an
+  imported TCX activity with laps and sensor data, a triathlon with five legs, goals, devices,
+  settings) keeps every row unchanged; v1 → v3 in one go; foreign keys, cascades, the unique
+  external-id index and all four indexes work afterwards; every earlier source is still accepted;
+  a lossy rebuild is rolled back.
+- **gzip integrity:** truncated, cut-inside-the-trailer and corrupted `.gz` files and entries are
+  refused (CRC-32 checked against the published check value).
+
+### FIT validation with real device files
+
+No real device FIT files are in the repository, and none were tested in M4.6. Files from
+Garmin's SDK must not be used (D22), sample files in other open-source projects often come from
+that SDK or have unclear provenance, and personal recordings must never be committed (`.fit`
+files are git-ignored). The automated suite therefore relies on the independent checks above;
+the remaining gap is closed with real files kept outside the repository:
+
+1. Collect files with clear permission to use them: your own recordings from different devices
+   (Garmin watch and bike computer, Wahoo, Coros, Suunto, Zwift), each ideally with a GPX or TCX
+   export of the same activity saved next to it under the same name.
+2. Run `pnpm validate:fit <folder>` (add `--expect-valid` when every file should import). It runs
+   the app's parser and checks increasing times, valid coordinates, sensor ranges and units, lap
+   and leg order, and — with a companion file — start/end time and positions at matching times
+   (≤ 5 m). Output is aggregate only and never contains coordinates; nothing is written.
+3. Import the same files on an iPhone and compare distance, moving time and laps with the
+   device or Garmin Connect.
 
 ## Deterministic GPS replay suite
 
@@ -125,6 +190,8 @@ For every run, record:
 | Maestro flows (`apps/mobile/maestro`) | Written, not run |
 | Home dashboard, activity history and activity detail UI (rendering, layout on iPhone SE to Pro Max, animation, VoiceOver) | Typechecked, linted and bundled for iOS (`expo export`); not yet rendered on a simulator or device |
 | Import and export on iOS: Files-app picker with several files, reading large archives through `FileHandle` (memory, time for a multi-GB Strava export), share sheet for the ZIP, cache cleanup, migration 2 on an existing install | Logic tested in Node; device behaviour not yet verified |
+| FIT import with real device files (Garmin, Wahoo, Coros, Suunto, Zwift) | No legally usable real files available yet; `pnpm validate:fit` is ready (see "FIT validation with real device files") |
+| FIT import on iOS: picking `.fit` files, a Garmin Connect export archive, migration 3 on an existing install | Logic tested in Node; device behaviour not yet verified |
 | Supabase auth against a real project | Not run |
 | API against real Postgres + S3/MinIO | Not run (PGlite used in tests) |
 | Docker image build | Not run |

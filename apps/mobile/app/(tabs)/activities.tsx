@@ -67,7 +67,7 @@ export default function Activities() {
           </Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Import activities from GPX, TCX or ZIP files"
+            accessibilityLabel="Import activities from FIT, GPX, TCX or ZIP files"
             onPress={() => router.push('/import')}
             hitSlop={12}
           >

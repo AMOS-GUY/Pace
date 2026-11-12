@@ -42,7 +42,7 @@ export function Welcome({
         <Step
           icon="document-attach-outline"
           title="Import your history"
-          detail="GPX, TCX or a whole ZIP export from Strava, Garmin and others."
+          detail="FIT, GPX, TCX or a whole ZIP export from Garmin, Strava and others."
           onPress={onImport}
         />
         <Step

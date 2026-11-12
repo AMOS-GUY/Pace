@@ -63,14 +63,14 @@ export default function ImportScreen() {
               color="secondary"
               style={{ marginTop: spacing.xs, marginBottom: spacing.lg }}
             >
-              Import activities from Strava, Garmin Connect, Komoot or any app that exports GPX or
-              TCX. Everything is processed on this iPhone.
+              Import activities from Garmin, Strava, Komoot or any app that exports FIT, GPX or TCX.
+              Everything is processed on this iPhone.
             </Text>
             <Card style={{ borderWidth: 1, borderColor: colors.divider }}>
               <Supported
                 icon="document-outline"
-                title="GPX and TCX files"
-                detail="Tracks, laps, heart rate, cadence and power"
+                title="FIT, GPX and TCX files"
+                detail="Tracks, laps, pauses, heart rate, cadence and power; FIT triathlons with every leg"
               />
               <Supported
                 icon="file-tray-full-outline"
@@ -84,8 +84,8 @@ export default function ImportScreen() {
               />
               <Supported
                 icon="alert-circle-outline"
-                title="Not yet: FIT files"
-                detail="They are listed in the report so nothing is lost silently"
+                title="Not yet: indoor sessions without GPS"
+                detail="Treadmill, trainer and pool files are listed in the report with the reason"
                 muted
               />
             </Card>
