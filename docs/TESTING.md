@@ -4,7 +4,7 @@
 
 | Suite | Command | Environment | Tests | Runs in CI |
 |---|---|---|---|---|
-| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 219 | Linux job |
+| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 232 | Linux job |
 | Mobile logic (display helpers, dashboard, activity and import view models, expo-sqlite adapter incl. migrations, native entry validation) | `pnpm test:unit` | Node | 23 | Linux job |
 | API end-to-end (every endpoint) | `pnpm test:api` | NestJS + real PostgreSQL (PGlite) | 11 | Linux job |
 | **Native Swift core** (journal, recorder, serialisation) | `cd apps/mobile/modules/pace-tracking/ios && swift test` | macOS, XCTest | 29 | macOS job |
@@ -62,6 +62,20 @@ Its tests do not rely only on files written by our own test encoder
   (undefined local message, message past the end, short definition, unknown byte order, zero-size
   field, compressed timestamp first, trailing garbage) are rejected; size, message-count and
   chained-file limits; 3 000 seeded random files never fail with anything but a FIT error.
+- **Activity mapping (`fit.ts`):** a lap boundary is not a pause, a timer stop/start is; the
+  same run as FIT and as TCX gives identical point times, laps and sensor samples, with
+  positions within 2·10⁻⁷° and altitude within 0.16 m (FIT stores 0.2 m steps); compressed
+  timestamps, big-endian messages and 12-byte headers give identical results; chained activity
+  files become separate activities and other chained files are reported; sports map (unknown
+  ones need a choice); triathlon swim–T1–bike–T2–run keeps its four leg starts and only real lap
+  changes; other multisport sequences and pool-swim triathlons are refused with the reason.
+- **Sensor fidelity:** heart rate, cadence (with fractional cadence, e.g. 86.5) and power keep
+  their own record times and units; sparse values stay sparse (nothing is interpolated);
+  implausible values are skipped and counted; records without a position keep their sensors.
+- **Reporting:** developer fields by name, device distance, temperature, calories, device and
+  session summaries, device details, HRV, swim chest-strap heart rate and unknown data are all
+  listed as not imported; GPS points recorded while the timer was stopped, repeated or
+  out-of-order times and device-relative clocks are reported or refused.
 
 ## Deterministic GPS replay suite
 

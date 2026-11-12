@@ -115,6 +115,9 @@ export class ActivityService {
    * Duplicates are refused by exact fingerprint and by time overlap with an existing activity.
    */
   async importTrack(parsed: ParsedTrack, options: ImportOptions): Promise<ImportResult> {
+    // FIT activities are stored once the database accepts the `imported_fit` source (migration 3).
+    const format = parsed.format;
+    if (format === 'fit') throw new ImportError('FIT import is not enabled yet', 'invalid_file');
     const label = parsed.format.toUpperCase();
     const sport = options.sportType ?? parsed.sportType;
     if (!sport) throw new ImportError('Choose the sport for this activity', 'sport_required');
@@ -189,7 +192,7 @@ export class ActivityService {
           summary.startedAt,
           null,
           options.timezone,
-          SOURCE_FOR_FORMAT[parsed.format],
+          SOURCE_FOR_FORMAT[format],
           sport === 'swimming' ? 'open_water' : null,
           JSON.stringify(config),
           externalId,

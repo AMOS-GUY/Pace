@@ -164,6 +164,9 @@ export const IMPORT_LIMITS = {
   /** Also the point limit for one TCX file (shared across its activities). */
   maxGpxPoints: 200_000,
   maxTcxBytes: 25 * 1024 * 1024,
+  maxFitBytes: 25 * 1024 * 1024,
+  /** Messages of any kind in one FIT file (all chained files together). */
+  maxFitMessages: 2_000_000,
   maxBackupBytes: 512 * 1024 * 1024,
   /** Bulk import: compressed archive size (streamed from disk, never held in memory). */
   maxArchiveBytes: 4 * 1024 * 1024 * 1024,
