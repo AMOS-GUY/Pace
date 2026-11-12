@@ -55,6 +55,8 @@ export function sourceLabel(source: ActivitySource): string {
       return 'Recorded with PACE';
     case 'imported_gpx':
       return 'Imported GPX';
+    case 'imported_tcx':
+      return 'Imported TCX';
     case 'imported_backup':
       return 'Restored from backup';
     case 'manual':

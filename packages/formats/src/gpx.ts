@@ -1,6 +1,7 @@
 import type { LocationSample, SportType } from '@pace/domain';
 import { IMPORT_LIMITS } from '@pace/validation';
 import { XMLParser } from 'fast-xml-parser';
+import { type ImportedSensorSample, type ParsedTrack, SensorCollector, listOf } from './track';
 
 export interface GpxExportInput {
   name: string;
@@ -13,6 +14,8 @@ export interface GpxExportInput {
   >;
   /** Optional per-time heart-rate samples (bpm) embedded via the Garmin TrackPointExtension. */
   heartRate?: ReadonlyArray<{ recordedAt: number; bpm: number }>;
+  /** Optional cadence samples (rpm, as TrackPointExtension defines `cad`). */
+  cadence?: ReadonlyArray<{ recordedAt: number; rpm: number }>;
   creator?: string;
 }
 
@@ -44,16 +47,8 @@ const coord = (n: number): string => n.toFixed(7);
 
 /** Serialises an activity to GPX 1.1 (readable by Strava, Garmin Connect, etc.). */
 export function toGpx(input: GpxExportInput): string {
-  const hr = input.heartRate
-    ? [...input.heartRate].sort((a, b) => a.recordedAt - b.recordedAt)
-    : [];
-  let hrIndex = 0;
-  const hrAt = (t: number): number | null => {
-    if (hr.length === 0) return null;
-    while (hrIndex + 1 < hr.length && hr[hrIndex + 1]!.recordedAt <= t) hrIndex++;
-    const h = hr[hrIndex]!;
-    return Math.abs(h.recordedAt - t) <= 5000 ? Math.round(h.bpm) : null;
-  };
+  const hrAt = nearest((input.heartRate ?? []).map((h) => ({ at: h.recordedAt, v: h.bpm })));
+  const cadAt = nearest((input.cadence ?? []).map((c) => ({ at: c.recordedAt, v: c.rpm })));
   const lines: string[] = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     `<gpx version="1.1" creator="${escapeXml(input.creator ?? 'PACE')}" xmlns="http://www.topografix.com/GPX/1/1" ` +
@@ -75,9 +70,12 @@ export function toGpx(input: GpxExportInput): string {
         parts.push(`<ele>${p.altitudeMeters.toFixed(1)}</ele>`);
       parts.push(`<time>${iso(p.recordedAt)}</time>`);
       const bpm = hrAt(p.recordedAt);
-      if (bpm != null) {
+      const cad = cadAt(p.recordedAt);
+      if (bpm != null || cad != null) {
+        const hrTag = bpm != null ? `<gpxtpx:hr>${bpm}</gpxtpx:hr>` : '';
+        const cadTag = cad != null ? `<gpxtpx:cad>${cad}</gpxtpx:cad>` : '';
         parts.push(
-          `<extensions><gpxtpx:TrackPointExtension><gpxtpx:hr>${bpm}</gpxtpx:hr></gpxtpx:TrackPointExtension></extensions>`,
+          `<extensions><gpxtpx:TrackPointExtension>${hrTag}${cadTag}</gpxtpx:TrackPointExtension></extensions>`,
         );
       }
       parts.push('</trkpt>');
@@ -89,14 +87,32 @@ export function toGpx(input: GpxExportInput): string {
   return lines.join('\n');
 }
 
+/** Sensor readings apply to track points up to 5 s after them (monotonic queries). */
+function nearest(values: ReadonlyArray<{ at: number; v: number }>): (t: number) => number | null {
+  const sorted = [...values].sort((a, b) => a.at - b.at);
+  let i = 0;
+  return (t) => {
+    if (sorted.length === 0) return null;
+    while (i + 1 < sorted.length && sorted[i + 1]!.at <= t) i++;
+    const h = sorted[i]!;
+    return Math.abs(h.at - t) <= 5000 ? Math.round(h.v) : null;
+  };
+}
+
 export interface GpxImportResult {
   name: string | null;
   description: string | null;
   sportType: SportType | null;
   segments: LocationSample[][];
   heartRate: Array<{ recordedAt: number; bpm: number }>;
+  /** Heart rate, cadence and power read from the file. */
+  sensors: ImportedSensorSample[];
   warnings: string[];
 }
+
+/** Extension elements PACE reads; anything else in <extensions> is reported as not imported. */
+const KNOWN_POINT_EXTENSIONS = new Set(['TrackPointExtension', 'power', 'PowerInWatts']);
+const KNOWN_TPX = new Set(['hr', 'cad']);
 
 export class GpxImportError extends Error {}
 
@@ -162,6 +178,8 @@ export function parseGpx(xml: string): GpxImportResult {
   const trk = trks[0]!;
   const segments: LocationSample[][] = [];
   const heartRate: Array<{ recordedAt: number; bpm: number }> = [];
+  const sensors = new SensorCollector();
+  const ignored = new Set<string>();
   let total = 0;
   let invalid = 0;
   let lastTime = -Infinity;
@@ -213,6 +231,15 @@ export function parseGpx(xml: string): GpxImportResult {
       const tpx = ext?.['TrackPointExtension'] as Record<string, unknown> | undefined;
       const hr = Number(tpx?.['hr']);
       if (Number.isFinite(hr) && hr > 20 && hr < 260) heartRate.push({ recordedAt: time, bpm: hr });
+      sensors.add('heart_rate', tpx?.['hr'], time, 'bpm');
+      sensors.add('cadence', tpx?.['cad'], time, 'rpm');
+      sensors.add('power', ext?.['power'] ?? ext?.['PowerInWatts'], time, 'W');
+      if (ext && typeof ext === 'object') {
+        for (const k of Object.keys(ext)) if (!KNOWN_POINT_EXTENSIONS.has(k)) ignored.add(k);
+        if (tpx && typeof tpx === 'object')
+          for (const k of Object.keys(tpx))
+            if (!KNOWN_TPX.has(k)) ignored.add(k === 'atemp' ? 'temperature' : k);
+      }
     }
     if (out.length > 0) segments.push(out);
   }
@@ -221,6 +248,12 @@ export function parseGpx(xml: string): GpxImportResult {
   if (outOfOrder > 0) warnings.push(`${outOfOrder} out-of-order point(s) were skipped.`);
   if (segments.reduce((s, x) => s + x.length, 0) < 2)
     throw new GpxImportError('GPX track has fewer than two timed points');
+  warnings.push(...sensors.warnings());
+  const wpt = asArray(gpx['wpt'] as unknown[] | undefined).length;
+  const rte = asArray(gpx['rte'] as unknown[] | undefined).length;
+  if (wpt > 0) warnings.push(`Not imported: ${wpt} waypoint(s).`);
+  if (rte > 0) warnings.push(`Not imported: ${rte} planned route(s).`);
+  if (ignored.size > 0) warnings.push(`Not imported: point data ${listOf([...ignored].sort())}.`);
 
   const typeRaw = String(trk['type'] ?? '')
     .trim()
@@ -234,6 +267,22 @@ export function parseGpx(xml: string): GpxImportResult {
     sportType: TYPE_MAP[typeRaw] ?? null,
     segments,
     heartRate,
+    sensors: sensors.samples,
     warnings,
+  };
+}
+
+/** GPX parsed into the format-neutral shape used by the importer. */
+export function parseGpxTrack(xml: string): ParsedTrack {
+  const r = parseGpx(xml);
+  return {
+    format: 'gpx',
+    name: r.name,
+    description: r.description,
+    sportType: r.sportType,
+    segments: r.segments,
+    sensors: r.sensors,
+    lapStarts: [],
+    warnings: r.warnings,
   };
 }
