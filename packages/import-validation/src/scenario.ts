@@ -34,7 +34,13 @@ import {
   sessionTotal,
 } from './device-totals';
 import { type ActivityExpectations, SENSOR_KINDS, type SensorKind } from './manifest';
-import { type ActivityMetrics, importAndMeasure, memoryDatabase } from './pipeline';
+import {
+  type ActivityMetrics,
+  type PipelineResult,
+  exportRoundTrip,
+  importAndMeasure,
+  memoryDatabase,
+} from './pipeline';
 import { type Secrets, round, scrub } from './privacy';
 
 export interface CompanionInput {
@@ -49,6 +55,8 @@ export interface ActivityInput {
   expect: ActivityExpectations;
   /** Treat a refused file as a failure (all files are expected to be importable). */
   expectValid?: boolean;
+  /** Also check what the app's GPX export keeps (the CLI always does). */
+  roundTrip?: boolean;
 }
 
 export type Outcome = 'imported' | 'refused' | 'needs_sport' | 'archive';
@@ -778,6 +786,117 @@ export function deviceChecks(m: ActivityMetrics, totals: DeviceTotals | null): C
 }
 
 // ---------------------------------------------------------------------------------------------
+// Export round trip: the app's GPX export of the imported activity, imported again.
+
+/**
+ * Known export limitations (docs/M4_7_RELEASE_READINESS.md, R1 to R3): reported as WARNINGs
+ * with the reason. Anything else that changes is a FAIL.
+ */
+export function roundTripChecks(
+  m: ActivityMetrics,
+  again: PipelineResult | null,
+  secrets: Secrets,
+): Check[] {
+  if (!again)
+    return [notTested('roundtrip', 'export round trip', 'Nothing was imported to export')];
+  if (!again.ok)
+    return [
+      check({
+        tier: 'roundtrip',
+        metric: 'exported GPX imports again',
+        status: m.sport === 'triathlon' ? 'WARNING' : 'FAIL',
+        explanation:
+          m.sport === 'triathlon'
+            ? 'Known limitation R3: a triathlon exported as GPX has no sport and no legs, so it cannot be imported again from the GPX (data.json keeps the legs)'
+            : `PACE could not import its own GPX export: ${scrub(again.message, secrets)}`,
+      }),
+    ];
+  const n = again.metrics;
+  const out: Check[] = [
+    check({
+      tier: 'roundtrip',
+      metric: 'sport kept',
+      status: n.sport === m.sport ? 'PASS' : 'FAIL',
+      value: n.sport,
+      reference: m.sport,
+      explanation: n.sport === m.sport ? 'Same sport after export and import' : 'The sport changed',
+    }),
+  ];
+  const same = (metric: string, a: number, b: number, tolerance: number, unit: string): Check =>
+    compareNumbers({
+      tier: 'roundtrip',
+      metric,
+      value: a,
+      reference: b,
+      absolute: tolerance,
+      outside: 'FAIL',
+      unit,
+      same: 'Unchanged by export and import',
+      differs: 'Changed by export and import',
+      missing: 'Unavailable',
+    });
+  out.push(
+    same('distance kept', n.distanceMeters, m.distanceMeters, 1, 'm'),
+    same('moving time kept', n.movingSeconds, m.movingSeconds, 1, 's'),
+    same('elapsed time kept', n.elapsedSeconds, m.elapsedSeconds, 1, 's'),
+    same('GPS points kept', n.pointTimes.length, m.pointTimes.length, 0, 'points'),
+    same('pauses kept', n.pauses.length, m.pauses.length, 0, 'pauses'),
+  );
+  const values = (x: ActivityMetrics, type: SensorKind): string[] =>
+    x.sensors
+      .filter((s) => s.type === type)
+      .map((s) => `${s.recordedAt}|${s.value}`)
+      .sort();
+  for (const type of SENSOR_KINDS) {
+    const before = values(m, type);
+    const after = values(n, type);
+    const metric = `${SENSOR_LABEL[type]} kept`;
+    if (before.length === 0 && after.length === 0) {
+      out.push(notTested('roundtrip', metric, 'No samples'));
+      continue;
+    }
+    const identical = before.length === after.length && before.every((v, i) => v === after[i]);
+    const knownPowerGap = type === 'power' && after.length === 0;
+    out.push(
+      check({
+        tier: 'roundtrip',
+        metric,
+        status: identical ? 'PASS' : knownPowerGap ? 'WARNING' : 'FAIL',
+        value: after.length,
+        reference: before.length,
+        tolerance: 'identical times and values',
+        explanation: identical
+          ? 'Every sample kept with its time and value'
+          : knownPowerGap
+            ? 'Known limitation R1: the GPX export does not include power (data.json keeps it)'
+            : 'Samples were added, lost or changed by export and import',
+      }),
+    );
+  }
+  out.push(
+    lapCount(m) === lapCount(n)
+      ? check({
+          tier: 'roundtrip',
+          metric: 'laps kept',
+          status: 'PASS',
+          value: lapCount(n),
+          reference: lapCount(m),
+          explanation: 'Same number of laps',
+        })
+      : check({
+          tier: 'roundtrip',
+          metric: 'laps kept',
+          status: 'WARNING',
+          value: lapCount(n),
+          reference: lapCount(m),
+          explanation:
+            'Known limitation R2: GPX has no laps, so they are not in the GPX export (data.json keeps them)',
+        }),
+  );
+  return out;
+}
+
+// ---------------------------------------------------------------------------------------------
 // Expectations from the manifest.
 
 function hasGap(m: ActivityMetrics, type: SensorKind, gapSeconds: number): boolean {
@@ -1155,6 +1274,14 @@ export async function validateActivity(
         );
       if (metrics) checks.push(await duplicateCheck(track, other, c.label, sportFromFit));
     }
+
+    if (!input.roundTrip) {
+      // Not requested (library callers); the CLI always requests it.
+    } else if (metrics) {
+      const trip = await exportRoundTrip(track);
+      checks.push(...roundTripChecks(metrics, trip.first.ok ? trip.second : null, secrets));
+    } else
+      checks.push(notTested('roundtrip', 'export round trip', 'Nothing was imported to export'));
 
     checks.push(...expectationChecks(input.expect, outcome, metrics, warnings));
     results.push({

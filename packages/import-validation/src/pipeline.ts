@@ -5,7 +5,7 @@
  */
 import { ActivityService, ImportError } from '@pace/core';
 import { type DatabaseContext, configureConnection, migrate } from '@pace/database';
-import type { ImportedSensorSample, ParsedTrack } from '@pace/formats';
+import { type ImportedSensorSample, type ParsedTrack, parseGpxTrack } from '@pace/formats';
 import { MemorySqliteDriver } from './sqlite';
 
 export interface StoredLap {
@@ -158,5 +158,30 @@ export async function importAndMeasure(
     throw e;
   } finally {
     own?.close();
+  }
+}
+
+/**
+ * Export round trip, exactly as the app does it: import the track, export it with
+ * `ActivityService.exportGpx` (the GPX that goes into the portable export), parse that GPX with
+ * PACE's GPX parser and import it into a second, fresh database. Coordinates stay in memory.
+ */
+export async function exportRoundTrip(
+  track: ParsedTrack,
+): Promise<{ first: PipelineResult; second: PipelineResult | null }> {
+  const ctx = await memoryDatabase();
+  try {
+    const first = await importAndMeasure(track, ctx);
+    if (!first.ok) return { first, second: null };
+    const gpx = await new ActivityService(ctx).exportGpx(first.activityId);
+    const parsed = parseGpxTrack(gpx.content);
+    // The exported GPX names its sport; a triathlon has no GPX sport (and GPX carries no legs).
+    const sport =
+      first.metrics.sport === 'triathlon'
+        ? null
+        : (first.metrics.sport as ParsedTrack['sportType']);
+    return { first, second: await importAndMeasure(parsed, undefined, sport) };
+  } finally {
+    ctx.close();
   }
 }

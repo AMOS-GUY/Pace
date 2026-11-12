@@ -1,5 +1,8 @@
 /**
- * `pnpm validate:fit <folder> [--manifest <file>] [--out <folder>] [--expect-valid] [--write-key]`
+ * `pnpm validate:fit <folder> [--manifest <file>] [--out <folder>] [--expect-valid] [--write-key] [--export-roundtrip]`
+ *
+ * --export-roundtrip additionally exports every imported activity with the app's GPX export,
+ * imports that GPX again and reports what it kept (known gaps are WARNINGs).
  *
  * Validates PACE's import against the athlete's own exports in <folder>, which must be outside
  * the repository. Writes report.json and report.md to --out (default: a
@@ -176,6 +179,7 @@ async function runScenario(
   base: string,
   secrets: Secrets,
   expectValid: boolean,
+  roundTrip = false,
 ): Promise<ScenarioResult[]> {
   if (s.kind === 'archive') {
     const path = resolve(base, s.archive);
@@ -222,17 +226,17 @@ async function runScenario(
       companions.push({ format: ci.format, text: ci.text });
   }
   return validateActivity(
-    { id: s.id, fit: item.bytes, companions, expect: s.expect, expectValid },
+    { id: s.id, fit: item.bytes, companions, expect: s.expect, expectValid, roundTrip },
     secrets,
   );
 }
 
 const USAGE =
-  'Usage: pnpm validate:fit <folder outside the repository> [--manifest <file>] [--out <folder>] [--expect-valid] [--write-key]';
+  'Usage: pnpm validate:fit <folder outside the repository> [--manifest <file>] [--out <folder>] [--expect-valid] [--write-key] [--export-roundtrip]';
 
 export async function runCli(argv: readonly string[], options: CliOptions = {}): Promise<number> {
   const secrets = new Secrets();
-  const log = options.log ?? ((l: string) => console.log(l));
+  const log = options.log ?? ((l: string) => void process.stdout.write(`${l}\n`));
   const emit = (line: string): void => {
     assertNoLeak(line, secrets);
     log(line);
@@ -286,7 +290,13 @@ export async function runCli(argv: readonly string[], options: CliOptions = {}):
     for (const s of manifest.scenarios) {
       let r: ScenarioResult[];
       try {
-        r = await runScenario(s, base, secrets, argv.includes('--expect-valid'));
+        r = await runScenario(
+          s,
+          base,
+          secrets,
+          argv.includes('--expect-valid'),
+          argv.includes('--export-roundtrip'),
+        );
       } catch (e) {
         if (e instanceof PrivacyLeakError) throw e;
         // One unreadable or unexpected file must not stop the others. The message is scrubbed

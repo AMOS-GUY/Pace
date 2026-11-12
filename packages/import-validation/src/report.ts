@@ -50,6 +50,7 @@ const TIER_TITLES: Record<Check['tier'], string> = {
   format: 'Format comparison (FIT vs companion, both as parsed)',
   pipeline: 'PACE processing (final activity from FIT vs from companion)',
   device: 'Device-reported totals (informational, not ground truth)',
+  roundtrip: 'Export round trip (app GPX export, imported again)',
   expectation: 'Expected results (scenario manifest)',
   archive: 'Archive reading and bulk import',
 };
