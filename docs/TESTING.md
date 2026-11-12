@@ -7,14 +7,75 @@
 | Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 245 | Linux job |
 | Mobile logic (display helpers, dashboard, activity and import view models, expo-sqlite adapter incl. migrations, native entry validation) | `pnpm test:unit` | Node | 23 | Linux job |
 | API end-to-end (every endpoint) | `pnpm test:api` | NestJS + real PostgreSQL (PGlite) | 11 | Linux job |
-| **Native Swift core** (journal, recorder, serialisation) | `cd apps/mobile/modules/pace-tracking/ios && swift test` | macOS, XCTest | 29 | macOS job |
-| iOS app compile incl. Swift module | `expo prebuild` + `xcodebuild` | macOS, iOS Simulator SDK | — | macOS job |
+| **Native Swift core** (journal, recorder, serialisation) | `cd apps/mobile/modules/pace-tracking/ios && swift test` | macOS, XCTest | 29 | iOS workflow, full suite (every pull request and push to `main`); alone on demand (`suite: swift-tests`) |
+| iOS app compile incl. Swift module (Release and Debug) | `expo prebuild` + `xcodebuild` | macOS, iOS Simulator SDK | — | iOS workflow, full suite (every pull request and push to `main`) |
+| Release app launch on a simulator + Maestro first screen | `scripts/ci/ios-simulator-launch.sh`, `maestro/smoke-launch.yaml` | macOS, iOS Simulator | — | iOS workflow, full suite (every pull request and push to `main`) |
 | Type-checks | `pnpm typecheck` | — | — | Linux job |
 | iOS JS bundle | `npx expo export --platform ios` | Metro/Hermes | — | Linux job |
 
-The macOS job runs with `shell: bash` (`-eo pipefail`) and fails if the `PaceTracking` pod is
+The macOS jobs run with `shell: bash` (`-eo pipefail`) and fail if the `PaceTracking` pod is
 not autolinked. Before the reliability audit it ran without `pipefail`, so its earlier "success"
 did not prove the native code compiled (see GPS_RELIABILITY_AUDIT.md, F1).
+
+## CI: what runs when
+
+The repository is public, so GitHub-hosted runners (Linux and macOS) are free (D19). The Linux
+checks and the iOS verification are separate workflows with no dependency on each other.
+
+| Workflow / job | Runner | Runs | Duration |
+|---|---|---|---|
+| `CI` / Typecheck, lint, test | Linux (`ubuntu-latest`) | every push (any branch) and every pull request | ~2 min |
+| `iOS` / Full iOS verification | macOS (`macos-26`, Xcode 26.6) | every pull request, every push to `main`, or manually (`suite: full`) | ~55 min (~35 without the Debug build) |
+| `iOS` / Swift native tests | macOS (`macos-26`, Xcode 26.6) | manually only (`suite: swift-tests`) | ~2 min |
+
+The full suite is one job: Swift tests, toolchain check, prebuild, pods, autolink check,
+Release simulator build, launch check (alive after 30 s, no crash report, no fatal log line),
+Maestro first-screen flow, and the Debug (development build) compile. It reuses one checkout,
+install and `pod install` for both builds. The Debug build also runs when an earlier launch
+step failed, so one run reports both results; the job still fails if any step failed.
+
+A newer commit on the same branch or pull request cancels the older automatic run. A pull
+request from a fork runs only after a maintainer approves it (GitHub's default for public
+repositories). A branch with an open pull request runs the Linux checks twice: once for the push
+and once for the pull request's merge commit.
+
+## Running the full iOS verification
+
+It runs by itself on every pull request and on `main`. To run it on demand, for example on a
+branch without a pull request or as a release check:
+
+**From the Actions tab:**
+
+1. Open the repository on GitHub, then the **Actions** tab.
+2. In the left sidebar, select the **iOS** workflow.
+3. Click **Run workflow** (right side, above the run list).
+4. Choose the **branch** to verify and set **suite** to `full`. Leave **debug_build** checked for
+   the complete suite; uncheck it to skip the ~20 min Debug compile.
+5. Click the green **Run workflow** button. The run appears in the list after a few seconds.
+
+"Run workflow" only appears once `ios.yml` is on `main`.
+
+**From the command line:** `gh workflow run ios.yml --ref <branch> -f suite=full -f debug_build=true`.
+
+**Running again** on the same commit: **Re-run all jobs**, or **Re-run failed jobs** when the
+cause was outside the code (for example a runner problem).
+
+**Reading the result:** open the run, then the **Full iOS verification** job. Every step must
+be green. The run's **Artifacts** section holds two items:
+- `simulator-launch`: `device.log`, `after-30s.png`, any crash reports, `simulator.txt`,
+  `maestro-junit.xml`, Maestro screenshots and `xcodebuild-release.log`.
+- `xcodebuild-log`: the Debug build log.
+
+## Release verification
+
+Before every release:
+
+1. Merge the release changes into `main` and wait for the `CI` and `iOS` runs on that commit to
+   pass. Both start automatically.
+2. For a release tag, also run **Actions** -> **iOS** -> **Run workflow** with the tag, **suite:**
+   `full` and **debug_build:** checked.
+3. Release only from a commit whose **Full iOS verification** job passed with every step green.
+   Keep the run URL with the release notes.
 
 ## Data portability suite (M4.5)
 
@@ -201,8 +262,9 @@ For every run, record:
 
 | Area | Status |
 |---|---|
-| Swift XCTests and native compile | Written; first run on the next macOS CI job |
-| Maestro flows (`apps/mobile/maestro`) | Written, not run |
+| Swift XCTests, Release and Debug simulator builds | Passed in CI ([run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111), Xcode 26.6) |
+| Release app launch on a simulator + Maestro first-screen smoke flow | Passed in CI ([run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111)): launch check passed; Maestro 1 passed, 0 failed, 0 skipped. Simulator only, first screen only |
+| Maestro flows `record-run`, `auth-onboarding` (broader UI coverage) | Written, not run (need Supabase) |
 | Home dashboard, activity history and activity detail UI (rendering, layout on iPhone SE to Pro Max, animation, VoiceOver) | Typechecked, linted and bundled for iOS (`expo export`); not yet rendered on a simulator or device |
 | Import and export on iOS: Files-app picker with several files, reading large archives through `FileHandle` (memory, time for a multi-GB Strava export), share sheet for the ZIP, cache cleanup, migration 2 on an existing install | Logic tested in Node; device behaviour not yet verified |
 | FIT import with real device files (Garmin, Wahoo, Coros, Suunto, Zwift), matrix V1–V18 | Awaiting the athlete's own exports; the M4.7 harness (`pnpm validate:fit`) is ready and tested with synthetic files only (see IMPORT_VALIDATION.md) |
