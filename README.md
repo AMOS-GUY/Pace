@@ -27,12 +27,13 @@ packages/
   metrics-engine/    Pace/speed, splits, best efforts, analytics, records, goals
   activity-engine/   Recording state machine, session, replay, coordinator
   database/          Local SQLite schema, migrations, repositories
-  formats/           GPX import/export, CSV export, privacy zones
+  formats/           GPX/TCX import, independent FIT decoder, ZIP/gzip archive reader, GPX/CSV export, privacy zones
   backup/            Versioned, checksummed, encrypted backup format
   sync/              Outbox sync engine and conflict rules
   validation/        Zod schemas for trust boundaries
   design-system/     Brand tokens and themes
   core/              Application services (import/export, backup/restore, analytics)
+  import-validation/ Developer tooling: validates imports against real exports kept outside the repo (Node only)
 infrastructure/      SQL migrations (cloud), Docker, docker-compose
 docs/                PRD, architecture, database, GPS engine, API, security, testing, roadmap, decisions
 ```
@@ -97,10 +98,12 @@ pnpm --filter @pace/api start                                      # http://loca
 | `pnpm test` | All automated tests |
 | `pnpm test:unit` | Packages + mobile logic only |
 | `pnpm test:api` | API end-to-end tests |
+| `pnpm validate:fit <folder>` | Validate FIT/GPX/TCX/ZIP import against your own exports outside the repository ([guide](docs/REAL_DEVICE_VALIDATION_GUIDE.md)) |
 
 ## Documentation
 
 [PRD](docs/PRD.md) · [Architecture](docs/ARCHITECTURE.md) · [Database](docs/DATABASE.md) ·
 [GPS engine](docs/GPS_ENGINE.md) · [API](docs/API.md) · [Security](docs/SECURITY.md) ·
 [Design system](docs/DESIGN_SYSTEM.md) · [Testing](docs/TESTING.md) · [Roadmap](docs/ROADMAP.md) ·
-[Decisions](docs/DECISIONS.md)
+[Decisions](docs/DECISIONS.md) · [Import validation](docs/IMPORT_VALIDATION.md) ·
+[M4.7 release readiness](docs/M4_7_RELEASE_READINESS.md)

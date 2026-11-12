@@ -45,6 +45,9 @@ Plain (unencrypted) backups are never uploaded; the API rejects `encrypted: fals
   and names with `..`, absolute paths or control characters are refused; limits apply to bytes
   actually decompressed (25 MB per file, 2 GB per archive, 50 000 entries, 4 GB read), which stops
   ZIP bombs regardless of the sizes an archive claims; nested archives are not opened.
+  Entries are read from their local file headers while streaming; the central directory is not
+  consulted, so an archive whose central directory disagrees with its local headers is read as the
+  local headers say (finding S5, docs/M4_7_RELEASE_READINESS.md; nothing is written to disk).
 - gzip (`.gz` files and `.gz` entries): the gzip header, CRC-32 and length trailer are verified,
   so a damaged or cut-off file is refused instead of being passed on as a shorter file.
 - FIT: read by PACE's own decoder (D22). Input limited to 25 MB and 2 000 000 messages, at most 64

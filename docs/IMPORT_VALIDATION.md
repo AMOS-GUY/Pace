@@ -308,3 +308,23 @@ Differences from the app database that do not affect results:
 - **Statement locking:** the app driver serialises every statement on one connection; the harness
   driver locks only transactions. The harness runs strictly sequentially.
 - **WAL mode:** it does not apply to an in-memory database.
+
+## Second audit (2026-11-13, overnight)
+
+| ID | Finding | Fix |
+|---|---|---|
+| E3 | Archive accounting deduplicated entry names, so a ZIP with two entries of the same name (legal) falsely failed "every entry accounted for". | Each outcome counts once; a multi-activity file counts at `#1`. |
+| T1 | The harness did not show what the app's own export keeps. | New opt-in export round trip (`--export-roundtrip`). Known gaps R1–R3 ([M4_7_RELEASE_READINESS.md](M4_7_RELEASE_READINESS.md)) are WARNINGs; anything else is a FAIL. |
+
+**New tests:**
+- **Archives:** duplicate entry names, a damaged central directory (entries are read from local
+  headers, as in the app), an empty archive, 3,000 tiny files.
+- **Failures:** a report folder that cannot be created (no path leak); database isolation.
+- **Seeded property tests:**
+  - privacy: 400 generated messages always pass the guard after scrubbing;
+  - comparisons: 8 random activities (laps, pauses, heart-rate dropouts, zero cadence, power) as
+    FIT and TCX have no FAIL in any tier.
+- **Formats:** a GPX/TCX sport-mapping characterisation.
+
+**Mutation check:** A1, C1, C2, C4, D1, the archive deduplication, the coordinate scrub rule and a
+dropped sensor sample were each re-introduced. The intended test caught all eight.
