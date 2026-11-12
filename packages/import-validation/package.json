@@ -1,0 +1,29 @@
+{
+  "name": "@pace/import-validation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Developer tooling: validates PACE's import pipeline against real device exports kept outside the repository (Node only, never bundled into the app)",
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@pace/core": "workspace:*",
+    "@pace/database": "workspace:*",
+    "@pace/domain": "workspace:*",
+    "@pace/formats": "workspace:*",
+    "fflate": "^0.8.3"
+  }
+}

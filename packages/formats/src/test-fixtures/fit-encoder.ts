@@ -268,6 +268,18 @@ export interface FitActivityOptions {
   /** Omit session messages (some files have only records). */
   omitSessions?: boolean;
   calories?: boolean;
+  /**
+   * Device totals in each session (total_timer_time 8, total_distance 9, num_laps 26), as a
+   * device writes them. Off by default so existing fixtures stay byte-identical.
+   */
+  sessionTotals?: (
+    session: FitSessionInput,
+    index: number,
+  ) => {
+    timerSeconds: number | null;
+    distanceMeters: number | null;
+    numLaps: number | null;
+  };
 }
 
 const RECORD_FIELDS: FieldSpec[] = [
@@ -342,12 +354,19 @@ export function fitActivity(o: FitActivityOptions): Uint8Array {
     [6, BT.enum],
     [7, BT.uint32],
     [11, BT.uint16],
+    ...(o.sessionTotals
+      ? ([
+          [8, BT.uint32],
+          [9, BT.uint32],
+          [26, BT.uint16],
+        ] as FieldSpec[])
+      : []),
   ]);
 
   const timer = (t: number, type: number): void => void w.data(4, [t, 0, type, 0]);
   timer(start, 0);
 
-  for (const session of o.sessions) {
+  for (const [sessionIndex, session] of o.sessions.entries()) {
     const sPts = session.laps.flat(2);
     const sStart = fitSeconds(sPts[0]!.sample.recordedAt);
     for (const lap of session.laps) {
@@ -394,6 +413,16 @@ export function fitActivity(o: FitActivityOptions): Uint8Array {
         session.subSport ?? 0,
         (sEnd - sStart) * 1000,
         o.calories ? 400 : null,
+        ...(o.sessionTotals
+          ? (() => {
+              const t = o.sessionTotals(session, sessionIndex);
+              return [
+                t.timerSeconds == null ? null : Math.round(t.timerSeconds * 1000),
+                t.distanceMeters == null ? null : Math.round(t.distanceMeters * 100),
+                t.numLaps,
+              ];
+            })()
+          : []),
       ]);
     }
   }

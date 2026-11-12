@@ -36,6 +36,9 @@
     },
     {
       "path": "./core"
+    },
+    {
+      "path": "./import-validation"
     }
   ]
 }

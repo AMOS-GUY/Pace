@@ -1,0 +1,24 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/test-fixtures/**"],
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../database"
+    },
+    {
+      "path": "../domain"
+    },
+    {
+      "path": "../formats"
+    }
+  ]
+}
