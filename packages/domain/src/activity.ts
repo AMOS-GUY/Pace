@@ -5,7 +5,13 @@ export type ActivityStatus = 'recording' | 'paused' | 'interrupted' | 'completed
 
 /** Origin of an activity record. */
 export type ActivitySource =
-  'recorded' | 'imported_gpx' | 'imported_backup' | 'manual' | 'healthkit';
+  | 'recorded'
+  | 'imported_gpx'
+  | 'imported_tcx'
+  | 'imported_fit'
+  | 'imported_backup'
+  | 'manual'
+  | 'healthkit';
 
 export interface ActivitySummaryMetrics {
   elapsedDurationMs: number;

@@ -1,16 +1,17 @@
 import { SPORT_TYPES, type SportType } from '@pace/domain';
-import * as DocumentPicker from 'expo-document-picker';
-import { File } from 'expo-file-system';
+import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, FlatList, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, SectionList, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityRow } from '@/components/ActivityRow';
 import { Input } from '@/components/Input';
 import { Text } from '@/components/Text';
 import { Chip, EmptyState, ErrorState, LoadingState } from '@/components/layout';
-import { sportLabel } from '@/features/display';
-import { useActivityList, useInvalidateAll } from '@/hooks/queries';
-import { deviceTimeZone, getServices } from '@/services/container';
+import { groupByMonth } from '@/features/activity-view';
+import { sportIcon, sportLabel } from '@/features/display';
+import { useActivityList } from '@/hooks/queries';
+import { deviceTimeZone } from '@/services/container';
+import { useImport } from '@/stores/import';
 import { useUnits } from '@/stores/preferences';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -29,12 +30,12 @@ function rangeStart(r: Range, now = new Date()): number | undefined {
 export default function Activities() {
   const units = useUnits();
   const { colors, spacing } = useTheme();
-  const invalidate = useInvalidateAll();
+  const router = useRouter();
+  const importing = useImport((st) => st.status === 'running');
   const [search, setSearch] = useState('');
   const [sport, setSport] = useState<SportType | null>(null);
   const [range, setRange] = useState<Range>('all');
   const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
-  const [importing, setImporting] = useState(false);
 
   const query = useMemo(
     () => ({
@@ -46,48 +47,9 @@ export default function Activities() {
     [search, sport, range, sort],
   );
   const q = useActivityList(query);
-  const items = q.data?.pages.flatMap((p) => p.items) ?? [];
+  const items = useMemo(() => q.data?.pages.flatMap((p) => p.items) ?? [], [q.data]);
   const total = q.data?.pages[0]?.total ?? 0;
-
-  const importFile = async (fileUri: string, sportOverride?: SportType): Promise<void> => {
-    setImporting(true);
-    try {
-      const xml = await new File(fileUri).text();
-      const { activityService } = await getServices();
-      const r = await activityService.importGpx(xml, {
-        timezone: deviceTimeZone(),
-        ...(sportOverride ? { sportType: sportOverride } : {}),
-      });
-      await invalidate();
-      Alert.alert(
-        'Activity imported',
-        r.warnings.join('\n') || 'The GPX track was added to your history.',
-      );
-    } catch (e) {
-      if ((e as { code?: string }).code === 'sport_required' && !sportOverride) {
-        Alert.alert('Which sport?', 'This file does not say which sport it is.', [
-          ...(['running', 'cycling', 'walking', 'hiking'] as const).map((s) => ({
-            text: sportLabel(s),
-            onPress: () => void importFile(fileUri, s),
-          })),
-          { text: 'Cancel', style: 'cancel' as const },
-        ]);
-      } else {
-        Alert.alert('Import failed', e instanceof Error ? e.message : String(e));
-      }
-    } finally {
-      setImporting(false);
-    }
-  };
-
-  const importGpx = async (): Promise<void> => {
-    const pick = await DocumentPicker.getDocumentAsync({
-      type: ['application/gpx+xml', 'application/xml', 'text/xml', '*/*'],
-      copyToCacheDirectory: true,
-    });
-    if (pick.canceled || !pick.assets[0]) return;
-    await importFile(pick.assets[0].uri);
-  };
+  const sections = useMemo(() => groupByMonth(items, deviceTimeZone()), [items]);
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
@@ -105,13 +67,12 @@ export default function Activities() {
           </Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Import GPX file"
-            onPress={() => void importGpx()}
-            disabled={importing}
+            accessibilityLabel="Import activities from FIT, GPX, TCX or ZIP files"
+            onPress={() => router.push('/import')}
             hitSlop={12}
           >
             <Text variant="label" color="accent">
-              {importing ? 'Importing…' : 'Import GPX'}
+              {importing ? 'Importing…' : 'Import'}
             </Text>
           </Pressable>
         </View>
@@ -133,6 +94,7 @@ export default function Activities() {
             <Chip
               key={s}
               label={sportLabel(s)}
+              icon={sportIcon(s) as never}
               selected={sport === s}
               onPress={() => setSport(sport === s ? null : s)}
             />
@@ -165,10 +127,24 @@ export default function Activities() {
       ) : q.error ? (
         <ErrorState message="Could not load activities." onRetry={() => void q.refetch()} />
       ) : (
-        <FlatList
-          data={items}
+        <SectionList
+          sections={sections}
           keyExtractor={(a) => a.id}
           renderItem={({ item }) => <ActivityRow activity={item} units={units} />}
+          renderSectionHeader={({ section }) => (
+            <View
+              style={{
+                backgroundColor: colors.background,
+                paddingTop: spacing.md,
+                paddingBottom: spacing.sm,
+              }}
+            >
+              <Text variant="label" color="secondary" accessibilityRole="header">
+                {section.title.toUpperCase()}
+              </Text>
+            </View>
+          )}
+          stickySectionHeadersEnabled
           contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xxxl }}
           onEndReached={() => {
             if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();

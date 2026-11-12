@@ -1,14 +1,9 @@
 import { View } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
+import type { BarDatum } from '@/features/chart';
 import { Text } from './Text';
 
-export interface BarDatum {
-  key: string;
-  label: string;
-  value: number;
-  /** Accessible description, e.g. "Week of 3 Nov: 24.1 km". */
-  description: string;
-}
+export type { BarDatum };
 
 /**
  * Lightweight bar chart built from Views (no extra native dependency). The latest bar is

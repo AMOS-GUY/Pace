@@ -38,8 +38,24 @@ Plain (unencrypted) backups are never uploaded; the API rejects `encrypted: fals
 
 ## Input handling
 
-- GPX: size (25 MB) and point (200 000) limits; DOCTYPE/ENTITY declarations refused (prevents
-  entity-expansion attacks); every point validated; XML-escaped on export.
+- GPX and TCX: size (25 MB) and point (200 000) limits; DOCTYPE/ENTITY declarations refused
+  (prevents entity-expansion attacks); every point and sensor value validated; XML-escaped on
+  export.
+- Archives (ZIP, gzip): streamed, never extracted to disk; entry names are never used as paths
+  and names with `..`, absolute paths or control characters are refused; limits apply to bytes
+  actually decompressed (25 MB per file, 2 GB per archive, 50 000 entries, 4 GB read), which stops
+  ZIP bombs regardless of the sizes an archive claims; nested archives are not opened.
+- gzip (`.gz` files and `.gz` entries): the gzip header, CRC-32 and length trailer are verified,
+  so a damaged or cut-off file is refused instead of being passed on as a shorter file.
+- FIT: read by PACE's own decoder (D22). Input limited to 25 MB and 2 000 000 messages, at most 64
+  chained files and 200 000 GPS points. Every chained file is framed and its header and file
+  checksums verified before any message is decoded, so a damaged or truncated file imports
+  nothing; every read is bounds-checked; malformed structure (undefined messages, messages past
+  the end, unknown byte order, zero-size fields, trailing data) is refused; values are at most 255
+  bytes and no allocation depends on an unchecked length. Device serial numbers are never stored;
+  developer field names from the file are stripped of control characters and shortened before
+  they are shown.
+- Validation harness (`pnpm validate:fit`, developer tooling only, D23): refuses input, manifest and report folders inside the repository; never prints or writes file or folder names, archive entry names, emails, coordinates, absolute times, serial numbers or titles; scrubs every parser and pipeline message; blocks any output that would contain a collected secret or an email/path/coordinate pattern; uploads nothing.
 - CSV export neutralises spreadsheet formula injection.
 - Backups: magic header, size limit (512 MB), schema validation, checksum, version check.
 - Native → JS samples are validated with Zod before use.
@@ -51,7 +67,11 @@ Plain (unencrypted) backups are never uploaded; the API rejects `encrypted: fals
   explanations before the system prompt.
 - No location collection outside a recording; the iOS indicator is visible while recording.
 - No live location sharing. Diagnostics and logs never contain coordinates.
-- Export privacy zone trims route start/end in shared GPX files.
+- Export privacy zone trims route start/end in shared GPX files, single or in the full export;
+  the full export contains coordinates only in its GPX files.
+- The full export includes only allow-listed settings (profile, preferences); credentials and
+  keys stay in the Keychain, and account/sync identifiers, devices and the sync queue are left
+  out.
 
 ## Secrets
 

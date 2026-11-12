@@ -12,6 +12,8 @@ export interface ColorTokens {
   primaryPressed: string;
   accent: string;
   accentSoft: string;
+  /** Translucent primary tint behind icons and selected states. */
+  primaryMuted: string;
   textPrimary: string;
   textSecondary: string;
   textOnPrimary: string;
@@ -34,6 +36,7 @@ export const darkColors: ColorTokens = {
   primaryPressed: '#1F63D6',
   accent: '#49A0FF',
   accentSoft: '#8ABFFF',
+  primaryMuted: 'rgba(40, 120, 255, 0.16)',
   textPrimary: '#F4F7FC',
   textSecondary: '#8995A8',
   textOnPrimary: '#FFFFFF',
@@ -55,6 +58,7 @@ export const lightColors: ColorTokens = {
   primaryPressed: '#184FAB',
   accent: '#2878FF',
   accentSoft: '#5A9BFF',
+  primaryMuted: 'rgba(31, 99, 214, 0.12)',
   textPrimary: '#0B1220',
   textSecondary: '#55627A',
   textOnPrimary: '#FFFFFF',

@@ -261,4 +261,40 @@ describe('analytics service', () => {
     expect(p.bySport[0]!.sportType).toBe('running');
     expect(p.records.length).toBeGreaterThan(0);
   });
+
+  it('gives a new athlete an empty dashboard with no invented comparisons', async () => {
+    const { ctx } = await freshDb();
+    const d = await new AnalyticsService(ctx).dashboard(T0, 'UTC');
+    expect(d.totalActivityCount).toBe(0);
+    expect(d.recent).toEqual([]);
+    expect(d.thisWeekBySport).toEqual([]);
+    expect(d.comparison).toEqual({ distanceChange: null, movingTimeChange: null });
+    expect(d.trailingAverage).toBeNull();
+    expect(d.days).toHaveLength(7);
+    expect(d.days.every((x) => x.activityCount === 0)).toBe(true);
+    expect(d.consistency).toEqual({
+      windowWeeks: 8,
+      activeWeeks: 0,
+      currentStreakWeeks: 0,
+      activeDaysThisWeek: 0,
+    });
+  });
+
+  it('derives weekly sport totals, active days and consistency from stored activities', async () => {
+    const { ctx } = await freshDb();
+    const { activityId } = await new ActivityService(ctx).importGpx(gpx, { timezone: 'UTC' });
+    const stored = (await new ActivityRepository(ctx).getById(activityId))!;
+    const d = await new AnalyticsService(ctx).dashboard(T0 + 3_600_000, 'UTC');
+    expect(d.totalActivityCount).toBe(1);
+    expect(d.thisWeekBySport.map((s) => s.sportType)).toEqual(['running']);
+    expect(d.thisWeekBySport[0]!.distanceMeters).toBe(stored.distanceMeters);
+    expect(d.thisWeek.distanceMeters).toBe(stored.distanceMeters);
+    expect(d.days.reduce((n, x) => n + x.activityCount, 0)).toBe(1);
+    expect(d.consistency.activeWeeks).toBe(1);
+    expect(d.consistency.currentStreakWeeks).toBe(1);
+    // Last week is empty: no percentage change is reported.
+    expect(d.comparison.distanceChange).toBeNull();
+    // History is shorter than the 4-week comparison window.
+    expect(d.trailingAverage).toBeNull();
+  });
 });

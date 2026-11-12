@@ -95,3 +95,88 @@ manually or via the `ios-full-verification` PR label, before releases and native
 Trade-off: a dependency or config change can break the iOS build without an automatic signal
 until the next full run, so the full suite is required before merging such changes.
 The repository stays private. Estimate and remaining duplicates: docs/TESTING.md.
+
+### D20 — Dashboard figures only from measured history
+Home shows a welcome and guidance until the first completed activity exists, rather than a grid
+of zeros. Comparisons are omitted instead of approximated: "vs last week" needs distance last
+week, the 4-week average needs history covering all four weeks, and a streak is mentioned from
+two weeks. All figures come from `AnalyticsService.dashboard` (metrics-engine, unit-tested); the
+screens only format them. Running and cycling distances are always listed for the week, because
+a zero there is a real measurement; other sports appear once they have an activity. Notifications
+are not shown on Home because the app has no notification system yet. A new `primaryMuted`
+token replaces ad-hoc translucent colours.
+
+### D21 — Data portability: one import path, honest reports, coordinates only in GPX
+GPX and TCX are parsed into one format-neutral track and imported through the same session
+engine as live recordings, so the same track gives identical metrics in either format. A TCX lap
+boundary is not a pause (Garmin opens a `<Track>` per lap); file laps become lap events and lap
+figures are recalculated from the track. Distance and speed are always computed from GPS; device
+distance, calories and device lap summaries are reported as not imported rather than stored as
+truth. Duplicates are refused by exact fingerprint or by at least 50 % time overlap with an
+existing activity, which also catches the same session from another service and PACE's own
+exports. Bulk import commits each activity separately, so cancelling or a damaged archive never
+undoes earlier imports and re-running is safe. Archives are streamed with limits on decompressed
+bytes. The portable export is separate from the encrypted backup: readable JSON/CSV plus GPX,
+with coordinates only in GPX and the privacy zone applied to every track. Adding the
+`imported_tcx` source required rebuilding `activities` (see DATABASE.md rules). FIT import is
+deferred: it is a binary format that needs its own parser, and FIT files are reported, not
+dropped.
+
+### D22 — FIT import: an independent decoder, not Garmin's SDK
+FIT files are read by PACE's own small, read-only decoder in `@pace/formats`, written from the
+publicly documented FIT file structure. It contains no code and no generated profile tables from
+Garmin's FIT SDK; the handful of message and field numbers PACE interprets are written by hand in
+`fit.ts`, and unknown messages and fields are skipped and reported, so new device profiles degrade
+gracefully instead of needing SDK updates.
+
+Why not the official `@garmin/fitsdk` package: its licence (the FIT Protocol License Agreement,
+last updated 12 October 2022) grants use for the licensee's "internal business purposes" and
+forbids distributing or otherwise making the SDK available to third parties; Garmin may end it on
+30 days' notice, after which all copies must be deleted. Shipping it inside a commercial iOS app
+therefore appears not to be permitted without a separate written agreement. The MIT-licensed
+`fit-file-parser` was the fallback option; it was not chosen because of its size (≈1.6 MB with a
+`buffer` polyfill), checksum validation being off by default, a copyright-holder discrepancy
+between its LICENSE file and README, and profile tables that were checked against Garmin's SDK
+profile, which leaves their provenance less clear than an implementation of our own.
+
+**Outstanding legal review.** This approach has NOT received legal clearance. Garmin's
+agreement does not clearly state whether it governs an independent implementation of the
+protocol (sections 2(h) and 3 refer to complying with the FIT protocol and keeping
+interoperability), and Garmin's separate protocol licence page could not be read during the
+investigation. Before a commercial release, someone with legal authority should confirm that an
+independent FIT reader is acceptable or obtain a written agreement from Garmin. Until then the
+decoder must stay independent: no copying of SDK source, generated tables or SDK test files.
+
+Scope decisions in M4.6: timer stop/start gaps are pauses, laps and leg changes are not; only
+swim–T1–bike–T2–run multisport files become triathlons (other sequences and pool-swim
+triathlons are refused with the reason, rather than guessed); sensor values are kept exactly as
+recorded and never interpolated; developer fields, HRV, swim chest-strap heart rate, device
+distance/speed and summaries are listed as not imported; a damaged, truncated or malformed file
+is refused as a whole (no partial import).
+
+### D23 — Real-world validation as separate Node-only tooling, privacy guard last
+Validation against real device files (M4.7) lives in `@pace/import-validation`, a private
+workspace package that is never bundled into the app. It uses the app's parsers, archive reader,
+`ActivityService.importTrack` and migrations unchanged, against an in-memory `node:sqlite`
+database. That gives one source of truth for import behaviour, and validation cannot drift from it.
+It carries its own small copy of the `node:sqlite` driver, because the database package's copy is
+a test fixture excluded from its build so `node:sqlite` can never reach the mobile bundle. A test
+checks that both copies produce the same migrated schema.
+
+Comparisons are split into integrity, format, PACE-processing, device-total and expectation
+tiers:
+- **Device totals are informational.** A difference is a WARNING, never a FAIL, and never a
+  reason to change a calculation.
+- **Unknown expectations are NOT TESTED.**
+- **Known representation differences are counted explicitly, with an explanation:** no lap rows
+  for a lap-less activity, and leg changes counted as device laps.
+
+Privacy is enforced in three layers:
+1. Output is aggregate and keyed by anonymous IDs.
+2. Free text is scrubbed.
+3. A final check refuses any output containing a collected secret (paths, file names, archive
+   entry names, serial numbers) or an email, path, coordinate or long-number pattern. The
+   refusal names the kind of data, never the value.
+
+The importer never sees real file names. Recordings, manifests and reports must be outside the
+repository, and the harness refuses otherwise.
