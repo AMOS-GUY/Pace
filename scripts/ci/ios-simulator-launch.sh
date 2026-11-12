@@ -38,10 +38,16 @@ echo "ok: embedded JS bundle ($(wc -c < "$APP/main.jsbundle" | tr -d ' ') bytes)
 
 # Swift type descriptors keep the plain class name (needed by the generated modules provider);
 # the mangled class symbol is accepted as well.
-if ! strings -a "$APP/$executable" | grep -qx 'PaceTrackingModule' &&
-  ! nm "$APP/$executable" 2>/dev/null | grep -qE '12PaceTracking.*ModuleC'; then
-  fail "PaceTrackingModule is not present in $executable: the native tracking module was not linked"
+# Tool output goes to a file first: piping into `grep -q` makes the producer die of SIGPIPE when
+# grep exits at the first match, and under `pipefail` that turned a match into "not present".
+scan="$(mktemp)"
+strings -a "$APP/$executable" > "$scan" || fail "strings failed on $executable"
+if ! grep -qx 'PaceTrackingModule' "$scan"; then
+  nm "$APP/$executable" > "$scan" 2>/dev/null || true
+  grep -qE '12PaceTracking.*ModuleC' "$scan" ||
+    fail "PaceTrackingModule is not present in $executable: the native tracking module was not linked"
 fi
+rm -f "$scan"
 echo "ok: PaceTrackingModule present in the app binary"
 
 # Newest iOS runtime, first available iPhone in it.
