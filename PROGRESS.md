@@ -1,6 +1,6 @@
 # PACE Development Progress
 
-_Last updated: 2026-11-12 (M4.6 FIT import)_
+_Last updated: 2026-11-12 (M4.7 real-world FIT validation harness)_
 
 ## Current Milestone
 M0–M6 implemented in software. GPS reliability audit complete: 18 defects fixed, 8 residual risks
@@ -24,6 +24,7 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - [x] Deterministic GPS replay suite (realistic run/ride, drift, poor accuracy, tunnel, jumps; correlated error)
 - [x] Data-integrity suite (delivery, lifecycle, recovery, SQLite atomicity)
 - [x] Training-consistency analytics: week days, active weeks, weekly streak, week-over-week change, 4-week average only when history covers it (unit-tested)
+- [x] FIT validation harness (M4.7): `pnpm validate:fit` runs the real import pipeline against an in-memory database and compares FIT, companion GPX/TCX and PACE's final activity (integrity, format, processing, device totals), validates archives through the app's reader, checks a scenario manifest kept outside the repo and writes anonymised reports — harness tested with synthetic files only; **no real device files validated yet** (docs/IMPORT_VALIDATION.md)
 - [x] FIT import (M4.6): independent read-only decoder (D22), FIT activities, laps, pauses, sensors and swim–bike–run triathlons through the shared import pipeline, bulk import of .fit/.fit.gz, migration 3 — logic tested with synthetic and hand-assembled files; **no real device FIT files tested yet**; screens bundled, not yet run on a device
 - [x] Data portability (M4.5): TCX import, GPX cadence/power, bulk import of files/ZIP/gzip with safety limits and report, full portable export, migration 2 — logic tested; screens bundled, **not yet run on a device**
 - [x] Home dashboard, activity history and activity detail redesign — logic unit-tested; UI typechecked, linted and bundled for iOS, **not yet rendered on a simulator or iPhone**

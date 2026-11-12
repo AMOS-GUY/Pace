@@ -12,6 +12,7 @@ validation · ⬜ not started.
 | M4 History & analytics | ✅/🟡 | List/filter/search, detail, splits, laps, maps, weekly/monthly stats, records, GPX import/export — logic ✅, UI on device 🟡. |
 | M4.5 Data portability | ✅/🟡 | TCX import, GPX cadence/power, bulk import (files, ZIP, gzip) with ZIP-bomb/path protection and a per-file report, duplicate detection across sources, full export (JSON, CSV, GPX) with privacy zone — logic ✅, iOS file handling 🟡. |
 | M4.6 FIT import | ✅/🟡 | Independent FIT decoder (no Garmin SDK code), FIT activities with laps, pauses, heart rate, cadence, power and swim–bike–run triathlons, `.fit`/`.fit.gz` in bulk import, migration 3 — logic ✅; real device files, iOS and legal review 🟡. |
+| M4.7 Real-world FIT validation | 🟡 | Validation harness (`pnpm validate:fit`): the real import pipeline on an in-memory database, integrity, format, PACE-processing and device-total comparisons, archive checks (accounting, repeat import, cancel and resume), scenario manifest, anonymised JSON/Markdown reports with a privacy guard — harness ✅ (synthetic regression tests); **real device files not yet validated** 🟡. See [IMPORT_VALIDATION.md](IMPORT_VALIDATION.md). |
 | M5 Backup & sync | ✅/🟡 | Encrypted local/cloud backup, restore by replay, outbox sync, conflict rules, account deletion — needs S3 + Supabase to validate end to end. |
 | M6 Swimming & triathlon | ✅/🟡 | Pool laps, open-water policy + limitation notice, triathlon legs and transitions. |
 | M7 Private beta | ⬜ | Device test plan, battery tuning, Sentry, TestFlight. |

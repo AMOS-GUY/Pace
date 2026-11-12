@@ -55,6 +55,7 @@ Plain (unencrypted) backups are never uploaded; the API rejects `encrypted: fals
   bytes and no allocation depends on an unchecked length. Device serial numbers are never stored;
   developer field names from the file are stripped of control characters and shortened before
   they are shown.
+- Validation harness (`pnpm validate:fit`, developer tooling only, D23): refuses input, manifest and report folders inside the repository; never prints or writes file or folder names, archive entry names, emails, coordinates, absolute times, serial numbers or titles; scrubs every parser and pipeline message; blocks any output that would contain a collected secret or an email/path/coordinate pattern; uploads nothing.
 - CSV export neutralises spreadsheet formula injection.
 - Backups: magic header, size limit (512 MB), schema validation, checksum, version check.
 - Native → JS samples are validated with Zod before use.

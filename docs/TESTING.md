@@ -91,23 +91,38 @@ Its tests do not rely only on files written by our own test encoder
 - **gzip integrity:** truncated, cut-inside-the-trailer and corrupted `.gz` files and entries are
   refused (CRC-32 checked against the published check value).
 
-### FIT validation with real device files
+### FIT validation with real device files (M4.7)
 
-No real device FIT files are in the repository, and none were tested in M4.6. Files from
-Garmin's SDK must not be used (D22), sample files in other open-source projects often come from
-that SDK or have unclear provenance, and personal recordings must never be committed (`.fit`
-files are git-ignored). The automated suite therefore relies on the independent checks above;
-the remaining gap is closed with real files kept outside the repository:
+No real device FIT files are in the repository, and none have been validated yet.
+- Garmin SDK files must not be used (D22).
+- Sample files in other open-source projects often come from that SDK or have unclear
+  provenance.
+- Personal recordings must never be committed (`.fit` files are git-ignored).
 
-1. Collect files with clear permission to use them: your own recordings from different devices
-   (Garmin watch and bike computer, Wahoo, Coros, Suunto, Zwift), each ideally with a GPX or TCX
-   export of the same activity saved next to it under the same name.
-2. Run `pnpm validate:fit <folder>` (add `--expect-valid` when every file should import). It runs
-   the app's parser and checks increasing times, valid coordinates, sensor ranges and units, lap
-   and leg order, and — with a companion file — start/end time and positions at matching times
-   (≤ 5 m). Output is aggregate only and never contains coordinates; nothing is written.
-3. Import the same files on an iPhone and compare distance, moving time and laps with the
-   device or Garmin Connect.
+Real files are checked with `pnpm validate:fit`. It runs from the repository against exports
+kept **outside** it. [IMPORT_VALIDATION.md](IMPORT_VALIDATION.md) has the instructions, the
+manifest format, the tolerances and the validation matrix V1–V18.
+[IMPORT_VALIDATION_SAMPLE_REPORT.md](IMPORT_VALIDATION_SAMPLE_REPORT.md) is a sample report from
+synthetic files.
+
+The harness itself (`packages/import-validation`) has synthetic regression tests:
+- **Three-way comparison:** FIT vs companion TCX/GPX vs PACE's stored activity, with tight
+  tolerances, and real discrepancies detected (shifted positions and changed heart rate fail).
+- **Device totals:** a different device distance is a WARNING, never a FAIL. Multisport leg
+  changes count as device laps.
+- **Missing data:** pauses and laps compared by count and duration. Missing sensor values stay
+  missing, zero values are kept, dropouts stay gaps.
+- **Triathlon legs.**
+- **Refusals:** indoor and damaged files refused, and expected refusals pass. Unknown
+  expectations are NOT TESTED.
+- **Archives:** a Garmin/Strava-style export with duplicates, `.gz` entries, unsafe paths,
+  damaged and nested entries. Every entry is accounted for, a repeat import adds nothing, and
+  cancel and resume work, including on a 40-activity archive. The app's archive limits are kept,
+  and a truncated archive is handled.
+- **Privacy:** no names, emails, IDs, serial numbers, coordinates or dates in any output. A
+  report that would leak is refused. Folders, manifests and reports inside the repository are
+  refused.
+- **Database:** the harness database matches the test driver's migrated schema.
 
 ## Deterministic GPS replay suite
 
@@ -190,7 +205,7 @@ For every run, record:
 | Maestro flows (`apps/mobile/maestro`) | Written, not run |
 | Home dashboard, activity history and activity detail UI (rendering, layout on iPhone SE to Pro Max, animation, VoiceOver) | Typechecked, linted and bundled for iOS (`expo export`); not yet rendered on a simulator or device |
 | Import and export on iOS: Files-app picker with several files, reading large archives through `FileHandle` (memory, time for a multi-GB Strava export), share sheet for the ZIP, cache cleanup, migration 2 on an existing install | Logic tested in Node; device behaviour not yet verified |
-| FIT import with real device files (Garmin, Wahoo, Coros, Suunto, Zwift) | No legally usable real files available yet; `pnpm validate:fit` is ready (see "FIT validation with real device files") |
+| FIT import with real device files (Garmin, Wahoo, Coros, Suunto, Zwift), matrix V1–V18 | Awaiting the athlete's own exports; the M4.7 harness (`pnpm validate:fit`) is ready and tested with synthetic files only (see IMPORT_VALIDATION.md) |
 | FIT import on iOS: picking `.fit` files, a Garmin Connect export archive, migration 3 on an existing install | Logic tested in Node; device behaviour not yet verified |
 | Supabase auth against a real project | Not run |
 | API against real Postgres + S3/MinIO | Not run (PGlite used in tests) |

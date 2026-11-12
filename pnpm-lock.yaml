@@ -518,6 +518,24 @@ importers:
         specifier: workspace:*
         version: link:../domain
 
+  packages/import-validation:
+    dependencies:
+      '@pace/core':
+        specifier: workspace:*
+        version: link:../core
+      '@pace/database':
+        specifier: workspace:*
+        version: link:../database
+      '@pace/domain':
+        specifier: workspace:*
+        version: link:../domain
+      '@pace/formats':
+        specifier: workspace:*
+        version: link:../formats
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
+
   packages/metrics-engine:
     dependencies:
       '@pace/domain':
