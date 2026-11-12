@@ -10,15 +10,15 @@ Generated 2026-11-12 · mode: manifest · real device files: no
 
 | | PASS | FAIL | WARNING | NOT TESTED |
 |---|---|---|---|---|
-| Scenarios | 4 | 1 | 1 | 0 |
-| Checks | 109 | 1 | 1 | 19 |
+| Scenarios | 5 | 1 | 0 | 0 |
+| Checks | 111 | 1 | 0 | 19 |
 
 | Scenario | Result | Outcome | Companions |
 |---|---|---|---|
 | V1 | FAIL | imported | TCX, GPX |
 | V2 | PASS | imported | TCX |
 | V5 | PASS | imported | — |
-| V8 | WARNING | imported | — |
+| V8 | PASS | imported | — |
 | V11 | PASS | refused | — |
 | V16 | PASS | archive | — |
 
@@ -134,6 +134,7 @@ Import warnings:
 | GPS point count (TCX) | PASS | 603 | 603 | 0 | exact | Same number of positioned points |
 | positions at matching times (TCX) | PASS | 603 | — | 0.01 | ≤ 5 m | 603 shared timestamps; positions agree (largest difference in metres shown) |
 | segments (pause structure) (TCX) | PASS | 2 | 2 | — | exact | Same number of timer-running segments |
+| segment boundaries (TCX) | PASS | — | — | 0 | ±2 s | Every pause starts and ends at the same time in both files (largest difference shown) |
 | lap count (TCX) | PASS | 2 | 2 | — | exact | Same number of laps |
 | lap start times (TCX) | PASS | — | — | 0 | ±2 s | Lap starts agree (largest difference shown) |
 | heart rate samples (TCX) | PASS | 603 | 603 | 0 | ±0.5 bpm per sample | All 603 samples match |
@@ -220,7 +221,7 @@ Import warnings:
 
 - Not imported: device lap and session summaries (figures are recalculated from the track) and device name.
 
-## V8 — WARNING
+## V8 — PASS
 
 **sport**: triathlon · **points**: 1725 · **segments**: 1 · **pauses**: 0 · **laps**: 1 · **legs**: 5 · **durationMinutes**: 36.8 · **distanceKm**: 10.8 · **movingMinutes**: 36.8 · **sensors**: {"heart_rate":1543,"cadence":0,"power":0}
 
@@ -248,7 +249,7 @@ Import warnings:
 |---|---|---|---|---|---|---|
 | distance vs device total | NOT TESTED | — | — | — | — | The device wrote no total distance |
 | moving time vs device timer time | NOT TESTED | — | — | — | — | The device wrote no timer time |
-| elapsed time vs device total | WARNING | 2208 | 2200 | 8 | ±5 s | PACE elapsed time runs from the first to the last GPS point; the device's may include time before the first fix. Device totals are not ground truth: devices may use wheel or foot-pod sensors, smoothing, or count time differently. |
+| elapsed time vs device total | PASS | 2208 | 2208 | 0 | ±5 s | PACE elapsed time agrees with the device |
 | start vs device start | PASS | — | — | 0 | ±5 s | PACE starts at the device start time |
 | laps vs device | PASS | 5 | 5 | — | exact | Same number of laps as the device (leg changes count as lap boundaries, as on the device) |
 | lap starts vs device | PASS | 4 | 4 | — | ±2 s | Every device lap after the first starts at a PACE lap boundary (leg changes count as lap boundaries, as on the device) |
@@ -280,7 +281,7 @@ Import warnings:
 
 ## V16 — PASS
 
-**entries**: 6 · **imported**: 3 · **duplicates**: 1 · **needsSport**: 0 · **failed**: 1 · **skipped**: 1 · **sourceErrors**: 0 · **importedByKind**: {".fit":1,".gpx.gz":2} · **failureReasons**: {"Unsafe file name in archive (path leaves the archive (..))":1} · **skippedByExtension**: {".jpg":1} · **seconds**: 0.4 · **peakMemoryMb**: 203
+**entries**: 6 · **imported**: 3 · **duplicates**: 1 · **needsSport**: 0 · **failed**: 1 · **skipped**: 1 · **sourceErrors**: 0 · **importedByKind**: {".fit":1,".gpx.gz":2} · **failureReasons**: {"Unsafe file name in archive (path leaves the archive (..))":1} · **skippedByExtension**: {".jpg":1} · **seconds**: 0.6 · **peakMemoryMb**: 202
 
 ### Expected results (scenario manifest)
 
