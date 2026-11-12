@@ -126,15 +126,27 @@ export async function readMetrics(ctx: DatabaseContext, id: string): Promise<Act
   };
 }
 
-/** Imports one parsed track into `ctx` (a fresh database when omitted) and reads it back. */
+/**
+ * Imports one parsed track into `ctx` (a fresh database when omitted) and reads it back.
+ *
+ * `sportForUnknown` is used only when the file itself names no sport. It is exactly what the
+ * app does after the athlete chooses a sport for such a file (`ImportOptions.sportType`, as in
+ * bulk import's fallback sport), so the import logic is unchanged. A file that names its own
+ * sport is never overridden.
+ */
 export async function importAndMeasure(
   track: ParsedTrack,
   ctx?: DatabaseContext,
+  sportForUnknown?: ParsedTrack['sportType'],
 ): Promise<PipelineResult> {
   const own = ctx ? null : await memoryDatabase();
   const db = ctx ?? own!;
   try {
-    const r = await new ActivityService(db).importTrack(track, { timezone: 'UTC', userId: null });
+    const r = await new ActivityService(db).importTrack(track, {
+      timezone: 'UTC',
+      userId: null,
+      ...(track.sportType == null && sportForUnknown ? { sportType: sportForUnknown } : {}),
+    });
     return {
       ok: true,
       activityId: r.activityId,

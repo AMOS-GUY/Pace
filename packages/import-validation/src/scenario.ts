@@ -27,7 +27,12 @@ import {
   notTested,
   overallStatus,
 } from './checks';
-import { type DeviceTotals, readDeviceTotals, sessionTotal } from './device-totals';
+import {
+  type DeviceTotals,
+  deviceElapsedSpan,
+  readDeviceTotals,
+  sessionTotal,
+} from './device-totals';
 import { type ActivityExpectations, SENSOR_KINDS, type SensorKind } from './manifest';
 import { type ActivityMetrics, importAndMeasure, memoryDatabase } from './pipeline';
 import { type Secrets, round, scrub } from './privacy';
@@ -435,6 +440,40 @@ export function formatChecks(fit: ParsedTrack, other: ParsedTrack): Check[] {
           : `The ${label} has a different segment structure; GPX exports usually have one segment and TCX tracks may not mark pauses, so pause comparisons with this file are not reliable`,
     }),
   );
+  if (fit.segments.length > 1) {
+    if (fit.segments.length !== other.segments.length)
+      out.push(
+        notTested(
+          'format',
+          'segment boundaries',
+          `The ${label} has a different number of segments; boundaries cannot be paired`,
+        ),
+      );
+    else {
+      // Where each pause starts (last point before it) and ends (first point after it).
+      let maxDiff = 0;
+      for (let i = 1; i < fit.segments.length; i++) {
+        maxDiff = Math.max(
+          maxDiff,
+          Math.abs(
+            fit.segments[i - 1]!.at(-1)!.recordedAt - other.segments[i - 1]!.at(-1)!.recordedAt,
+          ),
+          Math.abs(fit.segments[i]![0]!.recordedAt - other.segments[i]![0]!.recordedAt),
+        );
+      }
+      out.push(
+        compareOffset(
+          'format',
+          'segment boundaries',
+          maxDiff,
+          TOLERANCES.boundaryMs,
+          'FAIL',
+          'Every pause starts and ends at the same time in both files (largest difference shown)',
+          'Pauses start or end at different times (largest difference shown)',
+        ),
+      );
+    }
+  }
   if (other.format === 'gpx') out.push(notTested('format', 'laps', 'GPX files carry no laps'));
   else {
     const la = fit.lapStarts.length + 1;
@@ -451,8 +490,16 @@ export function formatChecks(fit: ParsedTrack, other: ParsedTrack): Check[] {
           la === lb ? 'Same number of laps' : `The FIT and ${label} have different lap counts`,
       }),
     );
-    const n = Math.min(fit.lapStarts.length, other.lapStarts.length);
-    if (n > 0) {
+    const n = fit.lapStarts.length;
+    if (la !== lb)
+      out.push(
+        notTested(
+          'format',
+          'lap start times',
+          'Lap counts differ, so laps cannot be paired (see lap count)',
+        ),
+      );
+    else if (n > 0) {
       let maxDiff = 0;
       for (let i = 0; i < n; i++)
         maxDiff = Math.max(maxDiff, Math.abs(fit.lapStarts[i]! - other.lapStarts[i]!));
@@ -542,6 +589,19 @@ export function pipelineChecks(
     );
   if (!sameSegments)
     out.push(notTested('pipeline', 'pauses', `The ${label} has a different segment structure`));
+  else if (fit.pauses.length !== other.pauses.length)
+    out.push(
+      check({
+        tier: 'pipeline',
+        metric: 'pause durations',
+        status: 'FAIL',
+        value: fit.pauses.length,
+        reference: other.pauses.length,
+        tolerance: 'exact',
+        explanation:
+          'Both files have the same segments, but PACE stored a different number of pauses for them',
+      }),
+    );
   else {
     let maxDiff = 0;
     fit.pauses.forEach((p, i) => {
@@ -640,7 +700,7 @@ export function deviceChecks(m: ActivityMetrics, totals: DeviceTotals | null): C
       tier: 'device',
       metric: 'elapsed time vs device total',
       value: m.elapsedSeconds,
-      reference: sessionTotal(totals, 'elapsedSeconds'),
+      reference: deviceElapsedSpan(totals),
       absolute: TOLERANCES.deviceElapsedSeconds,
       outside: 'WARNING',
       unit: 's',
@@ -1057,7 +1117,12 @@ export async function validateActivity(
       checks.push(
         ...formatChecks(track, other).map((x) => ({ ...x, metric: `${x.metric} (${c.label})` })),
       );
-      const otherImport = await importAndMeasure(other);
+      // A companion that names no sport is imported with the FIT's sport, as the app does after
+      // the athlete chooses one; otherwise it could never be compared.
+      // (Not for a triathlon: GPX/TCX carry no legs, so that import would be refused anyway.)
+      const sportFromFit =
+        other.sportType == null && track.sportType !== 'triathlon' ? track.sportType : null;
+      const otherImport = await importAndMeasure(other, undefined, sportFromFit);
       if (metrics && otherImport.ok)
         checks.push(
           ...pipelineChecks(
@@ -1077,7 +1142,18 @@ export async function validateActivity(
               : `PACE did not import the ${c.label}: ${scrub(otherImport.message, secrets)}`,
           ),
         );
-      if (metrics) checks.push(await duplicateCheck(track, other, c.label));
+      if (sportFromFit)
+        checks.push(
+          check({
+            tier: 'pipeline',
+            metric: `${c.label} sport`,
+            status: 'PASS',
+            value: 'not in file',
+            reference: sportFromFit,
+            explanation: `The ${c.label} names no sport; it was imported as ${sportFromFit} (the FIT's sport), as the app does after the athlete chooses one`,
+          }),
+        );
+      if (metrics) checks.push(await duplicateCheck(track, other, c.label, sportFromFit));
     }
 
     checks.push(...expectationChecks(input.expect, outcome, metrics, warnings));
@@ -1110,11 +1186,16 @@ function trackInvariantsCheck(t: ParsedTrack): Check[] {
 }
 
 /** Importing the FIT and then its companion must keep one activity (the companion is a duplicate). */
-async function duplicateCheck(fit: ParsedTrack, other: ParsedTrack, label: string): Promise<Check> {
+async function duplicateCheck(
+  fit: ParsedTrack,
+  other: ParsedTrack,
+  label: string,
+  sportFromFit: ParsedTrack['sportType'],
+): Promise<Check> {
   const ctx = await memoryDatabase();
   try {
     const first = await importAndMeasure(fit, ctx);
-    const second = await importAndMeasure(other, ctx);
+    const second = await importAndMeasure(other, ctx, sportFromFit);
     const count = (await ctx.db.get<{ n: number }>(
       'SELECT COUNT(*) AS n FROM activities WHERE deleted_at IS NULL',
     ))!.n;

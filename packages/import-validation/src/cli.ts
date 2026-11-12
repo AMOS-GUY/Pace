@@ -17,9 +17,11 @@
 import {
   createReadStream,
   existsSync,
+  lstatSync,
   mkdirSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   statSync,
   writeFileSync,
 } from 'node:fs';
@@ -50,8 +52,24 @@ export function findRepoRoot(from = __dirname): string | null {
   }
 }
 
+/**
+ * The real location of a path, following symbolic links and junctions. For a path that does not
+ * exist yet (a report folder), the real location of its nearest existing parent plus the rest.
+ */
+export function realLocation(path: string): string {
+  const abs = resolve(path);
+  let existing = abs;
+  while (!existsSync(existing) && dirname(existing) !== existing) existing = dirname(existing);
+  try {
+    return join(realpathSync.native(existing), relative(existing, abs));
+  } catch {
+    return abs;
+  }
+}
+
+/** Whether `child` is `parent` or inside it, comparing real locations (links are followed). */
 export function isInside(child: string, parent: string): boolean {
-  const r = relative(resolve(parent), resolve(child));
+  const r = relative(realLocation(parent), realLocation(child));
   return (
     r === '' ||
     (!r.startsWith('..') && !/^[a-zA-Z]:/.test(r) && !r.startsWith('/') && !r.startsWith('\\'))
@@ -65,7 +83,10 @@ function* walk(dir: string, skip: string): Generator<string> {
   for (const name of readdirSync(dir).sort()) {
     const p = join(dir, name);
     if (resolve(p) === resolve(skip)) continue;
-    if (statSync(p).isDirectory()) yield* walk(p, skip);
+    const st = lstatSync(p);
+    // Linked folders are not followed: they could loop or lead into the repository.
+    if (st.isSymbolicLink() && statSync(p, { throwIfNoEntry: false })?.isDirectory()) continue;
+    if (st.isDirectory()) yield* walk(p, skip);
     else yield p;
   }
 }
@@ -73,8 +94,14 @@ function* walk(dir: string, skip: string): Generator<string> {
 /** Reads one picked file through PACE's archive reader (handles .gz, sniffing, UTF-8 checks). */
 async function readOne(path: string): Promise<SourceItem> {
   const ext = EXT.exec(path)?.[1] ?? '';
-  for await (const item of readImportSource(`picked${ext}`, fileSource(path))) return item;
-  return { kind: 'rejected', entry: null, reason: 'The file is empty' };
+  const stream = createReadStream(path, { highWaterMark: 256 * 1024 });
+  try {
+    for await (const item of readImportSource(`picked${ext}`, stream)) return item;
+    return { kind: 'rejected', entry: null, reason: 'The file is empty' };
+  } finally {
+    // The reader may stop before the end (an oversized file); close the file either way.
+    stream.destroy();
+  }
 }
 
 function autoManifest(
@@ -121,6 +148,22 @@ function refusedResult(id: string, reason: string): ScenarioResult {
     kind: 'activity',
     status: overallStatus(checks),
     outcome: 'refused',
+    companions: [],
+    summary: null,
+    warnings: [],
+    checks,
+  };
+}
+
+function errorResult(id: string, kind: Scenario['kind'], reason: string): ScenarioResult {
+  const checks = [
+    check({ tier: 'integrity', metric: 'scenario completed', status: 'FAIL', explanation: reason }),
+  ];
+  return {
+    id,
+    kind: kind === 'archive' ? 'archive' : 'activity',
+    status: overallStatus(checks),
+    outcome: kind === 'archive' ? 'archive' : 'refused',
     companions: [],
     summary: null,
     warnings: [],
@@ -241,7 +284,21 @@ export async function runCli(argv: readonly string[], options: CliOptions = {}):
 
     const results: ScenarioResult[] = [];
     for (const s of manifest.scenarios) {
-      const r = await runScenario(s, base, secrets, argv.includes('--expect-valid'));
+      let r: ScenarioResult[];
+      try {
+        r = await runScenario(s, base, secrets, argv.includes('--expect-valid'));
+      } catch (e) {
+        if (e instanceof PrivacyLeakError) throw e;
+        // One unreadable or unexpected file must not stop the others. The message is scrubbed
+        // here and the whole report is leak-checked again before it is written.
+        r = [
+          errorResult(
+            s.id,
+            s.kind,
+            `The scenario stopped with an unexpected error: ${scrub((e as Error)?.message ?? String(e), secrets)}`,
+          ),
+        ];
+      }
       for (const x of r) {
         results.push(x);
         emit(`${x.id.padEnd(6)} ${x.status.padEnd(10)} ${x.outcome}`);

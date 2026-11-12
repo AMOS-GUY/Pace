@@ -7,6 +7,9 @@ database, compares the results three ways and writes anonymised JSON and Markdow
 It is validation infrastructure only. It does not change the FIT decoder, the parsers or how
 PACE imports. Discrepancies are recorded, never corrected.
 
+> **Quick start:** [REAL_DEVICE_VALIDATION_GUIDE.md](REAL_DEVICE_VALIDATION_GUIDE.md) walks through five
+> Garmin scenarios step by step.
+
 > **Status:** the harness is tested with synthetic files only. **No real device files have been
 > validated yet.** Reports say so (`realDeviceFiles: false`).
 
@@ -54,6 +57,21 @@ every report.
   (wheel sensor, foot pod, smoothing) are compared only in the device tier.
 - **Cadence:** cadence is one foot's strides or crank revolutions per minute, as FIT, TCX and GPX
   define it.
+- **Companion without a sport:** a GPX or TCX that names no sport (no `<type>`, TCX
+  `Sport="Other"`) is imported with the FIT's sport. That is what the app does after the athlete
+  chooses one. The report says so in a `… sport` check. A file that names its own sport is never
+  overridden, and a triathlon is never used as the override, because GPX/TCX carry no legs.
+- **Multisport elapsed time:** the device total is the span from the first session's start to the
+  last session's end, so the gaps between legs are included, as in PACE.
+
+### Not covered
+
+- Sensors that start late or stop early (a strap connected after the start) are not reported as
+  dropouts. `sensorGaps` looks only at gaps between two samples. The integrity tier still proves
+  nothing was filled in.
+- Developer field names (Connect IQ, Stryd) appear in warnings as the device wrote them, after
+  scrubbing. They are app-defined labels, not personal data, but read the report before sharing
+  it.
 
 ## Privacy
 
@@ -251,3 +269,42 @@ mappings.
   committed or uploaded.
 - **No public FIT files and no third-party recordings** without explicit approval, file by file.
 - **Never** Garmin SDK samples, or test files from other projects whose origin is unclear (D22).
+
+## Audit (2026-11-13)
+
+A review of the harness against these requirements:
+- independent imports;
+- database parity;
+- comparison correctness;
+- privacy;
+- archives.
+
+Fixed, each with a regression test in `packages/import-validation/src/audit.test.ts`:
+
+| ID | Finding | Fix |
+|---|---|---|
+| A1 | A companion naming no sport was refused with "choose a sport". Its PACE-processing comparison was then skipped, and the duplicate check failed for the wrong reason. | Imported with the FIT's sport through the same `importTrack` option the app uses after the athlete chooses one. |
+| C1 | Pause boundaries were only counted between formats, never compared in time. | New format check, segment boundaries: every pause start and end ±2 s. |
+| C2 | When lap counts differed, lap starts were paired by index and reported misleading differences. | Not tested when counts differ; the lap count check already fails. |
+| C3 | Equal segments but a different number of stored pauses would have crashed the run. | Reported as a FAIL. |
+| C4 | A multisport file's device elapsed time summed its sessions and left out the gaps between legs: a false WARNING. | Uses the span from first start to last end. |
+| D1 | The repository check compared paths as text, so a link or junction into the repository passed. | Real locations are compared, with links followed. |
+| D2 | The folder scan followed linked folders, which could loop or reach into the repository. | Linked folders are skipped. |
+| D3 | One unreadable file stopped the whole run. | That scenario fails with a scrubbed message, and the others continue. |
+| D4 | A file the reader stopped early on (an oversized file) could stay open until garbage collection. Found by reading the code; no test. | The file is closed after reading. |
+
+Checked and found correct, with new tests where coverage was missing:
+- **Import isolation:** each FIT, companion and duplicate import uses its own in-memory database
+  and the app's `importTrack` (A2).
+- **Database parity:** the harness driver runs the app's `configureConnection` and migrations;
+  foreign keys and cascades, CHECK constraints, rollback and nested-transaction refusal behave as
+  on the device (B1–B4).
+- **Archive limits:** the entry-count limit and the per-file limit are enforced through the app's
+  own reader (E1, E2), alongside the existing total-size, truncation, unsafe-path, nested-archive,
+  damaged-entry, duplicate and cancel/resume tests.
+- **Timestamps:** reports carry only differences, never absolute times.
+
+Differences from the app database that do not affect results:
+- **Statement locking:** the app driver serialises every statement on one connection; the harness
+  driver locks only transactions. The harness runs strictly sequentially.
+- **WAL mode:** it does not apply to an in-memory database.

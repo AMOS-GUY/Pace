@@ -83,3 +83,22 @@ export function sessionTotal(
   }
   return sum;
 }
+
+/**
+ * Elapsed time the device recorded for the whole activity: from the first session's start to the
+ * last session's end (start + total_elapsed_time). For a multisport file this includes the gaps
+ * between sessions, which a plain sum of session elapsed times would leave out. Falls back to the
+ * sum when a session has no start time.
+ */
+export function deviceElapsedSpan(t: DeviceTotals): number | null {
+  if (t.sessions.length === 0) return null;
+  if (t.sessions.length === 1) return t.sessions[0]!.elapsedSeconds;
+  let first = Infinity;
+  let last = -Infinity;
+  for (const s of t.sessions) {
+    if (s.startedAt == null || s.elapsedSeconds == null) return sessionTotal(t, 'elapsedSeconds');
+    first = Math.min(first, s.startedAt);
+    last = Math.max(last, s.startedAt + s.elapsedSeconds * 1000);
+  }
+  return (last - first) / 1000;
+}
