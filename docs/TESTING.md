@@ -4,8 +4,8 @@
 
 | Suite | Command | Environment | Tests | Runs in CI |
 |---|---|---|---|---|
-| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 151 | Linux job |
-| Mobile logic (display helpers, expo-sqlite adapter, native entry validation) | `pnpm test:unit` | Node | 8 | Linux job |
+| Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 163 | Linux job |
+| Mobile logic (display helpers, dashboard and activity view models, expo-sqlite adapter, native entry validation) | `pnpm test:unit` | Node | 19 | Linux job |
 | API end-to-end (every endpoint) | `pnpm test:api` | NestJS + real PostgreSQL (PGlite) | 11 | Linux job |
 | **Native Swift core** (journal, recorder, serialisation) | `cd apps/mobile/modules/pace-tracking/ios && swift test` | macOS, XCTest | 29 | macOS job |
 | iOS app compile incl. Swift module | `expo prebuild` + `xcodebuild` | macOS, iOS Simulator SDK | — | macOS job |
@@ -95,6 +95,7 @@ For every run, record:
 |---|---|
 | Swift XCTests and native compile | Written; first run on the next macOS CI job |
 | Maestro flows (`apps/mobile/maestro`) | Written, not run |
+| Home dashboard, activity history and activity detail UI (rendering, layout on iPhone SE to Pro Max, animation, VoiceOver) | Typechecked, linted and bundled for iOS (`expo export`); not yet rendered on a simulator or device |
 | Supabase auth against a real project | Not run |
 | API against real Postgres + S3/MinIO | Not run (PGlite used in tests) |
 | Docker image build | Not run |

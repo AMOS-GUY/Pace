@@ -1,9 +1,11 @@
 import { activityEditSchema } from '@pace/validation';
+import { Ionicons } from '@expo/vector-icons';
 import {
+  NO_VALUE,
+  elevationUnitLabel,
   formatDuration,
-  formatPace,
+  formatElevation,
   formatSpeed,
-  paceUnitLabel,
   speedUnitLabel,
 } from '@pace/domain';
 import { getSport } from '@pace/sports';
@@ -15,6 +17,8 @@ import { Alert, Modal, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { RouteMap } from '@/components/RouteMap';
+import { SplitChart } from '@/components/SplitChart';
+import { SportBadge } from '@/components/SportBadge';
 import { Text } from '@/components/Text';
 import {
   Card,
@@ -27,6 +31,13 @@ import {
   Screen,
   SectionHeader,
 } from '@/components/layout';
+import {
+  isPoolSwim,
+  pausedDurationMs,
+  routeQuality,
+  showsElevation,
+  sourceLabel,
+} from '@/features/activity-view';
 import {
   averageMetric,
   distanceMetric,
@@ -52,7 +63,7 @@ export default function ActivityDetail() {
   const router = useRouter();
   const units = useUnits();
   const privacyZone = usePreferences((s) => s.prefs.exportPrivacyZoneMeters);
-  const { spacing } = useTheme();
+  const { colors, spacing } = useTheme();
   const q = useActivityDetail(id);
   const invalidate = useInvalidateAll();
   const [editing, setEditing] = useState(false);
@@ -83,6 +94,11 @@ export default function ActivityDetail() {
   const { activity: a, laps, splits, segments, route, records } = q.data;
   const sport = getSport(a.sportType);
   const avg = averageMetric(a.sportType, a, units);
+  const pool = isPoolSwim(a);
+  const elevation = showsElevation(a);
+  const paused = pausedDurationMs(a);
+  const hasRoute = route != null && route.points.some((p) => p.length > 1);
+  const quality = route ? routeQuality(route) : null;
 
   const exportGpx = async (): Promise<void> => {
     setExporting(true);
@@ -131,50 +147,62 @@ export default function ActivityDetail() {
     <>
       <Stack.Screen options={{ title: sportLabel(a.sportType) }} />
       <Screen edges={[]}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm }}>
+          <SportBadge sport={a.sportType} size={32} />
+          <Text variant="label" color="secondary" style={{ marginLeft: spacing.sm, flex: 1 }}>
+            {sportLabel(a.sportType).toUpperCase()}
+            {pool ? ' · POOL' : a.sportType === 'swimming' ? ' · OPEN WATER' : null}
+          </Text>
+        </View>
         <Text variant="title" accessibilityRole="header">
           {a.title}
         </Text>
-        <Text variant="bodySmall" color="secondary" style={{ marginBottom: spacing.md }}>
+        <Text variant="bodySmall" color="secondary" style={{ marginBottom: spacing.lg }}>
           {formatDateTime(a.startedAt, a.timezone)}
-          {a.source === 'imported_gpx' ? ' · Imported' : ''}
+          {a.source !== 'recorded' ? ` · ${sourceLabel(a.source)}` : null}
         </Text>
         {a.description ? (
-          <Text variant="body" style={{ marginBottom: spacing.md }}>
+          <Text variant="body" style={{ marginBottom: spacing.lg }}>
             {a.description}
           </Text>
         ) : null}
 
-        {route && route.points.some((p) => p.length > 1) ? (
-          <RouteMap segments={route.points} height={260} style={{ marginBottom: spacing.md }} />
-        ) : null}
+        {hasRoute ? (
+          <RouteMap segments={route.points} height={280} style={{ marginBottom: spacing.lg }} />
+        ) : (
+          <Card>
+            <Text variant="bodySmall" color="secondary">
+              {pool
+                ? 'Pool swims are measured by lengths, so there is no GPS route.'
+                : 'No GPS route was stored for this activity.'}
+            </Text>
+          </Card>
+        )}
 
-        <Card>
-          <Row>
-            <MetricTile {...distanceMetric(a.distanceMeters, units)} />
-            <MetricTile label="Moving time" value={formatDuration(a.movingDurationMs)} />
-          </Row>
-          <Row style={{ marginTop: spacing.md }}>
+        <Card style={{ borderWidth: 1, borderColor: colors.divider, padding: spacing.xl }}>
+          <MetricTile {...distanceMetric(a.distanceMeters, units)} size="lg" />
+          <Row style={{ marginTop: spacing.lg }}>
+            <MetricTile label="Moving time" value={formatDuration(a.movingDurationMs)} size="sm" />
             <MetricTile {...avg} size="sm" />
-            <MetricTile label="Elapsed" value={formatDuration(a.elapsedDurationMs)} size="sm" />
           </Row>
           <Row style={{ marginTop: spacing.md }}>
-            <MetricTile
-              {...elevationMetric(a.elevationGainMeters, units, 'Elevation gain')}
-              size="sm"
-            />
-            <MetricTile
-              label="Max speed"
-              value={formatSpeed(a.maximumSpeedMps, units)}
-              unit={speedUnitLabel(units)}
-              size="sm"
-            />
+            {elevation ? (
+              <MetricTile
+                {...elevationMetric(a.elevationGainMeters, units, 'Elevation gain')}
+                size="sm"
+              />
+            ) : (
+              <MetricTile label="Paused" value={formatDuration(paused)} size="sm" />
+            )}
+            <MetricTile label="Elapsed" value={formatDuration(a.elapsedDurationMs)} size="sm" />
           </Row>
         </Card>
 
         {records.length > 0 ? (
-          <Card>
-            <Text variant="label" color="accent">
-              🏅 {records.length} personal record{records.length > 1 ? 's' : ''} in this activity
+          <Card style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="trophy-outline" size={18} color={colors.accent} />
+            <Text variant="label" color="accent" style={{ marginLeft: spacing.sm }}>
+              {records.length} personal record{records.length > 1 ? 's' : null} in this activity
             </Text>
           </Card>
         ) : null}
@@ -198,19 +226,16 @@ export default function ActivityDetail() {
           <>
             <SectionHeader title="Splits" />
             <Card>
-              {splits.map((s) => (
-                <ListRow
-                  key={s.index}
-                  label={`${s.index + 1}${s.isPartial ? ' (partial)' : ''}`}
-                  value={
-                    sport.primaryMetric === 'speed'
-                      ? `${formatSpeed(s.speedMps, units)} ${speedUnitLabel(units)} · ${formatDuration(s.movingDurationMs)}`
-                      : `${formatPace(s.paceMsPerKm, units)} ${paceUnitLabel(units)} · ${formatDuration(s.movingDurationMs)}`
-                  }
-                />
-              ))}
+              <SplitChart
+                splits={splits}
+                sport={a.sportType}
+                units={units}
+                showElevation={elevation}
+              />
               <Text variant="caption" color="secondary" style={{ marginTop: spacing.sm }}>
                 Splits are every {(sport.splitDistanceMeters ?? 1000) / 1000} km of moving distance.
+                {splits.some((s) => s.isPartial) ? ' * Partial split.' : null} The fastest split is
+                highlighted.
               </Text>
             </Card>
           </>
@@ -227,6 +252,59 @@ export default function ActivityDetail() {
                   value={`${formatDuration(l.durationMs)} · ${distanceMetric(l.distanceMeters, units).value} ${distanceMetric(l.distanceMeters, units).unit}`}
                 />
               ))}
+            </Card>
+          </>
+        ) : null}
+
+        <SectionHeader title="Details" />
+        <Card>
+          {elevation ? <ListRow label="Paused time" value={formatDuration(paused)} /> : null}
+          <ListRow
+            label="Max speed"
+            value={`${formatSpeed(a.maximumSpeedMps, units)} ${speedUnitLabel(units)}`}
+          />
+          {elevation ? (
+            <ListRow
+              label="Elevation loss"
+              value={`${formatElevation(a.elevationLossMeters, units)} ${elevationUnitLabel(units)}`}
+            />
+          ) : null}
+          {pool && a.poolLengthMeters ? (
+            <ListRow label="Pool length" value={`${a.poolLengthMeters} m`} />
+          ) : null}
+          <ListRow label="Source" value={sourceLabel(a.source)} />
+          <ListRow label="Started" value={formatDateTime(a.startedAt, a.timezone)} />
+          {a.endedAt ? (
+            <ListRow label="Finished" value={formatDateTime(a.endedAt, a.timezone)} />
+          ) : null}
+          <ListRow label="Time zone" value={a.timezone} />
+        </Card>
+
+        {route && quality ? (
+          <>
+            <SectionHeader title="GPS route" />
+            <Card>
+              <ListRow label="Track segments" value={String(route.segments.length)} />
+              <ListRow
+                label="Signal gaps"
+                value={
+                  quality.gapCount === 0
+                    ? 'None'
+                    : `${quality.gapCount} · ${formatDuration(quality.gapDurationMs)}`
+                }
+              />
+              <ListRow
+                label="GPS fixes used"
+                value={
+                  quality.rejectedShare == null
+                    ? NO_VALUE
+                    : `${quality.acceptedSamples} of ${quality.acceptedSamples + quality.rejectedSamples}`
+                }
+              />
+              <Text variant="caption" color="secondary" style={{ marginTop: spacing.sm }}>
+                Inaccurate or implausible fixes are excluded, and signal gaps are left empty rather
+                than filled in.
+              </Text>
             </Card>
           </>
         ) : null}

@@ -375,20 +375,25 @@ export function Chip({
   label,
   selected,
   onPress,
+  icon,
 }: {
   label: string;
   selected: boolean;
   onPress: () => void;
+  icon?: IconName;
 }) {
   const { colors, radius, spacing } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
       accessibilityState={{ selected }}
       onPress={onPress}
       style={{
         paddingHorizontal: spacing.lg,
         minHeight: 36,
+        flexDirection: 'row',
+        alignItems: 'center',
         justifyContent: 'center',
         borderRadius: radius.pill,
         backgroundColor: selected ? colors.primary : colors.surface,
@@ -396,6 +401,14 @@ export function Chip({
         borderColor: selected ? colors.primary : colors.divider,
       }}
     >
+      {icon ? (
+        <Ionicons
+          name={icon}
+          size={14}
+          color={selected ? colors.textOnPrimary : colors.accent}
+          style={{ marginRight: spacing.xs }}
+        />
+      ) : null}
       <Text variant="label" color={selected ? 'onPrimary' : 'primary'}>
         {label}
       </Text>
