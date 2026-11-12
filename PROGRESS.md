@@ -23,6 +23,8 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - [x] API: auth guard, profiles, activity sync, route batches, backups, devices, entitlements, account deletion (e2e on PGlite)
 - [x] Deterministic GPS replay suite (realistic run/ride, drift, poor accuracy, tunnel, jumps; correlated error)
 - [x] Data-integrity suite (delivery, lifecycle, recovery, SQLite atomicity)
+- [x] Training-consistency analytics: week days, active weeks, weekly streak, week-over-week change, 4-week average only when history covers it (unit-tested)
+- [x] Home dashboard, activity history and activity detail redesign — logic unit-tested; UI typechecked, linted and bundled for iOS, **not yet rendered on a simulator or iPhone**
 
 ## Implemented, awaiting first macOS CI run
 - [ ] Native Swift core restructured (`Core/`), 29 XCTests via `swift test`
@@ -30,6 +32,7 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 
 ## Implemented, not yet verified (requires external environment)
 - [ ] iOS app run on simulator/device
+- [ ] Visual check of the new Home, Activities and Activity detail screens (sizes, Dynamic Type, VoiceOver, Reduce Motion)
 - [ ] Background recording on a physical iPhone (TESTING.md device plan)
 - [ ] Supabase auth flows against a real project
 - [ ] MapLibre rendering with a licensed tile provider
@@ -45,8 +48,8 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - Supabase project credentials, map tile provider, S3 bucket (user-provided services).
 
 ## Tests
-- Packages (real SQLite, replay & integrity suites): 151 passing
-- Mobile logic: 8 passing
+- Packages (real SQLite, replay & integrity suites): 163 passing
+- Mobile logic: 19 passing
 - API end-to-end (NestJS + PGlite): 11 passing
 - Native (XCTest): 29 written, run on macOS CI
 - UI (Maestro): 2 flows written, not executed

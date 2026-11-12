@@ -83,3 +83,13 @@ the gap-free sequence and backups.
 ### D18 — Smoothed elevation and Doppler stationary gating (audit F15, F16)
 Parameters (τ = 10 s, 5 m; per-sport Doppler thresholds) come from the replay suite's correlated
 error model; see the audit for the sweep and tolerances.
+
+### D20 — Dashboard figures only from measured history
+Home shows a welcome and guidance until the first completed activity exists, rather than a grid
+of zeros. Comparisons are omitted instead of approximated: "vs last week" needs distance last
+week, the 4-week average needs history covering all four weeks, and a streak is mentioned from
+two weeks. All figures come from `AnalyticsService.dashboard` (metrics-engine, unit-tested); the
+screens only format them. Running and cycling distances are always listed for the week, because
+a zero there is a real measurement; other sports appear once they have an activity. Notifications
+are not shown on Home because the app has no notification system yet. A new `primaryMuted`
+token replaces ad-hoc translucent colours.

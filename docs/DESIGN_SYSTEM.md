@@ -13,6 +13,7 @@ Screens never hardcode colours, font sizes or spacing.
 | primary | #2878FF | Primary actions, latest chart bar |
 | accent | #49A0FF | Key metrics, links, route line |
 | accentSoft | #8ABFFF | Secondary emphasis |
+| primaryMuted | rgba(40, 120, 255, 0.16) | Tint behind sport icons, change pills and step icons |
 | textPrimary | #F4F7FC | Body text |
 | textSecondary | #8995A8 | Labels, captions |
 | divider | #243146 | Hairlines, borders |

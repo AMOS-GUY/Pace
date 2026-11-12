@@ -2,13 +2,14 @@ import { SPORT_TYPES, type SportType } from '@pace/domain';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import { useMemo, useState } from 'react';
-import { Alert, FlatList, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Alert, Pressable, RefreshControl, ScrollView, SectionList, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityRow } from '@/components/ActivityRow';
 import { Input } from '@/components/Input';
 import { Text } from '@/components/Text';
 import { Chip, EmptyState, ErrorState, LoadingState } from '@/components/layout';
-import { sportLabel } from '@/features/display';
+import { groupByMonth } from '@/features/activity-view';
+import { sportIcon, sportLabel } from '@/features/display';
 import { useActivityList, useInvalidateAll } from '@/hooks/queries';
 import { deviceTimeZone, getServices } from '@/services/container';
 import { useUnits } from '@/stores/preferences';
@@ -46,8 +47,9 @@ export default function Activities() {
     [search, sport, range, sort],
   );
   const q = useActivityList(query);
-  const items = q.data?.pages.flatMap((p) => p.items) ?? [];
+  const items = useMemo(() => q.data?.pages.flatMap((p) => p.items) ?? [], [q.data]);
   const total = q.data?.pages[0]?.total ?? 0;
+  const sections = useMemo(() => groupByMonth(items, deviceTimeZone()), [items]);
 
   const importFile = async (fileUri: string, sportOverride?: SportType): Promise<void> => {
     setImporting(true);
@@ -133,6 +135,7 @@ export default function Activities() {
             <Chip
               key={s}
               label={sportLabel(s)}
+              icon={sportIcon(s) as never}
               selected={sport === s}
               onPress={() => setSport(sport === s ? null : s)}
             />
@@ -165,10 +168,24 @@ export default function Activities() {
       ) : q.error ? (
         <ErrorState message="Could not load activities." onRetry={() => void q.refetch()} />
       ) : (
-        <FlatList
-          data={items}
+        <SectionList
+          sections={sections}
           keyExtractor={(a) => a.id}
           renderItem={({ item }) => <ActivityRow activity={item} units={units} />}
+          renderSectionHeader={({ section }) => (
+            <View
+              style={{
+                backgroundColor: colors.background,
+                paddingTop: spacing.md,
+                paddingBottom: spacing.sm,
+              }}
+            >
+              <Text variant="label" color="secondary" accessibilityRole="header">
+                {section.title.toUpperCase()}
+              </Text>
+            </View>
+          )}
+          stickySectionHeadersEnabled
           contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xxxl }}
           onEndReached={() => {
             if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();
