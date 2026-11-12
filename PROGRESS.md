@@ -24,9 +24,12 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - [x] Deterministic GPS replay suite (realistic run/ride, drift, poor accuracy, tunnel, jumps; correlated error)
 - [x] Data-integrity suite (delivery, lifecycle, recovery, SQLite atomicity)
 
-## Implemented, awaiting first macOS CI run
-- [ ] Native Swift core restructured (`Core/`), 29 XCTests via `swift test`
-- [ ] iOS app compile including the Swift module — **correction:** the previous "macOS build successful" did not prove this (failures were masked by a pipe without `pipefail`; the Swift journal had a syntax error). Fixed; awaiting a genuine green run.
+- [x] Native Swift core restructured (`Core/`), 29 XCTests via `swift test` (green in CI, Xcode 26.6)
+- [x] iOS app Debug compile including the Swift module (green in CI run 43105734303)
+- [x] CI split for cost: Linux checks on every change; macOS Swift tests only on native changes; full iOS suite manual (docs/TESTING.md, "Running the full iOS verification")
+
+## Implemented, awaiting first full iOS run
+- [ ] Release simulator build, launch check and Maestro first-screen flow (Phase 1, branch `ci/simulator-launch`)
 
 ## Implemented, not yet verified (requires external environment)
 - [ ] iOS app run on simulator/device
@@ -48,8 +51,8 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - Packages (real SQLite, replay & integrity suites): 151 passing
 - Mobile logic: 8 passing
 - API end-to-end (NestJS + PGlite): 11 passing
-- Native (XCTest): 29 written, run on macOS CI
-- UI (Maestro): 2 flows written, not executed
+- Native (XCTest): 29 passing (macOS CI)
+- UI (Maestro): smoke-launch flow in the full iOS suite (first run pending); 2 flows written, not executed
 
 ## Known Issues / residual risks
 - See audit R1–R8: permission revoked mid-recording keeps `RECORDING`; main-thread fsync cost; brief window where a failed write + crash loses a control event; GPS on while paused; OS termination gap; GPS-only elevation ±5–20 %.
@@ -58,7 +61,7 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - `react-dom` peer warning from a web-only dependency (iOS unaffected).
 
 ## Next Actions
-1. Check the macOS CI job: `swift test` and the app build must both pass; fix any compile errors.
+1. Run the full iOS verification on `ci/simulator-launch` (PR label `ios-full-verification`) and check the launch artifacts.
 2. On a Mac/iPhone: `cd apps/mobile && npx expo prebuild --platform ios && npx expo run:ios --device`.
 3. Execute the physical-device plan in docs/TESTING.md (tests 1–15) for running and cycling.
 4. Decide R1 (permission revoked mid-recording → `INTERRUPTED`?).
