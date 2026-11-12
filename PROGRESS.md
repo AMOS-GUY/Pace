@@ -1,11 +1,12 @@
 # PACE Development Progress
 
-_Last updated: 2026-11-12 (M4.7 real-world FIT validation harness)_
+_Last updated: 2026-11-13 (CI recovery: first full iOS simulator verification passed)_
 
 ## Current Milestone
 M0–M6 implemented in software. GPS reliability audit complete: 18 defects fixed, 8 residual risks
-documented in [docs/GPS_RELIABILITY_AUDIT.md](docs/GPS_RELIABILITY_AUDIT.md). Blocked on the first
-real macOS CI compile and on physical iPhone validation (M2 exit criterion).
+documented in [docs/GPS_RELIABILITY_AUDIT.md](docs/GPS_RELIABILITY_AUDIT.md). The iOS app builds
+(Release and Debug) and launches on an iOS simulator in CI. Blocked on physical iPhone validation
+(M2 exit criterion): GPS recording and background recording have not been tested on a device.
 
 ## Completed (implemented and automatically tested)
 - [x] Repository inspection, architecture and documentation (README, docs/*)
@@ -30,14 +31,18 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - [x] Home dashboard, activity history and activity detail redesign — logic unit-tested; UI typechecked, linted and bundled for iOS, **not yet rendered on a simulator or iPhone**
 
 - [x] Native Swift core restructured (`Core/`), 29 XCTests via `swift test` (green in CI, Xcode 26.6)
-- [x] iOS app Debug compile including the Swift module (green in CI run 43105734303)
-- [x] CI split for cost: Linux checks on every change; macOS Swift tests only on native changes; full iOS suite manual (docs/TESTING.md, "Running the full iOS verification")
+- [x] First full iOS simulator verification passed ([run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111), commit `0d06e46`, `macos-26`, Xcode 26.6):
+  - Swift XCTests passed.
+  - Release and Debug simulator builds passed.
+  - Simulator launch check passed: the Release app was installed and launched on a booted simulator, was still running after 30 s, wrote no crash report and logged no fatal error.
+  - Maestro first-screen smoke test passed (1 passed, 0 failed, 0 skipped).
 
-## Implemented, awaiting first full iOS run
-- [ ] Release simulator build, launch check and Maestro first-screen flow (Phase 1, branch `ci/simulator-launch`)
+  That is the first screen on a simulator only, not a physical iPhone.
+- [x] CI: Linux checks (`ci.yml`) on every push and pull request. The full iOS verification (`ios.yml`) runs automatically on every pull request and every push to `main` (D19; docs/TESTING.md, "CI: what runs when").
+  - History: while the repository was private, macOS jobs were gated for cost (Swift tests on native changes, full suite manual). That gating is no longer in use.
 
 ## Implemented, not yet verified (requires external environment)
-- [ ] iOS app run on simulator/device
+- [ ] iOS app on a physical iPhone (the simulator launch and first screen pass in CI)
 - [ ] Visual check of the new Home, Activities and Activity detail screens (sizes, Dynamic Type, VoiceOver, Reduce Motion)
 - [ ] Import/export on iPhone: Files picker, large Strava/Garmin archives, share sheet, migration 2 on an existing install
 - [ ] FIT import with real device files (`pnpm validate:fit <folder>`, see TESTING.md) and on iPhone: picking .fit files, a Garmin Connect export archive, migration 3 on an existing install
@@ -47,21 +52,22 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - [ ] MapLibre rendering with a licensed tile provider
 - [ ] Cloud backup upload/download against real S3
 - [ ] API against real PostgreSQL; Docker image build
-- [ ] Maestro UI flows
+- [ ] Broader Maestro UI coverage: only the first-screen smoke flow runs in CI; `record-run` and `auth-onboarding` are written but not run (they need Supabase)
 
 ## In Progress
 - [ ] Physical-device validation (M2/M7)
 
 ## Blocked
-- Physical iPhone for GPS/background tests.
+- Physical iPhone for GPS recording and background recording tests.
 - Supabase project credentials, map tile provider, S3 bucket (user-provided services).
 
 ## Tests
-- Packages (real SQLite, replay, integrity, portability & FIT suites): 245 passing
+- Packages (real SQLite, replay, integrity, portability, FIT and import-validation suites): 281 passing
 - Mobile logic: 23 passing
 - API end-to-end (NestJS + PGlite): 11 passing
-- Native (XCTest): 29 passing (macOS CI)
-- UI (Maestro): smoke-launch flow in the full iOS suite (first run pending); 2 flows written, not executed
+- Native (XCTest): 29 passing (macOS CI, [run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111))
+- iOS simulator: Release and Debug builds and the launch check passing ([run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111))
+- UI (Maestro): smoke-launch flow passing in CI (1 passed, 0 failed, 0 skipped); 2 flows written, not executed (need Supabase)
 
 ## Known Issues / residual risks
 - See audit R1–R8: permission revoked mid-recording keeps `RECORDING`; main-thread fsync cost; brief window where a failed write + crash loses a control event; GPS on while paused; OS termination gap; GPS-only elevation ±5–20 %.
@@ -71,8 +77,7 @@ real macOS CI compile and on physical iPhone validation (M2 exit criterion).
 - `react-dom` peer warning from a web-only dependency (iOS unaffected).
 
 ## Next Actions
-1. Check the full iOS verification on PR #2 (`ci/simulator-launch`; it now runs automatically on every pull request) and its launch artifacts.
-2. On a Mac/iPhone: `cd apps/mobile && npx expo prebuild --platform ios && npx expo run:ios --device`.
-3. Execute the physical-device plan in docs/TESTING.md (tests 1–15) for running and cycling.
-4. Decide R1 (permission revoked mid-recording → `INTERRUPTED`?).
-5. Configure Supabase; run `maestro test apps/mobile/maestro`.
+1. On a Mac/iPhone: `cd apps/mobile && npx expo prebuild --platform ios && npx expo run:ios --device`.
+2. Execute the physical-device plan in docs/TESTING.md (tests 1–15) for running and cycling.
+3. Decide R1 (permission revoked mid-recording → `INTERRUPTED`?).
+4. Configure Supabase; run `maestro test apps/mobile/maestro`.

@@ -65,7 +65,7 @@ combine packages (import/export, backup/restore, analytics). Module boundaries a
 ### D14 — Testing approach for UI
 React Native Testing Library would need a full RN Jest runtime; at this stage UI coverage is
 provided by Maestro flows (device/simulator) and logic is kept out of components and unit-tested.
-RNTL tests are planned once a macOS CI runner is available.
+RNTL tests were deferred until a macOS CI runner was available. That runner is now in use (D19), but RNTL tests have not been written yet.
 
 ### D15 — Process-wide native recorder, no automatic restart (audit F2)
 A JS reload must not stop a recording, so the recorder outlives Expo module instances. A process
@@ -100,6 +100,7 @@ So macOS jobs then ran only on native changes or on demand.
 **Now.** The repository is public, and GitHub-hosted standard runners, macOS included, are free.
 The full iOS suite runs automatically on every pull request and every push to `main`:
 Swift tests, Release simulator launch, Maestro first-screen flow and Debug compile, about 55 min.
+The first such run passed on 2026-11-12 ([run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111), commit `0d06e46`).
 The cost gating was removed, because it left dependency and configuration changes without an
 automatic iOS signal.
 

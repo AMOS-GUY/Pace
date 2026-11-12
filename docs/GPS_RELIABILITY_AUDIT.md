@@ -14,6 +14,11 @@ without `pipefail`, so failures were hidden, and the Swift journal actually cont
 error. The earlier claim that "the Swift module compiles" is retracted. CI is now fixed, and the
 native code has 29 XCTests. They will run for the first time on the next macOS CI run.
 
+> **Status update (2026-11-12):** the 29 XCTests and the native Debug build first passed in CI in
+> run 43105734303. The full iOS verification then passed in [run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111): Release and Debug simulator
+> builds, a simulator launch check and the Maestro first-screen flow. None of this tests GPS
+> recording or background recording on a physical iPhone, which remain outstanding.
+
 Measured on the deterministic replay suite, which uses correlated GPS error:
 
 | Metric | Before | After |
@@ -65,7 +70,7 @@ noticeably degrades accuracy. **Low** – edge cases.
 | R4 | GPS stays on while paused (needed to keep a fix and for auto-resume). | Battery trade-off. | Measure battery %/h on device. |
 | R5 | iOS does not relaunch apps for standard location updates after termination. An activity killed by the OS has a gap until the user reopens the app. | Platform behaviour. Significant-change monitoring could wake the app but needs "Always" permission. | Recovered as `INTERRUPTED`; nothing captured is lost. |
 | R6 | GPS-only elevation still has ≈5–20 % error (smaller on long climbs, larger on short rolling hills). | Physics of GPS altitude. | Barometric altitude source (CMAltimeter) is the planned fix. |
-| R7 | Swift tests and the native build have not yet run (development machine is Windows). | Needs macOS. | Next CI run executes `swift test` and the build with pipefail. |
+| R7 | Swift tests and the native build have not yet run (development machine is Windows). | Needs macOS. | **Resolved 2026-11-12:** `swift test` and the build pass in CI with pipefail ([run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111)). |
 | R8 | `onAuthorizationChange` events are emitted by native but not consumed by the coordinator. | Tied to R1. | — |
 
 ## Accuracy: scenarios, tolerances and justification
@@ -116,7 +121,7 @@ smartphone GNSS (≈3–5 m CEP in open sky, slowly varying errors) and iOS-repo
   the expo-sqlite adapter (simulated single connection).
 - GPS accuracy on the replay suite (table above); deterministic replay equality.
 
-**Written, will run on the next macOS CI run** (cannot run on Windows):
+**Written at audit time for the next macOS CI run** (cannot run on Windows). Both now pass in CI ([run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111)):
 
 - 29 Swift XCTests covering journal durability, sequence numbering, compaction, torn-tail repair,
   journal-before-notify, acquisition vs recording, process restart, policy switching, deletion

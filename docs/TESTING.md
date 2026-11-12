@@ -7,9 +7,9 @@
 | Shared packages (domain, GPS engine, sports, metrics, activity engine, validation, formats, database, backup, sync, design system, core) | `pnpm test:unit` | Node + real SQLite (`node:sqlite`) | 245 | Linux job |
 | Mobile logic (display helpers, dashboard, activity and import view models, expo-sqlite adapter incl. migrations, native entry validation) | `pnpm test:unit` | Node | 23 | Linux job |
 | API end-to-end (every endpoint) | `pnpm test:api` | NestJS + real PostgreSQL (PGlite) | 11 | Linux job |
-| **Native Swift core** (journal, recorder, serialisation) | `cd apps/mobile/modules/pace-tracking/ios && swift test` | macOS, XCTest | 29 | iOS workflow: on native changes, and in the full suite |
-| iOS app compile incl. Swift module (Release and Debug) | `expo prebuild` + `xcodebuild` | macOS, iOS Simulator SDK | — | iOS workflow, full suite (manual) |
-| Release app launch on a simulator + Maestro first screen | `scripts/ci/ios-simulator-launch.sh`, `maestro/smoke-launch.yaml` | macOS, iOS Simulator | — | iOS workflow, full suite (manual) |
+| **Native Swift core** (journal, recorder, serialisation) | `cd apps/mobile/modules/pace-tracking/ios && swift test` | macOS, XCTest | 29 | iOS workflow, full suite (every pull request and push to `main`); alone on demand (`suite: swift-tests`) |
+| iOS app compile incl. Swift module (Release and Debug) | `expo prebuild` + `xcodebuild` | macOS, iOS Simulator SDK | — | iOS workflow, full suite (every pull request and push to `main`) |
+| Release app launch on a simulator + Maestro first screen | `scripts/ci/ios-simulator-launch.sh`, `maestro/smoke-launch.yaml` | macOS, iOS Simulator | — | iOS workflow, full suite (every pull request and push to `main`) |
 | Type-checks | `pnpm typecheck` | — | — | Linux job |
 | iOS JS bundle | `npx expo export --platform ios` | Metro/Hermes | — | Linux job |
 
@@ -262,9 +262,9 @@ For every run, record:
 
 | Area | Status |
 |---|---|
-| Swift XCTests and native Debug compile | Passed in CI (run 43105734303, Xcode 26.6) |
-| Release simulator launch + Maestro smoke flow | Written; first run pending (full iOS suite) |
-| Maestro flows `record-run`, `auth-onboarding` | Written, not run (need Supabase) |
+| Swift XCTests, Release and Debug simulator builds | Passed in CI ([run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111), Xcode 26.6) |
+| Release app launch on a simulator + Maestro first-screen smoke flow | Passed in CI ([run 43238428111](https://github.com/AMOS-GUY/Pace/actions/runs/43238428111)): launch check passed; Maestro 1 passed, 0 failed, 0 skipped. Simulator only, first screen only |
+| Maestro flows `record-run`, `auth-onboarding` (broader UI coverage) | Written, not run (need Supabase) |
 | Home dashboard, activity history and activity detail UI (rendering, layout on iPhone SE to Pro Max, animation, VoiceOver) | Typechecked, linted and bundled for iOS (`expo export`); not yet rendered on a simulator or device |
 | Import and export on iOS: Files-app picker with several files, reading large archives through `FileHandle` (memory, time for a multi-GB Strava export), share sheet for the ZIP, cache cleanup, migration 2 on an existing install | Logic tested in Node; device behaviour not yet verified |
 | FIT import with real device files (Garmin, Wahoo, Coros, Suunto, Zwift), matrix V1–V18 | Awaiting the athlete's own exports; the M4.7 harness (`pnpm validate:fit`) is ready and tested with synthetic files only (see IMPORT_VALIDATION.md) |
