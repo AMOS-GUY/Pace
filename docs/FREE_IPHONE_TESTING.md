@@ -9,8 +9,12 @@ including the native Swift GPS module and the Expo dev client, on your iPhone 13
 > an iPhone nor that location permissions or background GPS work there. Every test in the
 > checklist below is **NOT RUN** until you perform it.
 
-The paid alternative (EAS Build, no Mac, profiles valid up to a year) is in
-[IPHONE_DEVELOPMENT_BUILD.md](IPHONE_DEVELOPMENT_BUILD.md).
+**This route costs nothing.** It needs no paid Apple Developer Program membership, no EAS build,
+and no rented cloud Mac, only a borrowed Mac, your free Apple Account and your iPhone. It is
+the primary workflow.
+
+A paid route (EAS Build) is described in [IPHONE_DEVELOPMENT_BUILD.md](IPHONE_DEVELOPMENT_BUILD.md)
+for later. It is **not** a prerequisite for anything here.
 
 ## 1. Can this work with a free account?
 
@@ -84,10 +88,15 @@ Swift must report **6.2 or later**.
 
 ## 3. Accounts, passwords and the borrowed Mac
 
-- **Your Apple Account:** use your own. **Never share your Apple password with the Mac's owner, with
-  Claude or with anyone.** Type it into Xcode yourself and approve the two-factor prompt on your
-  own device.
-- **Recommended: a separate macOS user for you.**
+- **Sign with your own Apple Account only.**
+  - In Xcode you sign in with **your** Apple Account, and the app is signed by **your** Personal
+    Team.
+  - **Never use the Mac owner's Apple Account or team for signing**, even if Xcode offers it
+    because they are already signed in. Their account would then own the App ID and the 7-day
+    profile, and renewals would depend on them.
+  - **Never share your Apple password** with the Mac's owner, with Claude or with anyone. Type
+    it into Xcode yourself, and approve the two-factor prompt on your own device.
+- **Recommended, if possible: a separate macOS user for you.**
   - The Mac's owner creates it (System Settings → Users & Groups → Add User; a standard account is
     enough).
   - Your Apple Account, signing certificate and the project then stay out of his account, and
@@ -124,10 +133,17 @@ Swift must report **6.2 or later**.
 
 ### 4.2 Your Apple Account in Xcode (you, personally)
 
-Xcode → Settings → **Accounts** → **+** → Apple Account → sign in, and confirm with two-factor
-authentication on your own device. Xcode then lists **"<Your Name> (Personal Team)"**.
+1. Xcode → Settings → **Accounts** → **+** → Apple Account.
+2. Sign in with **your own** Apple Account, and confirm with two-factor authentication on your own
+   device.
+3. Xcode then lists **"<Your Name> (Personal Team)"**.
 
-### 4.3 Get the code and install dependencies (you, in your macOS user)
+If you use the Mac owner's macOS user and their Apple Account is already listed, leave it alone:
+add yours, and sign only with yours (step 4.7).
+
+### 4.3 Get the code: the `feature/ios-development-build` branch (you, in your macOS user)
+
+Build the branch that contains this workflow, **not** the default `main` branch:
 
 ```bash
 git clone https://github.com/AMOS-GUY/Pace.git
@@ -135,6 +151,31 @@ git clone https://github.com/AMOS-GUY/Pace.git
 ```bash
 cd Pace
 ```
+```bash
+git fetch origin
+```
+```bash
+git checkout feature/ios-development-build
+```
+```bash
+git pull origin feature/ios-development-build
+```
+
+**Verify the commit before building.** This prints the commit you have, then the latest commit on
+GitHub:
+
+```bash
+git rev-parse HEAD && git ls-remote origin refs/heads/feature/ios-development-build
+```
+
+- The two SHAs must be identical, and `git status` must say "up to date" with nothing modified.
+- Write down the short SHA (`git rev-parse --short HEAD`): you need it for the test results, and
+  to run the same commit on Windows later.
+- Once this branch is merged into `main`, build `main` instead. Its commit should then contain
+  this guide.
+
+**Install the dependencies** (the frozen lockfile, exactly as CI):
+
 ```bash
 corepack enable
 ```
@@ -145,10 +186,29 @@ pnpm install --frozen-lockfile
 pnpm build
 ```
 
-- **Which branch:** stay on `main` unless you've been asked to test a branch
-  (`git checkout <branch>`). Write down the commit you build (`git rev-parse --short HEAD`).
-- **If `corepack enable` fails with a permissions error**, run `npm install -g corepack@latest`
-  first, or ask the Mac's owner to run `corepack enable` once as admin.
+If `corepack enable` fails with a permissions error, run `npm install -g corepack@latest` first,
+or ask the Mac's owner to run `corepack enable` once as admin.
+
+**Confirm the development configuration** that the build will use:
+
+```bash
+cd apps/mobile && APP_VARIANT=development npx expo config --type public --json | node -e "const c=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(c.name,c.ios.bundleIdentifier,c.ios.infoPlist.UIBackgroundModes)"; cd ../..
+```
+
+It must print exactly:
+
+```
+PACE Dev app.pace.ios.dev [ 'location' ]
+```
+
+Then check that the native GPS module and the development scripts are present:
+
+```bash
+ls apps/mobile/modules/pace-tracking/ios/PaceTrackingModule.swift && grep -E '"(start|start:tunnel)"' apps/mobile/package.json
+```
+
+It must list the Swift file and the `start` and `start:tunnel` scripts. If anything differs, stop
+and report it; don't edit the configuration to make it match.
 
 ### 4.4 Supabase settings
 
@@ -190,7 +250,8 @@ cd apps/mobile && APP_VARIANT=development npx expo prebuild --platform ios
    ```
 2. In Xcode, select the **PACEDev** project → target **PACEDev** → **Signing & Capabilities**:
    - tick **Automatically manage signing**;
-   - **Team:** choose **"<Your Name> (Personal Team)"**;
+   - **Team:** choose **"<Your Name> (Personal Team)"**, the team of **your** Apple Account.
+     If the Mac owner's team also appears, don't choose it;
    - leave the **Bundle Identifier** as `app.pace.ios.dev`. **Do not change it.**
    - **Background Modes → Location updates** should already be listed; leave it.
 3. At the top, choose your **iPhone** as the run destination and the **Debug** configuration
@@ -262,7 +323,12 @@ opening. Renewal needs the Mac:
    ```
    Or press Run in Xcode.
 
-This re-signs and installs **over** the existing app, which normally keeps its data. **Deleting
+To renew **and** pick up new work, first update the branch:
+1. Run `git pull origin feature/ios-development-build`.
+2. Repeat the commit check from 4.3.
+3. Run `pnpm install --frozen-lockfile && pnpm build`.
+
+Then run the build command above. Either way, this re-signs and installs **over** the existing app, which normally keeps its data. **Deleting
 PACE Dev deletes its data**, including recordings not yet exported, so export first (Settings →
 Export).
 
