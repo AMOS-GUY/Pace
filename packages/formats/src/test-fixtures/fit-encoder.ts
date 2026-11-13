@@ -118,8 +118,9 @@ export class FitWriter {
     devBytes: number[] = [],
   ): this {
     const last = this.lastTimestamp;
-    if (last == null || timestamp <= last || timestamp - last >= 32)
-      throw new Error('compressed timestamp needs a previous timestamp less than 32 s earlier');
+    // The same second as the previous timestamp is allowed (offset equal to the previous one).
+    if (last == null || timestamp < last || timestamp - last >= 32)
+      throw new Error('compressed timestamp needs a previous timestamp at most 31 s earlier');
     this.out.push(0x80 | (local << 5) | (timestamp & 0x1f));
     this.lastTimestamp = timestamp;
     return this.body(local, values, devBytes);
