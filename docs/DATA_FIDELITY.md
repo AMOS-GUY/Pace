@@ -33,10 +33,10 @@ Legend: ✅ kept · 🟡 partly (see notes) · ❌ not kept · — not applicabl
 | Distance, moving and elapsed time | ✅ recomputed identically on re-import | ✅ | ✅ recomputed by replay |
 | Laps | ❌ (R2) | ✅ `data.json`, `laps.csv` | ✅ |
 | Triathlon legs | ❌ (R3; re-import warns) | ✅ `data.json` | ✅ replayed from leg events |
-| Heart rate and cadence | 🟡 One value per sample on its nearest point ≤ 2 s; whole numbers (R6, fixed on `fix/gpx-sensor-timestamps`) | ✅ `data.json` | ❌ **Not in backups (R7)** |
-| Power | ✅ at exact point times (R1) | ✅ `data.json` | ❌ **Not in backups (R7)** |
+| Heart rate and cadence | 🟡 One value per sample on its nearest point ≤ 2 s; whole numbers (R6, merged in PR #11) | ✅ `data.json` | ✅ in backup format 2 (`feature/backup-v2`); ❌ in format-1 backups (R7) |
+| Power | ✅ at exact point times (R1) | ✅ `data.json` | ✅ in backup format 2; ❌ in format-1 backups (R7) |
 | Splits, records | ❌ | ✅ | ✅ recomputed |
-| Goals, settings, profile | ❌ | ✅ | 🟡 Goals restored; settings are saved in the backup but not applied on restore |
+| Goals, settings, profile | ❌ | ✅ | 🟡 Goals restored. Format 2: only preferences and profile are backed up, validated and restored. Format 1 restored settings only where the device had none, and also carried the encrypted auth-session rows, which are now never restored. |
 | Re-importable into PACE | ✅ | 🟡 Only its GPX files; PACE does not read `data.json` | ✅ restore |
 | Other apps | ✅ GPX is widely read (power support varies; untested) | Readable JSON and CSV | ❌ PACE only |
 
@@ -46,23 +46,19 @@ Legend: ✅ kept · 🟡 partly (see notes) · ❌ not kept · — not applicabl
 
 - **Share a route with another app:** GPX.
 - **Keep a complete, readable copy of everything:** the portable export.
-- **Move PACE to a new iPhone:** the encrypted backup. Until R7 is fixed, keep a portable export
-  too, because backups do not contain heart rate, cadence or power.
+- **Move PACE to a new iPhone:** the encrypted backup. Backups made with format 2 include heart
+  rate, cadence and power. Older backups (format 1) don't, so keep a portable export of data you
+  backed up before.
 
 ## Open findings
 
 | ID | Finding | Status |
 |---|---|---|
-| R6 | GPX export copied heart rate and cadence onto the following 5 s of points; re-import duplicated them (24 → 120 samples) | Fixed on `fix/gpx-sensor-timestamps`, awaiting review |
+| R6 | GPX export copied heart rate and cadence onto the following 5 s of points; re-import duplicated them (24 → 120 samples) | Fixed, merged (PR #11) |
 | R4 | FIT records sharing a second were dropped entirely (cadence, power, even a GPS point) | Fixed on `fix/fit-same-second-records`, awaiting review |
-| **R7** | **Encrypted backups contain no sensor samples.** A backup → restore round trip kept the activity, 300 GPS points, 2 laps and the distance exactly, but heart rate, cadence and power went from 600 samples to 0. | **Needs a decision** (see below) |
+| **R7** | Encrypted backups (format 1) contained no sensor samples: a backup → restore round trip kept the activity, 300 GPS points, 2 laps and the distance exactly, but heart rate, cadence and power went from 600 samples to 0 | Fixed by backup format 2 on `feature/backup-v2` (approved as M4.8), awaiting review. See BACKUP_FORMAT.md there. |
 
-**R7, proposed fix (not implemented):**
-- Add the sensor samples to the backup payload as backup format **version 2** (activity,
-  sensor type, value, unit, time).
-- Restore inserts them with the activity, after replay.
-- Version 1 backups keep restoring as now.
-
-Nothing in the database schema changes. This needs your approval because it changes a
-persisted file format, and backups made with the new version cannot be restored by older app
-versions.
+**Correction (2026-11-13):** an earlier version of this table said backups saved settings but did
+not apply them on restore. That was wrong: format 1 restored them, but only where the device had
+no value yet. Format 1 also backed up the encrypted auth-session rows; format 2 never backs up or
+restores them.
