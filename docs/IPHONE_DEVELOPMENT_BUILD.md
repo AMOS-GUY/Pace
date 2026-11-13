@@ -6,7 +6,7 @@ your iPhone:
 | | **Free route:** Xcode Personal Team ([FREE_IPHONE_TESTING.md](FREE_IPHONE_TESTING.md)) | **Paid route:** EAS Build (this guide) |
 |---|---|---|
 | Apple account | Free Apple Account | Apple Developer Program membership (yearly fee) |
-| Build machine | **A Mac** with Xcode 26.x (borrowed is fine) | Expo's macOS servers. Windows is enough. |
+| Build machine | **A Mac** (borrowed is fine): Xcode 26.0 or later, 26.6 recommended; macOS Sequoia 15.6+ or Tahoe 26.2+ | Expo's macOS servers. Windows is enough. |
 | Signing | Xcode "Personal Team", automatic | Ad hoc profile created and stored by EAS |
 | Profile lifetime | **7 days**, then rebuild on the Mac | Up to a year |
 | Limits | 3 devices and 10 App IDs per 7 days; 3 apps per device | Up to 100 devices per product family (e.g. iPhone) per membership year |
@@ -15,7 +15,9 @@ your iPhone:
 
 **Which to use:**
 - **For the current goal**, testing on your own iPhone 13, the free route is enough *if you can
-  use a Mac*. Nothing PACE does today needs the paid membership.
+  use a Mac*. The step-by-step guide covers Mac requirements, signing with your own Apple
+  Account, Metro from the Mac or Windows, weekly renewal, cleanup and the physical-device test
+  checklist. Nothing PACE does today needs the paid membership.
 - **Choose the paid route** to build without a Mac, to avoid re-signing every week, or to install
   for other testers.
 
@@ -39,7 +41,7 @@ the Expo dev client. It loads the JavaScript from your PC while you develop.
 | **Apple Developer Program membership** | Installing on a physical iPhone from Windows needs ad hoc signing (a distribution certificate and an ad hoc provisioning profile containing your iPhone). A free Apple ID can only sign from Xcode on a Mac. | Paid yearly fee (see Apple's current pricing) |
 | **Expo account** | EAS Build runs the macOS build | The free plan includes a limited number of builds; check Expo's current plan |
 | **Supabase project** (URL and *publishable* key) | Signing in is mandatory, and without these settings the app stops at "PACE is not configured" | A free tier exists; check Supabase's current plan |
-| iPhone 13 on iOS 16 or later, with Developer Mode | iOS refuses development and ad hoc apps without it. Apple shows the Developer Mode switch only once the iPhone has been paired with a Mac or a development install has been attempted. | — |
+| iPhone 13 on iOS 16.4 or later (the app's deployment target), with Developer Mode | iOS refuses development and ad hoc apps without it. Apple shows the Developer Mode switch only once the iPhone has been paired with a Mac or a development install has been attempted. | — |
 | PC and iPhone on the same Wi-Fi, or a tunnel | The dev client loads JavaScript from your PC (Metro, port 8081) | — |
 
 ## One-time setup
