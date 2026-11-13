@@ -55,7 +55,7 @@ Windows and Linux can develop and test everything except the native iOS build.
 corepack enable
 pnpm install
 pnpm build          # compile shared packages
-pnpm test           # 137 tests: packages, mobile logic, API end-to-end (PGlite)
+pnpm test           # all tests: packages, mobile logic, API end-to-end (PGlite)
 ```
 
 ### Mobile app (macOS)
@@ -67,8 +67,11 @@ npx expo prebuild --platform ios
 npx expo run:ios --device             # development build on a connected iPhone
 ```
 
-Expo Go is **not** supported: the app ships a native tracking module. EAS alternatives:
-`eas build --profile development --platform ios`.
+Expo Go is **not** supported: the app ships a native tracking module. From Windows (no Mac), build
+a development build on EAS and install it on your iPhone:
+[docs/IPHONE_DEVELOPMENT_BUILD.md](docs/IPHONE_DEVELOPMENT_BUILD.md) (paid Apple Developer Program),
+or with a free Apple Account and a borrowed Mac:
+[docs/FREE_IPHONE_TESTING.md](docs/FREE_IPHONE_TESTING.md).
 
 ### API
 

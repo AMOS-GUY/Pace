@@ -8,7 +8,11 @@
     "ios": "expo run:ios",
     "prebuild": "expo prebuild --platform ios",
     "typecheck": "tsc --noEmit",
-    "test": "jest"
+    "test": "jest",
+    "start:tunnel": "expo start --dev-client --tunnel",
+    "eas:device": "npx --yes eas-cli@latest device:create",
+    "eas:build:dev": "npx --yes eas-cli@latest build --profile development --platform ios",
+    "eas:build:simulator": "npx --yes eas-cli@latest build --profile simulator --platform ios"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
