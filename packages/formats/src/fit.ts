@@ -10,6 +10,7 @@ import {
   fitTimeToMs,
 } from './fit-decoder';
 import {
+  type ImportedSensorSample,
   type ParsedTrack,
   SensorCollector,
   importedSample,
@@ -181,6 +182,12 @@ class FileBuilder {
   withoutPosition = 0;
   outOfOrder = 0;
   sameTime = 0;
+  /** Records sharing a time with the previous record that added a missing position or value. */
+  merged = 0;
+  /** Values at a repeated time that differ from the first record's (the first is kept). */
+  conflicting = 0;
+  private readonly sensorsAtLastTime = new Map<ImportedSensorSample['type'], number>();
+  private pointAtLastTime = false;
   relativeTime = 0;
   noTime = 0;
   deviceDistance = false;
@@ -271,37 +278,83 @@ class FileBuilder {
       this.outOfOrder++;
       return;
     }
-    if (t === this.lastTime) {
-      this.sameTime++;
-      return;
+    // A record repeating the previous record's time is merged into it (R4): it adds only what is
+    // still missing at that time (a position, or a sensor without a value yet) and never replaces
+    // or duplicates a value. A repeat that adds nothing is reported as skipped, as before.
+    const repeat = t === this.lastTime;
+    if (!repeat) {
+      this.lastTime = t;
+      this.sensorsAtLastTime.clear();
+      this.pointAtLastTime = false;
     }
-    this.lastTime = t;
+    let added = false;
 
     // Sensor values are kept exactly as recorded, for every timed record, and never filled in.
-    this.sensors.add('heart_rate', num(f.get(REC.heartRate)), t, 'bpm');
+    added = this.addSensor('heart_rate', num(f.get(REC.heartRate)), t, 'bpm', repeat) || added;
     const cadence = num(f.get(REC.cadence));
     if (cadence != null) {
       const frac = num(f.get(REC.fractionalCadence));
-      this.sensors.add('cadence', frac != null ? cadence + frac / 128 : cadence, t, 'rpm');
+      added =
+        this.addSensor(
+          'cadence',
+          frac != null ? cadence + frac / 128 : cadence,
+          t,
+          'rpm',
+          repeat,
+        ) || added;
     }
-    this.sensors.add('power', num(f.get(REC.power)), t, 'W');
+    added = this.addSensor('power', num(f.get(REC.power)), t, 'W', repeat) || added;
 
-    const latRaw = num(f.get(REC.lat));
-    const lonRaw = num(f.get(REC.lon));
-    if (latRaw == null || lonRaw == null) {
-      this.withoutPosition++;
-      return;
+    const position = (): boolean => {
+      const latRaw = num(f.get(REC.lat));
+      const lonRaw = num(f.get(REC.lon));
+      if (latRaw == null || lonRaw == null) {
+        if (!repeat) this.withoutPosition++;
+        return false;
+      }
+      if (this.pointAtLastTime) return false; // the first position at this time is kept
+      const lat = degrees(latRaw);
+      const lon = degrees(lonRaw);
+      if (!validCoordinate(lat, lon)) {
+        this.invalid++;
+        return false;
+      }
+      if (--this.budget.points < 0) throw new FitImportError('FIT file has too many points');
+      const altRaw = num(f.get(REC.enhancedAltitude)) ?? num(f.get(REC.altitude));
+      const alt = altRaw == null ? null : altRaw / 5 - 500;
+      this.points.push({ t, sample: importedSample(lat, lon, alt, t) });
+      this.pointAtLastTime = true;
+      return true;
+    };
+    added = position() || added;
+    if (repeat) {
+      if (added) this.merged++;
+      else this.sameTime++;
     }
-    const lat = degrees(latRaw);
-    const lon = degrees(lonRaw);
-    if (!validCoordinate(lat, lon)) {
-      this.invalid++;
-      return;
+  }
+
+  /**
+   * Adds one sensor value. For a record repeating the previous time, only a sensor that has no
+   * value at that time yet is added; a different value for one that has is counted as a
+   * conflict and left out (the first value wins). Returns whether a value was added.
+   */
+  private addSensor(
+    type: ImportedSensorSample['type'],
+    raw: number | null,
+    t: number,
+    unit: ImportedSensorSample['unit'],
+    repeat: boolean,
+  ): boolean {
+    if (raw == null) return false;
+    if (repeat && this.sensorsAtLastTime.has(type)) {
+      if (this.sensorsAtLastTime.get(type) !== raw) this.conflicting++;
+      return false;
     }
-    if (--this.budget.points < 0) throw new FitImportError('FIT file has too many points');
-    const altRaw = num(f.get(REC.enhancedAltitude)) ?? num(f.get(REC.altitude));
-    const alt = altRaw == null ? null : altRaw / 5 - 500;
-    this.points.push({ t, sample: importedSample(lat, lon, alt, t) });
+    const before = this.sensors.samples.length;
+    this.sensors.add(type, raw, t, unit);
+    if (this.sensors.samples.length === before) return false;
+    this.sensorsAtLastTime.set(type, raw);
+    return true;
   }
 
   /** Recording intervals from timer events; without any, the whole file is one interval. */
@@ -417,6 +470,14 @@ class FileBuilder {
       );
     if (this.outOfOrder > 0)
       warnings.push(`${this.outOfOrder} out-of-order record(s) were skipped.`);
+    if (this.merged > 0)
+      warnings.push(
+        `${this.merged} record(s) sharing a time with the previous record were merged into it: only values missing at that time were added.`,
+      );
+    if (this.conflicting > 0)
+      warnings.push(
+        `${this.conflicting} value(s) conflicting with the first record at the same time were not imported (the first value is kept).`,
+      );
     if (this.sameTime > 0)
       warnings.push(
         `${this.sameTime} record(s) repeating the previous record's time were skipped.`,
