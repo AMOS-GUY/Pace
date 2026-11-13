@@ -1,7 +1,26 @@
 # Running PACE on your iPhone (development build)
 
-This guide gets a development build of PACE onto a physical iPhone from a Windows PC. The iOS
-build runs on Expo's macOS servers (EAS Build), and the JavaScript is served from your PC.
+There are two ways to get a development build of PACE, with its native Swift GPS module, onto
+your iPhone:
+
+| | **Free route:** Xcode Personal Team ([FREE_IPHONE_TESTING.md](FREE_IPHONE_TESTING.md)) | **Paid route:** EAS Build (this guide) |
+|---|---|---|
+| Apple account | Free Apple Account | Apple Developer Program membership (yearly fee) |
+| Build machine | **A Mac** with Xcode 26.x (borrowed is fine) | Expo's macOS servers. Windows is enough. |
+| Signing | Xcode "Personal Team", automatic | Ad hoc profile created and stored by EAS |
+| Profile lifetime | **7 days**, then rebuild on the Mac | Up to a year |
+| Limits | 3 devices and 10 App IDs per 7 days; 3 apps per device | Up to 100 devices per product family (e.g. iPhone) per membership year |
+| Capabilities PACE uses (background location, file picker, Keychain) | All available | All available |
+| TestFlight and installing for others | No | Yes (TestFlight needs App Store Connect) |
+
+**Which to use:**
+- **For the current goal**, testing on your own iPhone 13, the free route is enough *if you can
+  use a Mac*. Nothing PACE does today needs the paid membership.
+- **Choose the paid route** to build without a Mac, to avoid re-signing every week, or to install
+  for other testers.
+
+The rest of this guide is the paid EAS route. Its configuration (`eas.json`, development profile)
+is ready and does not affect the free route.
 
 > **Status:** not yet done on a real device. CI builds and launches the app on an iOS
 > *simulator* only. That does not prove the app installs on, or works on, an iPhone: location
@@ -20,7 +39,7 @@ the Expo dev client. It loads the JavaScript from your PC while you develop.
 | **Apple Developer Program membership** | Installing on a physical iPhone from Windows needs ad hoc signing (a distribution certificate and an ad hoc provisioning profile containing your iPhone). A free Apple ID can only sign from Xcode on a Mac. | Paid yearly fee (see Apple's current pricing) |
 | **Expo account** | EAS Build runs the macOS build | The free plan includes a limited number of builds; check Expo's current plan |
 | **Supabase project** (URL and *publishable* key) | Signing in is mandatory, and without these settings the app stops at "PACE is not configured" | A free tier exists; check Supabase's current plan |
-| iPhone 13 on iOS 16 or later, with Developer Mode | iOS refuses development and ad hoc apps without it | — |
+| iPhone 13 on iOS 16 or later, with Developer Mode | iOS refuses development and ad hoc apps without it. Apple shows the Developer Mode switch only once the iPhone has been paired with a Mac or a development install has been attempted. | — |
 | PC and iPhone on the same Wi-Fi, or a tunnel | The dev client loads JavaScript from your PC (Metro, port 8081) | — |
 
 ## One-time setup
@@ -44,7 +63,9 @@ All commands run from `apps/mobile` in the repository.
    pnpm eas:device
    ```
 4. **Enable Developer Mode** on the iPhone: Settings → Privacy & Security → Developer Mode → On,
-   then restart the phone.
+   then restart the phone. If the switch is missing, it appears after the first attempt to open
+   the installed development build (Apple shows it only once the device has been paired with a
+   Mac or a development install has been attempted).
 5. **Build:**
    ```bash
    pnpm eas:build:dev

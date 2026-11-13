@@ -69,7 +69,9 @@ npx expo run:ios --device             # development build on a connected iPhone
 
 Expo Go is **not** supported: the app ships a native tracking module. From Windows (no Mac), build
 a development build on EAS and install it on your iPhone:
-[docs/IPHONE_DEVELOPMENT_BUILD.md](docs/IPHONE_DEVELOPMENT_BUILD.md).
+[docs/IPHONE_DEVELOPMENT_BUILD.md](docs/IPHONE_DEVELOPMENT_BUILD.md) (paid Apple Developer Program),
+or with a free Apple Account and a borrowed Mac:
+[docs/FREE_IPHONE_TESTING.md](docs/FREE_IPHONE_TESTING.md).
 
 ### API
 
