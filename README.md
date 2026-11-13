@@ -109,4 +109,5 @@ pnpm --filter @pace/api start                                      # http://loca
 [GPS engine](docs/GPS_ENGINE.md) · [API](docs/API.md) · [Security](docs/SECURITY.md) ·
 [Design system](docs/DESIGN_SYSTEM.md) · [Testing](docs/TESTING.md) · [Roadmap](docs/ROADMAP.md) ·
 [Decisions](docs/DECISIONS.md) · [Import validation](docs/IMPORT_VALIDATION.md) ·
-[M4.7 release readiness](docs/M4_7_RELEASE_READINESS.md)
+[M4.7 release readiness](docs/M4_7_RELEASE_READINESS.md) ·
+[Data fidelity](docs/DATA_FIDELITY.md) · [Export formats](docs/EXPORT_FORMATS.md)

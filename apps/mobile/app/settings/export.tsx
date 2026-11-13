@@ -175,7 +175,9 @@ export default function ExportSettings() {
           Moving to a new iPhone?
         </Text>
         <Text variant="bodySmall" color="secondary" style={{ marginBottom: spacing.sm }}>
-          Use an encrypted backup instead: it restores PACE exactly, including raw GPS data.
+          Use an encrypted backup: it restores your activities, routes, raw GPS data and laps. Heart
+          rate, cadence and power from imported files are not in backups yet, so keep this export as
+          well.
         </Text>
         <ListRow
           icon="cloud-upload-outline"

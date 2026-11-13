@@ -61,7 +61,7 @@ The minimums below come from the project's own dependencies.
 | Item | Requirement | Where it comes from |
 |---|---|---|
 | **Xcode** | **26.0 or later**; **26.6 recommended** (validated in CI) | `expo-modules-jsi` declares `swift-tools-version: 6.2`, which only Xcode 26's Swift 6.2 or later can build |
-| **macOS** | **Tahoe 26.2 or later** for Xcode 26.4.1–26.6. Sequoia 15.6 or later runs Xcode 26.0–26.3 (not validated). | [Xcode system requirements](https://developer.apple.com/xcode/system-requirements/) |
+| **macOS** | **Tahoe 26.2 or later** for Xcode 26.4.1–26.6. Sequoia 15.6 or later runs Xcode 26.0–26.3 (not validated). Xcode 27 (only if the iPhone is on iOS 27) needs **Tahoe 26.6 or later**. | [Xcode system requirements](https://developer.apple.com/xcode/system-requirements/) |
 | **Mac model** | One that runs the macOS version above. An older Mac that cannot run Sequoia 15.6 **cannot build PACE**. | — |
 | **Disk space** | **At least 50 GB free** (estimate: Xcode about 15–20 GB installed, plus the iOS platform, project dependencies, CocoaPods and build data) | Estimate, not measured on a Mac |
 | **Node.js** | **22.13+ or 24.3+** (24 recommended, as in CI) | `react-native` 0.88.1 and `expo` 58 `engines` |
@@ -72,6 +72,13 @@ The minimums below come from the project's own dependencies.
 | **Connection** | **USB cable** (iPhone 13: Lightning to USB-C or USB-A, to match the Mac) for first pairing and installs. Wi-Fi debugging is possible after pairing. | — |
 | **Network** | Mac and iPhone on the **same Wi-Fi** for Metro | — |
 | **Supabase project** | Project URL and **publishable** key. Signing in is mandatory, or PACE stops at "PACE is not configured". | `apps/mobile/src/config/env.ts` |
+
+**Check the iPhone first:** Settings → General → About → **iOS Version**.
+- **iOS 26.x or earlier:** use Xcode 26.6, the validated route.
+- **iOS 27 or later:** Xcode 26.x will most likely refuse to install onto it, and you need
+  Xcode 27. Xcode 27 needs macOS **Tahoe 26.6 or later**, and Xcode 27 with PACE's Expo SDK 58
+  is **untested**. If the build fails there, stop and report the error. Don't change native code
+  or dependencies to make it build.
 
 **Check the Mac before starting** (Terminal):
 ```bash
@@ -113,8 +120,15 @@ Swift must report **6.2 or later**.
 
 ### 4.1 One-time tools (the Mac's owner, as admin)
 
-1. **Xcode:** install from the Mac App Store, open it once and let it install its components.
-   Choose the iOS platform when asked; a physical device does not need simulator runtimes.
+1. **Xcode 26.6:** download it from [developer.apple.com/download/all](https://developer.apple.com/download/all/)
+   (sign in with a free Apple Account), search "Xcode 26.6", download the `.xip`, double-click it,
+   and move **Xcode.app** to Applications. Open it once and let it install its components; choose
+   the iOS platform when asked (a physical device needs no simulator runtimes).
+
+   **Don't take Xcode from the Mac App Store by default:** it installs the *current* Xcode (27.x
+   as of November 2026). Xcode 27 needs macOS Tahoe 26.6 or later and has **not** been tested with
+   PACE (Expo SDK 58). Use it only if your iPhone requires it (see "Check the iPhone first"
+   below), and record that combination as untested.
 2. **Command-line tools:**
    ```bash
    sudo xcode-select -s /Applications/Xcode.app
@@ -141,9 +155,10 @@ Swift must report **6.2 or later**.
 If you use the Mac owner's macOS user and their Apple Account is already listed, leave it alone:
 add yours, and sign only with yours (step 4.7).
 
-### 4.3 Get the code: the `feature/ios-development-build` branch (you, in your macOS user)
+### 4.3 Get the code: the `main` branch (you, in your macOS user)
 
-Build the branch that contains this workflow, **not** the default `main` branch:
+The iPhone setup was merged into `main` (PR #8), together with the export fixes (R1) and the
+M4.7 work. Build `main`, not the old `feature/ios-development-build` branch, which lacks them:
 
 ```bash
 git clone https://github.com/AMOS-GUY/Pace.git
@@ -152,27 +167,29 @@ git clone https://github.com/AMOS-GUY/Pace.git
 cd Pace
 ```
 ```bash
-git fetch origin
+git checkout main
 ```
 ```bash
-git checkout feature/ios-development-build
-```
-```bash
-git pull origin feature/ios-development-build
+git pull origin main
 ```
 
-**Verify the commit before building.** This prints the commit you have, then the latest commit on
-GitHub:
+**Verify the commit before building.** This prints the commit you have, then the latest `main`
+on GitHub:
 
 ```bash
-git rev-parse HEAD && git ls-remote origin refs/heads/feature/ios-development-build
+git rev-parse HEAD && git ls-remote origin refs/heads/main
 ```
 
-- The two SHAs must be identical, and `git status` must say "up to date" with nothing modified.
-- Write down the short SHA (`git rev-parse --short HEAD`): you need it for the test results, and
-  to run the same commit on Windows later.
-- Once this branch is merged into `main`, build `main` instead. Its commit should then contain
-  this guide.
+- **Same commit:** the two SHAs must be identical, and `git status` must say "up to date" with
+  nothing modified.
+- **Recent enough:** check that the checkout contains the merged work. This must print `ok`:
+  ```bash
+  git merge-base --is-ancestor 1c9a0bc HEAD && echo ok
+  ```
+- **Write down the short SHA** (`git rev-parse --short HEAD`). You need it for the test
+  results, and to run the same commit on Windows later.
+- **Testing a different branch?** If you've been asked to test one, use its name in place of
+  `main` in all three commands.
 
 **Install the dependencies** (the frozen lockfile, exactly as CI):
 
@@ -323,8 +340,8 @@ opening. Renewal needs the Mac:
    ```
    Or press Run in Xcode.
 
-To renew **and** pick up new work, first update the branch:
-1. Run `git pull origin feature/ios-development-build`.
+To renew **and** pick up new work, first update `main`:
+1. Run `git pull origin main`.
 2. Repeat the commit check from 4.3.
 3. Run `pnpm install --frozen-lockfile && pnpm build`.
 
