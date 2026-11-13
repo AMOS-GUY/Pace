@@ -73,7 +73,9 @@ const payload: BackupPayload = {
   ],
   laps: [],
   goals: [],
-  settings: [{ key: 'units', value: '"metric"' }],
+  // Format 2: settings are limited to the portable allowlist, and sensor samples are part of it.
+  settings: [{ key: 'preferences', value: '{"measurementSystem":"metric"}' }],
+  sensorSamples: [],
 };
 
 const doc = () =>
@@ -84,7 +86,8 @@ describe('backup format', () => {
     const bytes = serializeBackup(doc());
     const parsed = parseBackup(bytes);
     expect(parsed.payload).toEqual(payload);
-    expect(parsed.counts).toEqual({ activities: 1, samples: 1, events: 1 });
+    expect(parsed.formatVersion).toBe(2);
+    expect(parsed.counts).toEqual({ activities: 1, samples: 1, events: 1, sensorSamples: 0 });
   });
 
   it('detects tampering via checksum', () => {

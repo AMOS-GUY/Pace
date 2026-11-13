@@ -22,6 +22,7 @@ import {
   uploadCloudBackup,
 } from '@/services/backup-files';
 import { getServices } from '@/services/container';
+import { usePreferences } from '@/stores/preferences';
 import { useTheme } from '@/theme/ThemeProvider';
 import { parseRecoveryKey } from '@pace/backup';
 
@@ -64,6 +65,8 @@ export default function BackupSettings() {
     const { backup } = await getServices();
     const report = await backup.restore(doc);
     await invalidate();
+    // Restored preferences and profile take effect without restarting the app.
+    if (report.settingsRestored.length > 0) await usePreferences.getState().load();
     setMessage({
       tone: report.failed.length ? 'error' : 'success',
       text:

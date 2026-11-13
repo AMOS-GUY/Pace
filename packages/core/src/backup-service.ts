@@ -1,8 +1,15 @@
 import { type RecordedEvent, type SessionConfig, replaySession } from '@pace/activity-engine';
 import {
+  BackupError,
   type BackupDocument,
+  type BackupDocumentV2,
   type BackupPayload,
+  type BackupSensorSample,
+  PORTABLE_SETTING_KEYS,
+  type PortableSettingKey,
+  backupDocumentSchemaV2,
   createBackupDocument,
+  portableSettingSchemas,
   decryptBackup,
   encryptBackup,
   isEncryptedBackup,
@@ -30,14 +37,27 @@ export type BackupKey =
   { kind: 'passphrase'; passphrase: string } | { kind: 'raw'; key: Uint8Array };
 
 export interface RestoreReport {
+  /** The backup's format version (1 has no sensor samples). */
+  formatVersion: number;
   restored: number;
   skippedExisting: number;
   failed: Array<{ activityId: string; reason: string }>;
   goalsRestored: number;
+  /** Heart-rate, cadence and power samples restored with the restored activities. */
+  sensorSamplesRestored: number;
+  /** Portable settings applied from the backup (see PORTABLE_SETTING_KEYS). */
+  settingsRestored: PortableSettingKey[];
+  /** Settings in the backup that were not applied: not portable, or failing validation. */
+  settingsIgnored: number;
 }
 
-/** Settings that are device-specific or sensitive and never leave the device in a backup. */
-const NON_PORTABLE_SETTINGS = new Set(['onboarding.completed', 'session', 'backup.lastRunAt']);
+/**
+ * Only these settings are written into backups and applied on restore, whatever the backup's
+ * version. Never backed up or restored: authentication sessions (the encrypted `secure:*`
+ * rows), onboarding state, and sync or backup bookkeeping. Version 1 backups contain `secure:*`
+ * rows; they are ignored.
+ */
+const PORTABLE = new Set<string>(PORTABLE_SETTING_KEYS);
 
 export class BackupService {
   constructor(
@@ -57,6 +77,7 @@ export class BackupService {
       laps: [],
       goals: [],
       settings: [],
+      sensorSamples: [],
     };
     for (const r of rows) {
       payload.activities.push({
@@ -93,25 +114,55 @@ export class BackupService {
           lengthCount,
         });
       }
+      // Sensor samples exactly as stored, in the order they were stored (rowid).
+      const sensors = await db.all<{
+        sensor_type: BackupSensorSample['type'];
+        value: number;
+        unit: BackupSensorSample['unit'];
+        recorded_at: number;
+        source_device_id: string | null;
+      }>(
+        'SELECT sensor_type, value, unit, recorded_at, source_device_id FROM sensor_samples WHERE activity_id = ? ORDER BY rowid',
+        [r.id],
+      );
+      for (const x of sensors)
+        payload.sensorSamples.push({
+          activityId: r.id,
+          type: x.sensor_type,
+          value: x.value,
+          unit: x.unit,
+          recordedAt: x.recorded_at,
+          sourceDeviceId: x.source_device_id,
+        });
     }
     payload.goals = (
       await db.all<GoalRow>('SELECT * FROM training_goals WHERE deleted_at IS NULL')
     ).map(toGoal);
     payload.settings = (
-      await db.all<{ key: string; value: string }>('SELECT key, value FROM settings')
-    ).filter((s) => !NON_PORTABLE_SETTINGS.has(s.key));
+      await db.all<{ key: PortableSettingKey; value: string }>(
+        `SELECT key, value FROM settings WHERE key IN (${PORTABLE_SETTING_KEYS.map(() => '?').join(', ')}) ORDER BY key`,
+        [...PORTABLE_SETTING_KEYS],
+      )
+    ).filter((s) => portableSettingValue(s.key, s.value) != null);
     return payload;
   }
 
   /** Creates backup bytes. Encrypted whenever a key is given (always, for cloud uploads). */
   async createBackup(
     key: BackupKey | null,
-  ): Promise<{ bytes: Uint8Array; document: BackupDocument }> {
+  ): Promise<{ bytes: Uint8Array; document: BackupDocumentV2 }> {
     const document = createBackupDocument(await this.buildPayload(), {
       createdAt: this.ctx.now(),
       appVersion: this.appVersion,
       schemaVersion: MIGRATIONS[MIGRATIONS.length - 1]!.version,
     });
+    // Never write a backup that restore would refuse: validate it now, with the same schema.
+    const check = backupDocumentSchemaV2.safeParse(document);
+    if (!check.success)
+      throw new BackupError(
+        `Could not create a valid backup: ${check.error.issues[0]?.message ?? ''}`,
+        'invalid_format',
+      );
     const plain = serializeBackup(document);
     return { bytes: key ? encryptBackup(plain, key) : plain, document };
   }
@@ -131,10 +182,24 @@ export class BackupService {
    * rebuilt by deterministic replay of its raw data; one corrupt activity never blocks others.
    */
   async restore(doc: BackupDocument): Promise<RestoreReport> {
-    const report: RestoreReport = { restored: 0, skippedExisting: 0, failed: [], goalsRestored: 0 };
+    const report: RestoreReport = {
+      formatVersion: doc.formatVersion,
+      restored: 0,
+      skippedExisting: 0,
+      failed: [],
+      goalsRestored: 0,
+      sensorSamplesRestored: 0,
+      settingsRestored: [],
+      settingsIgnored: 0,
+    };
     const p = doc.payload;
     const samplesBy = groupBy(p.samples, (s) => s.activityId);
     const eventsBy = groupBy(p.events, (e) => e.activityId);
+    // Version 1 has no sensor samples; it is never read as version 2.
+    const sensorsBy = groupBy(
+      doc.formatVersion === 2 ? doc.payload.sensorSamples : [],
+      (s) => s.activityId,
+    );
 
     for (const a of p.activities) {
       const exists = await this.ctx.db.get('SELECT 1 AS x FROM activities WHERE id = ?', [a.id]);
@@ -215,9 +280,35 @@ export class BackupService {
                 : null,
             ]),
           );
+          // In the same transaction: an activity is restored with all its sensor samples or not
+          // at all. Stored order is kept; values and times are exactly as backed up.
+          const sensors = sensorsBy.get(a.id) ?? [];
+          await insertMany(
+            tx,
+            'sensor_samples',
+            [
+              'id',
+              'activity_id',
+              'sensor_type',
+              'value',
+              'unit',
+              'recorded_at',
+              'source_device_id',
+            ],
+            sensors.map((x) => [
+              this.ctx.newId(),
+              a.id,
+              x.type,
+              x.value,
+              x.unit,
+              x.recordedAt,
+              x.sourceDeviceId,
+            ]),
+          );
           await writeCompletedActivity(tx, this.ctx, a.id, a.sportType, summary);
         });
         report.restored++;
+        report.sensorSamplesRestored += (sensorsBy.get(a.id) ?? []).length;
       } catch (e) {
         report.failed.push({
           activityId: a.id,
@@ -245,15 +336,43 @@ export class BackupService {
       );
       report.goalsRestored += r.changes;
     }
+    // Portable settings replace the device's values: restoring brings back the athlete's
+    // preferences and profile. Anything else in the backup (in version 1 that includes the
+    // encrypted auth-session rows) is ignored, as is any value failing validation.
+    const seen = new Set<string>();
     for (const s of p.settings) {
-      if (NON_PORTABLE_SETTINGS.has(s.key)) continue;
+      const value =
+        PORTABLE.has(s.key) && !seen.has(s.key)
+          ? portableSettingValue(s.key as PortableSettingKey, s.value)
+          : null;
+      if (value == null) {
+        report.settingsIgnored++;
+        continue;
+      }
+      seen.add(s.key);
       await this.ctx.db.run(
-        'INSERT OR IGNORE INTO settings (key, value, updated_at) VALUES (?, ?, ?)',
-        [s.key, s.value, this.ctx.now()],
+        'INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at',
+        [s.key, value, this.ctx.now()],
       );
+      report.settingsRestored.push(s.key as PortableSettingKey);
     }
     return report;
   }
+}
+
+/**
+ * The validated JSON of a portable setting, or null when it is not valid JSON or fails its
+ * schema. Unknown fields from a newer app are dropped.
+ */
+function portableSettingValue(key: PortableSettingKey, raw: string): string | null {
+  let json: unknown;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  const parsed = portableSettingSchemas[key].safeParse(json);
+  return parsed.success ? JSON.stringify(parsed.data) : null;
 }
 
 function groupBy<T>(items: readonly T[], key: (t: T) => string): Map<string, T[]> {

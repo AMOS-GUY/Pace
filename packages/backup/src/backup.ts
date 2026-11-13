@@ -2,13 +2,16 @@ import { xchacha20poly1305 } from '@noble/ciphers/chacha';
 import { scrypt } from '@noble/hashes/scrypt';
 import { sha256 } from '@noble/hashes/sha2';
 import { bytesToHex, randomBytes, utf8ToBytes } from '@noble/hashes/utils';
-import { gunzipSync, gzipSync, strFromU8, strToU8 } from 'fflate';
+import { Gunzip, gzipSync, strFromU8, strToU8 } from 'fflate';
 import {
   BACKUP_FORMAT,
   BACKUP_FORMAT_VERSION,
   type BackupDocument,
+  type BackupDocumentV2,
   type BackupPayload,
-  backupDocumentSchema,
+  type BackupPayloadV1,
+  backupDocumentSchemaV1,
+  backupDocumentSchemaV2,
 } from './format';
 
 export class BackupError extends Error {
@@ -30,6 +33,12 @@ const MAGIC_PLAIN = new Uint8Array([0x50, 0x41, 0x43, 0x45, 0x42, 0x4b, 0x01]);
 /** Encrypted backup magic: "PACEBK" + format byte 0x81 (encrypted container). */
 const MAGIC_ENCRYPTED = new Uint8Array([0x50, 0x41, 0x43, 0x45, 0x42, 0x4b, 0x81]);
 const MAX_BACKUP_BYTES = 512 * 1024 * 1024;
+/**
+ * Upper bound on the decompressed JSON. A gzip stream can expand far beyond its own size, so
+ * this is checked while decompressing, never trusted from the file. JSON this large could not be
+ * parsed on a phone anyway.
+ */
+export const MAX_BACKUP_JSON_BYTES = 512 * 1024 * 1024;
 
 /**
  * Canonical JSON: object keys sorted recursively, so the checksum does not depend on property
@@ -44,14 +53,15 @@ export function canonicalJson(value: unknown): string {
   return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonicalJson(v)}`).join(',')}}`;
 }
 
-export function payloadChecksum(payload: BackupPayload): string {
+export function payloadChecksum(payload: BackupPayload | BackupPayloadV1): string {
   return bytesToHex(sha256(utf8ToBytes(canonicalJson(payload))));
 }
 
+/** A new backup document, always in the current format (version 2). */
 export function createBackupDocument(
   payload: BackupPayload,
   meta: { createdAt: number; appVersion: string; schemaVersion: number },
-): BackupDocument {
+): BackupDocumentV2 {
   return {
     format: BACKUP_FORMAT,
     formatVersion: BACKUP_FORMAT_VERSION,
@@ -62,6 +72,7 @@ export function createBackupDocument(
       activities: payload.activities.length,
       samples: payload.samples.length,
       events: payload.events.length,
+      sensorSamples: payload.sensorSamples.length,
     },
     payloadSha256: payloadChecksum(payload),
     payload,
@@ -89,8 +100,51 @@ export function serializeBackup(doc: BackupDocument): Uint8Array {
   return concat(MAGIC_PLAIN, gzipSync(strToU8(JSON.stringify(doc)), { level: 6 }));
 }
 
-/** Parses and fully validates a plain backup, including the payload checksum. */
-export function parseBackup(bytes: Uint8Array): BackupDocument {
+/**
+ * Decompresses gzip with a cap on the output, checked while decompressing. A truncated or
+ * damaged stream is an error, never a shorter result.
+ */
+function gunzipCapped(data: Uint8Array, max: number): Uint8Array {
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  let complete = false;
+  let overflow = false;
+  const g = new Gunzip((chunk, final) => {
+    size += chunk.length;
+    if (size > max) overflow = true;
+    else chunks.push(chunk);
+    if (final) complete = true;
+  });
+  const step = 64 * 1024;
+  for (let i = 0; i < data.length && !overflow; i += step)
+    g.push(data.subarray(i, i + step), i + step >= data.length);
+  if (overflow)
+    throw new BackupError(
+      `Backup expands to more than ${Math.round(max / 1024 / 1024)} MB`,
+      'too_large',
+    );
+  if (!complete) throw new Error('incomplete gzip stream');
+  const out = new Uint8Array(size);
+  let o = 0;
+  for (const c of chunks) {
+    out.set(c, o);
+    o += c.length;
+  }
+  return out;
+}
+
+/**
+ * Parses and fully validates a plain backup of any supported version, including the payload
+ * checksum.
+ * - Version 1 is read as version 1: it is never treated as version 2, and it has no sensor
+ *   samples.
+ * - A newer version than this build knows is refused as unsupported.
+ * - Anything else that is not a valid version is refused as invalid.
+ */
+export function parseBackup(
+  bytes: Uint8Array,
+  limits: { maxJsonBytes?: number } = {},
+): BackupDocument {
   if (bytes.length > MAX_BACKUP_BYTES)
     throw new BackupError('Backup file is too large', 'too_large');
   if (startsWith(bytes, MAGIC_ENCRYPTED))
@@ -99,15 +153,28 @@ export function parseBackup(bytes: Uint8Array): BackupDocument {
     throw new BackupError('Not a PACE backup file', 'invalid_format');
   let json: unknown;
   try {
-    json = JSON.parse(strFromU8(gunzipSync(bytes.subarray(MAGIC_PLAIN.length))));
-  } catch {
+    json = JSON.parse(
+      strFromU8(
+        gunzipCapped(
+          bytes.subarray(MAGIC_PLAIN.length),
+          Math.min(limits.maxJsonBytes ?? MAX_BACKUP_JSON_BYTES, MAX_BACKUP_JSON_BYTES),
+        ),
+      ),
+    );
+  } catch (e) {
+    if (e instanceof BackupError) throw e;
     throw new BackupError('Backup file is corrupted', 'invalid_format');
   }
-  const header = json as { formatVersion?: unknown };
-  if (typeof header.formatVersion === 'number' && header.formatVersion > BACKUP_FORMAT_VERSION) {
+  const version =
+    json !== null && typeof json === 'object'
+      ? (json as { formatVersion?: unknown }).formatVersion
+      : undefined;
+  if (typeof version !== 'number' || !Number.isInteger(version) || version < 1)
+    throw new BackupError('Backup has no valid format version', 'invalid_format');
+  if (version > BACKUP_FORMAT_VERSION)
     throw new BackupError('Backup was created by a newer version of PACE', 'unsupported_version');
-  }
-  const parsed = backupDocumentSchema.safeParse(json);
+  const parsed =
+    version === 1 ? backupDocumentSchemaV1.safeParse(json) : backupDocumentSchemaV2.safeParse(json);
   if (!parsed.success)
     throw new BackupError(
       `Backup failed validation: ${parsed.error.issues[0]?.message ?? ''}`,
