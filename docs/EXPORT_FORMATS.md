@@ -13,8 +13,8 @@ everything.
 |---|---|---|
 | Route points (position, elevation, time) | Yes | `<trkpt>`, one `<trkseg>` per recording segment (pauses split segments) |
 | Sport | Yes | `<trk><type>`: running, cycling, walking, hiking, swimming, triathlon |
-| Heart rate | Yes | Garmin TrackPointExtension v1 `<gpxtpx:hr>`, see the note below |
-| Cadence | Yes | Garmin TrackPointExtension v1 `<gpxtpx:cad>`, see the note below |
+| Heart rate | Yes | Garmin TrackPointExtension v1 `<gpxtpx:hr>`, one value per sample (R6, below) |
+| Cadence | Yes | Garmin TrackPointExtension v1 `<gpxtpx:cad>`, one value per sample, whole rpm (R6, below) |
 | **Power** | **Yes** (since R1) | Garmin PowerExtension v1 `<gpxpx:PowerInWatts>`, see below |
 | Laps | **No** | GPX has no laps (R2). Use the portable export. |
 | Triathlon legs and transitions | **No** | GPX has no legs (R3). Use the portable export. |
@@ -49,16 +49,39 @@ Power is written as Garmin's PowerExtension v1 element inside each track point's
 a particular third-party app reads power from it has **not** been tested. Some apps read only
 Strava's unnamespaced `<power>`, and some ignore power in GPX entirely. Check the app you use.
 
-### Heart rate and cadence: a known approximation (R6)
+### Heart rate and cadence (R6)
 
-Heart rate and cadence values are attached to every track point up to 5 s *after* the sample, and
-rounded to whole numbers. When a sensor records less often than the GPS (for example one
-heart-rate value every 5 s with a GPS point every second), one value appears on several points,
-and re-importing the GPX creates those copies as separate samples. Fractional cadence (85.5 rpm)
-becomes a whole number.
+GPX can hold a sensor value only on a track point. PACE places them like this:
 
-This is how the export has always worked. It is reported as finding R6 and has not been
-changed; changing it needs a product decision.
+- **One point per sample:** each heart-rate or cadence sample is written on **one** track point,
+  the point closest in time, at most **2 s** away. A sample measured exactly at a point's time
+  stays at that time.
+- **One sample per point:** each point carries at most one value per sensor. When two samples
+  compete for a point, the closer one wins.
+- **Out of range:** a sample with no free point within 2 s (for example during a long GPS gap) is
+  left out of the GPX. The portable export keeps it.
+- **Nothing invented:** no value is copied onto other points. Missing data and dropouts stay
+  missing.
+- **Whole numbers:** values are written as whole numbers, because TrackPointExtension `hr` and
+  `cad` hold whole numbers. Fractional cadence (85.5 rpm) becomes 86 rpm. This is a GPX format
+  limit.
+
+| Original data | After GPX export and re-import |
+|---|---|
+| A value at every GPS point (e.g. 1 Hz with 1 Hz GPS) | Identical: same times, same values |
+| Sparse values (every 5 s, every 7 s), dropouts, repeated equal values, zeros | Identical: same times and values, no copies, gaps stay gaps |
+| Values between GPS timestamps (e.g. GPS every 2 s, heart rate on the odd seconds) | Each value moves to one neighbouring point (≤ 2 s). Values that find no free point are left out. |
+| Fractional cadence | Rounded to whole rpm, at the same time |
+
+**Until R6 was fixed** (2026-11-13), the export gave every track point the last sample of the
+preceding 5 s. One heart-rate value every 5 s came back as five; a 30 s dropout was partly filled
+with copies. GPX files exported by earlier PACE versions still contain those copies, and
+importing them stores them.
+
+Tests: `packages/core/src/gpx-sensor-roundtrip.test.ts`.
+
+**Power** keeps the stricter rule approved with R1: it is written only on the point with exactly
+its time, never moved (see Power above).
 
 ### Triathlons (R3)
 

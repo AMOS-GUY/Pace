@@ -34,9 +34,11 @@ describe('GPX', () => {
     expect(p0.latitude).toBeCloseTo(track[0]!.latitude, 6);
     expect(p0.altitudeMeters).toBeCloseTo(10, 1);
     expect(p0.recordedAt).toBe(track[0]!.recordedAt);
-    // A heart-rate reading applies to track points up to 5 s after it.
+    // One heart-rate reading is written once, on its own track point. (Until R6 it was copied
+    // onto every point of the following 5 s, so this came back as 6 readings.)
     expect(parsed.heartRate[0]).toEqual({ recordedAt: track[0]!.recordedAt, bpm: 141 });
-    expect(parsed.heartRate).toHaveLength(6);
+    expect(parsed.heartRate).toHaveLength(1);
+    expect(xml.match(/<gpxtpx:hr>/g)).toHaveLength(1);
   });
 
   it('imports third-party GPX with namespaces and skips invalid points', () => {
