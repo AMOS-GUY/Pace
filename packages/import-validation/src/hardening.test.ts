@@ -71,12 +71,18 @@ describe('export round trip (app GPX export, imported again)', () => {
     });
     expect(byMetric(run.checks, 'laps kept').explanation).toMatch(/R2/);
     const ride = await trip(rideWithDropoutsFit());
-    expect(byMetric(ride.checks, 'power kept')).toMatchObject({
-      status: 'WARNING',
-      value: 0,
-      reference: 561,
-    });
-    expect(byMetric(ride.checks, 'power kept').explanation).toMatch(/R1/);
+    // R1 is approved and fixed on fix/gpx-power-export. Until both branches are merged this test
+    // runs against either exporter, and allows exactly two outcomes: every power sample kept
+    // (PASS), or none kept, reported as the documented R1 gap (WARNING). Partial loss or changed
+    // values are a FAIL in both cases.
+    const power = byMetric(ride.checks, 'power kept');
+    if (power.value === 561) {
+      expect(power).toMatchObject({ status: 'PASS', reference: 561 });
+      expect(power.explanation).toMatch(/Every sample kept/);
+    } else {
+      expect(power).toMatchObject({ status: 'WARNING', value: 0, reference: 561 });
+      expect(power.explanation).toMatch(/R1/);
+    }
     // Zero cadence while coasting survives the round trip exactly.
     expect(byMetric(ride.checks, 'cadence kept').status).toBe('PASS');
   });

@@ -20,7 +20,8 @@ without ever storing or revealing them.
   been tested.
 - **Nothing has run on a physical iPhone.** The app builds and launches on an iOS simulator in CI
   and shows its first screen; that is all.
-- Three app export gaps (R1–R3) were found and need a decision.
+- Three app export gaps (R1–R3) were found. Decided 2026-11-13: R1 is fixed on `fix/gpx-power-export`
+  (awaiting merge); R2 and R3 are documented limitations, with no custom GPX extension.
 - The FIT decoder's legal position has not had legal review (D22).
 
 **Verdict:** ready for real-device validation, **not** ready to be described as compatible with
@@ -138,7 +139,19 @@ pauses, heart rate, cadence and zero values survive exactly.
   profile but are unconfirmed on real files.
 - `sensorGaps` ignores late-starting or early-ending sensors.
 
-## 7. Outstanding risks and app findings needing a decision
+## 7. Outstanding risks and app findings
+
+**Owner decisions (2026-11-13):**
+- **R1:** approved and implemented on `fix/gpx-power-export`. Power is written as Garmin
+  PowerExtension v1, exactly on matching track points.
+- **R2:** no change; documented.
+- **R3:** documented. The GPX import now warns about multisport files; there is no custom
+  extension.
+
+Details are in docs/EXPORT_FORMATS.md on that branch. A new finding, **R6** (heart rate and
+cadence attached to points up to 5 s after a sample, and rounded), is reported there and not
+changed.
+
 
 | ID | Affected code | Reproduction | Expected | Actual | Proposed fix | Risk |
 |---|---|---|---|---|---|---|
@@ -176,7 +189,7 @@ Install a development build (`npx expo run:ios --device`), then on the device:
 1. Run the five-scenario guide on your own Garmin recordings, with `--export-roundtrip`.
 2. Triage every FAIL and WARNING into decoder, import or harness findings, without changing
    behaviour until you approve.
-3. Decide R1 (and R3).
+3. Merge `fix/gpx-power-export` (R1 and R3) after review.
 4. First physical-iPhone session: install, import from Files, migration 3, and a short outdoor
    recording.
 

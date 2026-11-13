@@ -868,7 +868,7 @@ export function roundTripChecks(
         explanation: identical
           ? 'Every sample kept with its time and value'
           : knownPowerGap
-            ? 'Known limitation R1: the GPX export does not include power (data.json keeps it)'
+            ? "Known limitation R1: this build's GPX export does not include power (data.json keeps it). Fixed on fix/gpx-power-export; after it is merged, power is kept exactly."
             : 'Samples were added, lost or changed by export and import',
       }),
     );
