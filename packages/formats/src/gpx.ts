@@ -16,6 +16,13 @@ export interface GpxExportInput {
   heartRate?: ReadonlyArray<{ recordedAt: number; bpm: number }>;
   /** Optional cadence samples (rpm, as TrackPointExtension defines `cad`). */
   cadence?: ReadonlyArray<{ recordedAt: number; rpm: number }>;
+  /**
+   * Optional power samples (W), written as Garmin's PowerExtension v1 `PowerInWatts` on the
+   * track point with exactly the same time. A sample is never copied to other points or
+   * rounded; a sample with no track point at its time (for example while GPS had no fix) cannot
+   * be represented in GPX and is left out.
+   */
+  power?: ReadonlyArray<{ recordedAt: number; watts: number }>;
   creator?: string;
 }
 
@@ -49,11 +56,19 @@ const coord = (n: number): string => n.toFixed(7);
 export function toGpx(input: GpxExportInput): string {
   const hrAt = nearest((input.heartRate ?? []).map((h) => ({ at: h.recordedAt, v: h.bpm })));
   const cadAt = nearest((input.cadence ?? []).map((c) => ({ at: c.recordedAt, v: c.rpm })));
+  const powerAt = new Map<number, number>();
+  for (const p of input.power ?? [])
+    if (Number.isFinite(p.watts) && !powerAt.has(p.recordedAt)) powerAt.set(p.recordedAt, p.watts);
+  // The power namespace is declared only when power is written, so files without power are
+  // byte-for-byte what earlier versions wrote.
+  const powerNs =
+    powerAt.size > 0 ? 'xmlns:gpxpx="http://www.garmin.com/xmlschemas/PowerExtension/v1" ' : '';
   const lines: string[] = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     `<gpx version="1.1" creator="${escapeXml(input.creator ?? 'PACE')}" xmlns="http://www.topografix.com/GPX/1/1" ` +
       'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
       'xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" ' +
+      powerNs +
       'xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">',
     `  <metadata><name>${escapeXml(input.name)}</name><time>${iso(input.startedAt)}</time></metadata>`,
     '  <trk>',
@@ -71,12 +86,16 @@ export function toGpx(input: GpxExportInput): string {
       parts.push(`<time>${iso(p.recordedAt)}</time>`);
       const bpm = hrAt(p.recordedAt);
       const cad = cadAt(p.recordedAt);
-      if (bpm != null || cad != null) {
+      const watts = powerAt.get(p.recordedAt);
+      if (bpm != null || cad != null || watts != null) {
+        const powerTag = watts != null ? `<gpxpx:PowerInWatts>${watts}</gpxpx:PowerInWatts>` : '';
         const hrTag = bpm != null ? `<gpxtpx:hr>${bpm}</gpxtpx:hr>` : '';
         const cadTag = cad != null ? `<gpxtpx:cad>${cad}</gpxtpx:cad>` : '';
-        parts.push(
-          `<extensions><gpxtpx:TrackPointExtension>${hrTag}${cadTag}</gpxtpx:TrackPointExtension></extensions>`,
-        );
+        const tpx =
+          bpm != null || cad != null
+            ? `<gpxtpx:TrackPointExtension>${hrTag}${cadTag}</gpxtpx:TrackPointExtension>`
+            : '';
+        parts.push(`<extensions>${powerTag}${tpx}</extensions>`);
       }
       parts.push('</trkpt>');
       lines.push(parts.join(''));
@@ -137,6 +156,9 @@ const TYPE_MAP: Record<string, SportType> = {
   swim: 'swimming',
   open_water_swimming: 'swimming',
 };
+
+/** GPX `<type>` values that mean a multisport activity (PACE writes `triathlon`). */
+const MULTISPORT_TYPES = new Set(['triathlon', 'multisport', 'multi_sport', 'duathlon']);
 
 const asArray = <T>(v: T | T[] | undefined): T[] => (v == null ? [] : Array.isArray(v) ? v : [v]);
 
@@ -260,6 +282,12 @@ export function parseGpx(xml: string): GpxImportResult {
     .toLowerCase();
   const text = (v: unknown): string | null =>
     typeof v === 'string' && v.trim() ? v.trim().slice(0, 4000) : null;
+  // GPX has no way to hold multisport legs (R3). Say so, rather than letting a triathlon (for
+  // example PACE's own GPX export of one) look like a complete single-sport file.
+  if (MULTISPORT_TYPES.has(typeRaw))
+    warnings.push(
+      "This file is marked as a triathlon or multisport activity. GPX cannot hold the swim, transition, bike and run legs, so it can only be imported as a single sport. PACE's portable export (data.json) keeps the legs.",
+    );
   return {
     name:
       text(trk['name']) ?? text((gpx['metadata'] as Record<string, unknown> | undefined)?.['name']),
