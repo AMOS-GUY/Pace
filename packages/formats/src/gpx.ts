@@ -54,8 +54,15 @@ const coord = (n: number): string => n.toFixed(7);
 
 /** Serialises an activity to GPX 1.1 (readable by Strava, Garmin Connect, etc.). */
 export function toGpx(input: GpxExportInput): string {
-  const hrAt = nearest((input.heartRate ?? []).map((h) => ({ at: h.recordedAt, v: h.bpm })));
-  const cadAt = nearest((input.cadence ?? []).map((c) => ({ at: c.recordedAt, v: c.rpm })));
+  const pointTimes = input.segments.flatMap((seg) => seg.map((p) => p.recordedAt));
+  const hrOn = placeOnPoints(
+    pointTimes,
+    (input.heartRate ?? []).map((h) => ({ at: h.recordedAt, v: h.bpm })),
+  );
+  const cadOn = placeOnPoints(
+    pointTimes,
+    (input.cadence ?? []).map((c) => ({ at: c.recordedAt, v: c.rpm })),
+  );
   const powerAt = new Map<number, number>();
   for (const p of input.power ?? [])
     if (Number.isFinite(p.watts) && !powerAt.has(p.recordedAt)) powerAt.set(p.recordedAt, p.watts);
@@ -84,8 +91,8 @@ export function toGpx(input: GpxExportInput): string {
       if (p.altitudeMeters != null && Number.isFinite(p.altitudeMeters))
         parts.push(`<ele>${p.altitudeMeters.toFixed(1)}</ele>`);
       parts.push(`<time>${iso(p.recordedAt)}</time>`);
-      const bpm = hrAt(p.recordedAt);
-      const cad = cadAt(p.recordedAt);
+      const bpm = hrOn.get(p.recordedAt) ?? null;
+      const cad = cadOn.get(p.recordedAt) ?? null;
       const watts = powerAt.get(p.recordedAt);
       if (bpm != null || cad != null || watts != null) {
         const powerTag = watts != null ? `<gpxpx:PowerInWatts>${watts}</gpxpx:PowerInWatts>` : '';
@@ -106,16 +113,56 @@ export function toGpx(input: GpxExportInput): string {
   return lines.join('\n');
 }
 
-/** Sensor readings apply to track points up to 5 s after them (monotonic queries). */
-function nearest(values: ReadonlyArray<{ at: number; v: number }>): (t: number) => number | null {
-  const sorted = [...values].sort((a, b) => a.at - b.at);
-  let i = 0;
-  return (t) => {
-    if (sorted.length === 0) return null;
-    while (i + 1 < sorted.length && sorted[i + 1]!.at <= t) i++;
-    const h = sorted[i]!;
-    return Math.abs(h.at - t) <= 5000 ? Math.round(h.v) : null;
-  };
+/** How far (ms) a heart-rate or cadence sample may move to reach a track point. */
+export const GPX_SENSOR_MAX_SHIFT_MS = 2000;
+
+/**
+ * Places the samples of one sensor on track points for GPX, which can hold a value only on a
+ * point (R6, docs/EXPORT_FORMATS.md).
+ *
+ * Each sample goes on at most one point: the closest one in time, within
+ * GPX_SENSOR_MAX_SHIFT_MS. Each point carries at most one sample. Exact-time matches are placed
+ * first, then closer before farther, then earlier before later, so the result is deterministic.
+ * A sample with no free point in range is left out. Nothing is copied onto other points or
+ * invented. Values are rounded because TrackPointExtension `hr` and `cad` hold whole numbers.
+ *
+ * Earlier versions gave every point the last sample of the preceding 5 s, which copied a sparse
+ * sample onto up to five points and filled short dropouts with invented values.
+ */
+function placeOnPoints(
+  pointTimes: readonly number[],
+  values: ReadonlyArray<{ at: number; v: number }>,
+): Map<number, number> {
+  const times = [...new Set(pointTimes)].sort((a, b) => a - b);
+  const samples = values
+    .filter((s) => Number.isFinite(s.v) && Number.isFinite(s.at))
+    .sort((a, b) => a.at - b.at);
+  const edges: Array<{ sample: number; point: number; dist: number }> = [];
+  samples.forEach((s, i) => {
+    // The points just before and after the sample (binary search).
+    let lo = 0;
+    let hi = times.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (times[mid]! < s.at) lo = mid + 1;
+      else hi = mid;
+    }
+    for (const k of [lo - 1, lo]) {
+      const t = times[k];
+      if (t == null) continue;
+      const dist = Math.abs(t - s.at);
+      if (dist <= GPX_SENSOR_MAX_SHIFT_MS) edges.push({ sample: i, point: t, dist });
+    }
+  });
+  edges.sort((a, b) => a.dist - b.dist || a.sample - b.sample || a.point - b.point);
+  const placed = new Map<number, number>();
+  const used = new Set<number>();
+  for (const e of edges) {
+    if (used.has(e.sample) || placed.has(e.point)) continue;
+    used.add(e.sample);
+    placed.set(e.point, Math.round(samples[e.sample]!.v));
+  }
+  return placed;
 }
 
 export interface GpxImportResult {

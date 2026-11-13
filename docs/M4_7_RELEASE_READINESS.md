@@ -148,9 +148,9 @@ pauses, heart rate, cadence and zero values survive exactly.
 - **R3:** documented. The GPX import now warns about multisport files; there is no custom
   extension.
 
-Details are in docs/EXPORT_FORMATS.md on that branch. A new finding, **R6** (heart rate and
-cadence attached to points up to 5 s after a sample, and rounded), is reported there and not
-changed.
+Details are in docs/EXPORT_FORMATS.md. **R6** (heart rate and cadence copied onto the track
+points of the following 5 s, so re-import duplicated them) was reproduced and fixed on 2026-11-13
+(`fix/gpx-sensor-timestamps`): each sample is now written once, on its nearest point within 2 s.
 
 
 | ID | Affected code | Reproduction | Expected | Actual | Proposed fix | Risk |
