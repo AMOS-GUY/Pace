@@ -116,9 +116,12 @@ export async function validateArchive(
     // Accounting: every file entry produced an outcome or a skip.
     const isZip = /\.zip$/i.test(input.extension);
     const entries = isZip ? await countZipEntries(input.open()) : 1;
+    // One outcome per file, except a file with several activities, whose outcomes are labelled
+    // "#1", "#2", …: count those once (at "#1"). Names are not deduplicated, because a ZIP may
+    // legally contain two entries with the same name, and each is a file of its own.
     const accounted =
-      new Set(report.outcomes.map((o) => (o.entry ?? '(file)').replace(/#\d+$/, ''))).size +
-      report.skipped.count;
+      report.outcomes.filter((o) => !/#\d+$/.test(o.entry ?? '') || /#1$/.test(o.entry ?? ''))
+        .length + report.skipped.count;
     if (entries == null || report.sourceErrors.length > 0)
       checks.push(
         notTested(

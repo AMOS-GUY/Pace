@@ -16,9 +16,11 @@ export type Status = 'PASS' | 'FAIL' | 'WARNING' | 'NOT TESTED';
  * - device: PACE's final activity versus the totals the device wrote into the FIT file
  *   (informational: device totals are not ground truth, so differences are WARNINGs).
  * - expectation: the scenario manifest's expected properties.
+ * - roundtrip: the activity exported as GPX by the app and imported again (what an export keeps).
  * - archive: reading archives with PACE's archive reader and bulk import.
  */
-export type Tier = 'integrity' | 'format' | 'pipeline' | 'device' | 'expectation' | 'archive';
+export type Tier =
+  'integrity' | 'format' | 'pipeline' | 'device' | 'roundtrip' | 'expectation' | 'archive';
 
 export interface Check {
   tier: Tier;

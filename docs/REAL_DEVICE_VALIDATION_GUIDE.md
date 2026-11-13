@@ -106,8 +106,11 @@ The harness refuses to run on a folder, manifest or report location inside the P
 From the PACE checkout (after `pnpm install`):
 
 ```bash
-pnpm validate:fit "C:/Users/<you>/PaceValidation" --manifest "C:/Users/<you>/PaceValidation/manifest.json"
+pnpm validate:fit "C:/Users/<you>/PaceValidation" --manifest "C:/Users/<you>/PaceValidation/manifest.json" --export-roundtrip
 ```
+
+`--export-roundtrip` also checks what PACE's own GPX export keeps. Power, laps and triathlons are
+known gaps (WARNING); see M4_7_RELEASE_READINESS.md, R1–R3.
 
 The console prints one line per scenario, for example `V2  PASS  imported`. The reports are
 `report.md` and `report.json` in `PaceValidation/pace-validation-report/`.
