@@ -2,7 +2,7 @@ name: UI preview
 
 # Screenshots of the real app (Release build, iOS simulator), on request only. Runs on pushes to
 # preview/ui-screenshots or manually. It changes nothing in the app; the output is a CI artifact
-# and a commit on the separate `ui-preview-screens` branch (never main).
+# and a new `ui-preview-run-<id>` branch per run (never main).
 on:
   push:
     branches: [preview/ui-screenshots]
@@ -117,25 +117,32 @@ jobs:
           name: ui-preview
           path: artifacts/ui-preview
           if-no-files-found: warn
-      - name: Publish screenshots to the ui-preview-screens branch (never main)
+      - name: Publish screenshots to a ui-preview-run-* branch (never main)
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          set -e
+          # A new single-commit branch per run, so nothing is ever force-pushed or rewritten.
+          # Any failure is reported as an annotation (readable without signing in).
+          branch="ui-preview-run-$GITHUB_RUN_ID"
           out="$RUNNER_TEMP/publish"
-          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          if git ls-remote --exit-code "$remote" refs/heads/ui-preview-screens > /dev/null; then
-            git clone --quiet --depth 1 --branch ui-preview-screens "$remote" "$out"
-          else
-            mkdir -p "$out" && git -C "$out" init --quiet -b ui-preview-screens
-            git -C "$out" remote add origin "$remote"
+          log="$RUNNER_TEMP/publish.log"
+          mkdir -p "$out/ui-preview"
+          cp -R artifacts/ui-preview/screens artifacts/ui-preview/debug "$out/ui-preview/" 2>/dev/null || true
+          cp artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt artifacts/ui-preview/contact-sheet.png \
+            "$out/ui-preview/" 2>/dev/null || true
+          # GitHub refuses files over 100 MB; drop anything over 40 MB and say so.
+          find "$out" -type f -size +40M -print -delete | sed 's/^/dropped (too large): /' >> "$out/ui-preview/screens.txt" || true
+          du -sh "$out/ui-preview" || true
+          if ! {
+            git -C "$out" init --quiet -b "$branch" &&
+            git -C "$out" config user.name "github-actions[bot]" &&
+            git -C "$out" config user.email "41898282+github-actions[bot]@users.noreply.github.com" &&
+            git -C "$out" add -A &&
+            git -C "$out" commit --quiet -m "UI preview of $GITHUB_SHA (run $GITHUB_RUN_ID)" &&
+            git -C "$out" push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/$branch"
+          } > "$log" 2>&1; then
+            echo "::error title=Publish failed::$(tail -n 15 "$log" | sed "s/${GH_TOKEN}/***/g" | tr '\n' ' ')"
+            exit 1
           fi
-          rm -rf "$out/ui-preview" && mkdir -p "$out/ui-preview"
-          cp -R artifacts/ui-preview/screens artifacts/ui-preview/debug artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt "$out/ui-preview/" 2>/dev/null || true
-          cp artifacts/ui-preview/contact-sheet.png "$out/ui-preview/" 2>/dev/null || true
-          git -C "$out" config user.name "github-actions[bot]"
-          git -C "$out" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git -C "$out" add -A
-          git -C "$out" commit --quiet -m "UI preview of $GITHUB_SHA (run $GITHUB_RUN_ID)" || echo "nothing new"
-          git -C "$out" push --quiet origin ui-preview-screens
+          echo "::notice title=Published::$branch"
