@@ -43,8 +43,17 @@ appId: app.pace.ios
 - extendedWaitUntil: { visible: 'Send reset link', timeout: 20000, optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 05-auth-forgot-password
+- openLink: pace://auth/reset-password
+- tapOn: { text: 'Open', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 05b-auth-reset-password-link
 
 # ---------------------------------------------------------------- onboarding
+- openLink: pace://profile
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 05c-onboarding-profile
 - openLink: pace://sports
 - tapOn: { text: 'Open', optional: true }
 - extendedWaitUntil: { visible: 'What do you train\?', timeout: 20000, optional: true }
@@ -130,8 +139,9 @@ appId: app.pace.ios
 - takeScreenshot: 23-activity-detail-scrolled-more
 
 # ---------------------------------------------------------------- tabs with one activity
-- openLink: pace://
-- tapOn: { text: 'Open', optional: true }
+# Back from the activity, not via pace:// (that reopens the start screen, which in this build is
+# "PACE is not configured"). The back button reads "(tabs)".
+- tapOn: { text: '.*\(tabs\).*', optional: true }
 - extendedWaitUntil: { visible: 'Home, tab.*', timeout: 20000, optional: true }
 - tapOn: { text: 'Home, tab.*', optional: true }
 - waitForAnimationToEnd

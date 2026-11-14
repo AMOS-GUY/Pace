@@ -130,7 +130,7 @@ jobs:
           log="$RUNNER_TEMP/publish.log"
           mkdir -p "$out/ui-preview"
           cp -R artifacts/ui-preview/screens artifacts/ui-preview/debug "$out/ui-preview/" 2>/dev/null || true
-          cp artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt artifacts/ui-preview/contact-sheet.png \
+          cp artifacts/ui-preview/README.md artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt artifacts/ui-preview/contact-sheet.png \
             "$out/ui-preview/" 2>/dev/null || true
           # GitHub refuses files over 100 MB; drop anything over 40 MB and say so.
           find "$out" -type f -size +40M -print -delete | sed 's/^/dropped (too large): /' >> "$out/ui-preview/screens.txt" || true
