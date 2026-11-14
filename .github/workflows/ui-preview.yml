@@ -1,0 +1,136 @@
+name: UI preview
+
+# Screenshots of the real app (Release build, iOS simulator), on request only. Runs on pushes to
+# preview/ui-screenshots or manually. It changes nothing in the app; the output is a CI artifact
+# and a commit on the separate `ui-preview-screens` branch (never main).
+on:
+  push:
+    branches: [preview/ui-screenshots]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ui-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    name: Build, launch and capture every reachable screen
+    runs-on: macos-26
+    timeout-minutes: 90
+    env:
+      XCODE_APP: /Applications/Xcode_26.6.app
+      APP_BUNDLE_ID: app.pace.ios
+      MAESTRO_VERSION: cli-2.12.0
+      MAESTRO_SHA256: a6044a84542f522f434c5dc3d609e60c7446d423f3ed1b2ae513f5c48663ec5e
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s "$XCODE_APP"
+          xcodebuild -version
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Prebuild iOS project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform ios --no-install
+      - name: Install pods
+        working-directory: apps/mobile/ios
+        run: pod install
+      - name: Build Release app for simulator
+        working-directory: apps/mobile/ios
+        run: |
+          WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
+          SCHEME="${WORKSPACE%.xcworkspace}"
+          set +e
+          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dd" \
+            CODE_SIGNING_ALLOWED=NO build > "$RUNNER_TEMP/xcodebuild.log" 2>&1
+          status=$?
+          set -e
+          [ "$status" -eq 0 ] || { tail -n 200 "$RUNNER_TEMP/xcodebuild.log"; exit "$status"; }
+      - name: Boot a simulator and install the app
+        run: |
+          udid="$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          d = json.load(sys.stdin)["devices"]
+          c = [(r, x) for r, xs in d.items() if ".iOS-" in r for x in xs if x["name"].startswith("iPhone")]
+          c.sort(key=lambda t: [int(p) for p in t[0].rsplit(".iOS-", 1)[1].split("-")])
+          print(c[-1][1]["udid"])
+          print(c[-1][1]["name"], c[-1][0], file=sys.stderr)
+          ')"
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl install "$udid" "$RUNNER_TEMP/dd/Build/Products/Release-iphonesimulator/PACE.app"
+      - name: Install Maestro (pinned, checksum verified)
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/maestro.zip" \
+            "https://github.com/mobile-dev-inc/maestro/releases/download/${MAESTRO_VERSION}/maestro.zip"
+          echo "${MAESTRO_SHA256}  $RUNNER_TEMP/maestro.zip" | shasum -a 256 -c -
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP/maestro-dist"
+          echo "$RUNNER_TEMP/maestro-dist/maestro/bin" >> "$GITHUB_PATH"
+      - name: Walk the app and take screenshots
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/ui-preview/maestro
+          cd artifacts/ui-preview/maestro
+          maestro test --format junit --output junit.xml --test-output-dir . \
+            "$GITHUB_WORKSPACE/apps/mobile/maestro/ui-preview/ui-preview.yaml"
+      - name: Collect screenshots and build the contact sheet
+        if: always()
+        run: |
+          mkdir -p artifacts/ui-preview/screens
+          find artifacts/ui-preview/maestro "$GITHUB_WORKSPACE/apps/mobile/maestro" -name '[0-9][0-9]-*.png' \
+            -exec cp {} artifacts/ui-preview/screens/ \; 2>/dev/null || true
+          ls artifacts/ui-preview/screens | tee artifacts/ui-preview/screens.txt
+          python3 -m pip install --quiet pillow
+          python3 scripts/ui-preview/contact_sheet.py artifacts/ui-preview/screens artifacts/ui-preview/contact-sheet.png || true
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "xcode: $(xcodebuild -version | head -n 1)"
+            echo "simulator: $(xcrun simctl list devices | grep "$UDID" | head -n 1 | sed 's/^ *//')"
+          } > artifacts/ui-preview/run.txt
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-preview
+          path: artifacts/ui-preview
+          if-no-files-found: warn
+      - name: Publish screenshots to the ui-preview-screens branch (never main)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          out="$RUNNER_TEMP/publish"
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code "$remote" refs/heads/ui-preview-screens > /dev/null; then
+            git clone --quiet --depth 1 --branch ui-preview-screens "$remote" "$out"
+          else
+            mkdir -p "$out" && git -C "$out" init --quiet -b ui-preview-screens
+            git -C "$out" remote add origin "$remote"
+          fi
+          rm -rf "$out/ui-preview" && mkdir -p "$out/ui-preview"
+          cp -R artifacts/ui-preview/screens artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt "$out/ui-preview/" 2>/dev/null || true
+          cp artifacts/ui-preview/contact-sheet.png "$out/ui-preview/" 2>/dev/null || true
+          git -C "$out" config user.name "github-actions[bot]"
+          git -C "$out" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$out" add -A
+          git -C "$out" commit --quiet -m "UI preview of $GITHUB_SHA (run $GITHUB_RUN_ID)" || echo "nothing new"
+          git -C "$out" push --quiet origin ui-preview-screens
