@@ -31,8 +31,8 @@ own branch `ui-preview-run-<run id>`, and also uploads them as the `ui-preview` 
 | 03  | Create your account                                        | Form shown. Submitting needs Supabase (blocked).                                                                           |
 | 04  | Sign in                                                    | Form shown. Signing in needs Supabase (blocked).                                                                           |
 | 05  | Reset password                                             | Form shown. Sending the link needs Supabase (blocked).                                                                     |
-| 05b | Reset-password link screen                                 | Whatever the screen shows with no recovery session.                                                                        |
-| 05c | Onboarding step 1, profile                                 | Opened through `pace://profile` (may not resolve, see the screenshot).                                                     |
+| 05b | Choose a new password (opened from a link) | Shows "This reset link is incomplete" when opened without a recovery session. |
+| 05c | Onboarding step 1, set up your profile | Works. Display name, height and weight, all optional. |
 | 06  | Onboarding step 2, sports                                  | Works.                                                                                                                     |
 | 07  | Onboarding step 2, Run selected                            | Works.                                                                                                                     |
 | 08  | Onboarding step 3, units                                   | Works.                                                                                                                     |
@@ -52,7 +52,11 @@ own branch `ui-preview-run-<run id>`, and also uploads them as the `ui-preview` 
 | 21  | Activity detail                                            | Works. The route is drawn without a map ("Map tiles not configured"). Shows totals and "1 personal record in this activity". |
 | 22  | Activity detail, splits and details                        | Works.                                                                                                                     |
 | 23  | Activity detail, GPS route and Manage                      | Works. Edit, Export GPX and Delete.                                                                                        |
-| 24  | Home, Activities and Progress with one activity            | See the run's screenshots. Before this branch's last fix the walk could not get back to the tabs.                          |
+| 24  | Home with one activity | Works. "This week 0.50 km", per-sport totals, week dots, latest activity, weekly-distance chart. |
+| 24b | Home with one activity, scrolled | Works. Latest activity and the Training chart ("Active in 1 of the last 8 weeks"). |
+| 25  | Activities with one activity | Works. "Morning Run" listed under November 2026. A loading spinner is still showing above the list. |
+| 26  | Progress with one activity | Works. Weekly distance chart and all-time totals. |
+| 26b | Progress, scrolled | Works. By sport, personal records ("Run · Longest run 0.50 km"), highlights. |
 | 27  | Import activities                                          | The screen works. The iOS file picker was not opened.                                                                      |
 | 28  | Settings: Units                                            | Works.                                                                                                                     |
 | 29  | Settings: Training goals                                   | Works. "No goals yet" and the new-goal form.                                                                               |
@@ -82,6 +86,9 @@ screen opened before it. That comes from the walk, not from the app.
   group's name.
 - **Overlapping text.** On Connected devices, "Bluetooth heart-rate monitor" runs into its "Future
   release" label.
+- **Spinner stays up.** Activities still shows a loading spinner above a list that has already
+  loaded (screenshot 25).
+- **Cut-off chart labels.** The Progress chart's x-axis labels are cut off ("2… 31… 07…").
 - **Tabs reachable while unconfigured.** An unconfigured build reaches the tabs through the
   onboarding deep link (see above). It needs a build without its sign-in settings, so it is not a
   problem in a properly configured build.
