@@ -67,11 +67,16 @@ export interface CloudBackup {
 export async function uploadCloudBackup(): Promise<CloudBackup> {
   const { backup } = await getServices();
   const { key } = await getOrCreateRecoveryKey();
-  const { bytes } = await backup.createBackup({ kind: 'raw', key });
+  const { bytes, document } = await backup.createBackup({ kind: 'raw', key });
   const checksumSha256 = bytesToHex(sha256(bytes));
   const created = await api<{ backup: CloudBackup; uploadUrl: string }>('/backups', {
     method: 'POST',
-    body: { sizeBytes: bytes.length, checksumSha256, formatVersion: 1, encrypted: true },
+    body: {
+      sizeBytes: bytes.length,
+      checksumSha256,
+      formatVersion: document.formatVersion,
+      encrypted: true,
+    },
     idempotencyKey: checksumSha256,
   });
   const body = bytes.buffer.slice(

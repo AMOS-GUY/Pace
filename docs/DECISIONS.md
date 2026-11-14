@@ -168,3 +168,28 @@ Privacy is enforced in three layers:
 
 The importer never sees real file names. Recordings, manifests and reports must be outside the
 repository, and the harness refuses otherwise.
+
+### D24 — Backup format 2: sensor samples, a settings allowlist, strict versions
+Version-1 backups carried no sensor samples. A restore therefore silently dropped the heart rate,
+cadence and power of every imported activity (R7: 600 samples became 0). They also carried every
+settings row except three, including the encrypted auth-session rows.
+
+**Format 2:**
+- adds the stored sensor samples, exactly and in stored order;
+- limits settings to an allowlist (`preferences`, `profile`), validated on restore.
+
+**Both versions:**
+- **Read side:** this build reads versions 1 and 2. Version 1 is never read as version 2. Newer
+  versions are refused, and a relabelled document fails validation.
+- **Restore:** the allowlist applies to restore whatever the version, so auth sessions are never
+  restored.
+- **Settings replace the device's values:** restoring brings back the athlete's setup.
+
+**Also:**
+- Decompression is capped while it runs.
+- Creation validates the document, so an unrestorable backup is never written.
+- No database migration is involved.
+- **The trade-off:** older PACE builds cannot read format-2 backups. They refuse them with "created
+  by a newer version" rather than misreading them.
+
+Details: [BACKUP_FORMAT.md](BACKUP_FORMAT.md).

@@ -22,6 +22,8 @@ import {
   uploadCloudBackup,
 } from '@/services/backup-files';
 import { getServices } from '@/services/container';
+import { restoreSummary } from '@/features/restore-summary';
+import { usePreferences } from '@/stores/preferences';
 import { useTheme } from '@/theme/ThemeProvider';
 import { parseRecoveryKey } from '@pace/backup';
 
@@ -31,7 +33,7 @@ export default function BackupSettings() {
   const [passphrase, setPassphrase] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<{
-    tone: 'success' | 'error' | 'info';
+    tone: 'success' | 'error' | 'info' | 'warning';
     text: string;
   } | null>(null);
   const [cloud, setCloud] = useState<CloudBackup[] | null>(null);
@@ -64,14 +66,9 @@ export default function BackupSettings() {
     const { backup } = await getServices();
     const report = await backup.restore(doc);
     await invalidate();
-    setMessage({
-      tone: report.failed.length ? 'error' : 'success',
-      text:
-        `Restored ${report.restored} activit${report.restored === 1 ? 'y' : 'ies'}; ${report.skippedExisting} already on this phone were kept.` +
-        (report.failed.length
-          ? ` ${report.failed.length} could not be restored: ${report.failed[0]!.reason}`
-          : ''),
-    });
+    // Restored preferences and profile take effect without restarting the app.
+    if (report.settingsRestored.length > 0) await usePreferences.getState().load();
+    setMessage(restoreSummary(report));
   };
 
   const createLocal = (): Promise<void> =>

@@ -192,7 +192,17 @@ describe('backup and restore', () => {
       passphrase: 'a long backup passphrase',
     });
     const report = await restoreSvc.restore(doc);
-    expect(report).toEqual({ restored: 3, skippedExisting: 0, failed: [], goalsRestored: 1 });
+    expect(report).toEqual({
+      formatVersion: 2,
+      restored: 3,
+      skippedExisting: 0,
+      failed: [],
+      goalsRestored: 1,
+      sensorSamplesRestored: 0,
+      settingsRestored: [],
+      settingsIgnored: 0,
+      otherFailures: [],
+    });
 
     const srcList = (await new ActivityRepository(src.ctx).list()).items;
     const dstList = (await new ActivityRepository(dst.ctx).list()).items;
