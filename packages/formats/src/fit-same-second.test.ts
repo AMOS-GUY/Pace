@@ -174,3 +174,118 @@ describe('FIT sensor values while the timer is stopped (R5)', () => {
       ]);
   });
 });
+
+describe('FIT same-second merging: review edge cases (M4.8)', () => {
+  const lap = (w: FitWriter, i: number) => w.data(5, [at(i), at(0)]);
+  const fileWithLaps = (build: (w: FitWriter) => void) =>
+    file((w) => {
+      w.define(5, 19, [
+        [253, BT.uint32],
+        [2, BT.uint32],
+      ]);
+      build(w);
+    });
+
+  it('merges three or more records in one second, each adding only what is missing', () => {
+    const t = only(
+      file((w) => {
+        for (let i = 0; i < 5; i++) {
+          if (i === 2) {
+            sens(w, 2, null, 80, null);
+            sens(w, 2, 150, null, null);
+            gps(w, 2, null);
+            sens(w, 2, null, null, 240);
+          } else gps(w, i, 140);
+        }
+      }),
+    );
+    expect(sensorsAt(t, 2)).toEqual([
+      ['cadence', 80],
+      ['heart_rate', 150],
+      ['power', 240],
+    ]);
+    expect(pointSeconds(t)).toEqual([0, 1, 2, 3, 4]);
+    expect(t.warnings.join(' ')).toMatch(/3 record\(s\) sharing a time/);
+  });
+
+  it('gives the same result whatever the order of the records in that second', () => {
+    const orders = [
+      (w: FitWriter) => {
+        gps(w, 2, 150);
+        sens(w, 2, null, 80, 240);
+      },
+      (w: FitWriter) => {
+        sens(w, 2, null, 80, 240);
+        gps(w, 2, 150);
+      },
+    ];
+    const results = orders.map((order) =>
+      only(
+        file((w) => {
+          for (let i = 0; i < 5; i++) {
+            if (i === 2) order(w);
+            else gps(w, i, 140);
+          }
+        }),
+      ),
+    );
+    expect(sensorsAt(results[0]!, 2)).toEqual(sensorsAt(results[1]!, 2));
+    expect(pointSeconds(results[0]!)).toEqual(pointSeconds(results[1]!));
+  });
+
+  it('reports a different second position as a conflict and keeps the first', () => {
+    const t = only(
+      file((w) => {
+        for (let i = 0; i < 5; i++) {
+          gps(w, i, 140);
+          // A second record at second 2 with another position (point 3's).
+          if (i === 2)
+            w.data(1, [at(2), semicircles(pts[3]!.latitude), semicircles(pts[3]!.longitude), 140]);
+        }
+      }),
+    );
+    expect(pointSeconds(t)).toEqual([0, 1, 2, 3, 4]);
+    const kept = t.segments.flat()[2]!;
+    expect(kept.latitude).toBeCloseTo(pts[2]!.latitude, 7);
+    expect(t.warnings.join(' ')).toMatch(/1 value\(s\) conflicting with the first record/);
+  });
+
+  it('does not count an identical repeated position as a conflict', () => {
+    const t = only(
+      file((w) => {
+        for (let i = 0; i < 5; i++) {
+          gps(w, i, 140);
+          if (i === 2) gps(w, 2, 140);
+        }
+      }),
+    );
+    expect(t.warnings.join(' ')).not.toMatch(/conflicting/);
+  });
+
+  it('keeps lap boundaries and timer transitions unaffected by merging', () => {
+    const t = only(
+      fileWithLaps((w) => {
+        w.data(4, [at(0), 0, 0]);
+        for (let i = 0; i < 4; i++) gps(w, i, 140);
+        w.data(4, [at(3), 0, 4]); // stop at second 3
+        sens(w, 3, null, 0, 0); // same second as the stop: merged, adds zero cadence and power
+        w.data(4, [at(6), 0, 0]); // start
+        for (let i = 6; i < 10; i++) {
+          gps(w, i, 145);
+          if (i === 7) sens(w, 7, null, 82, null); // merged within the second lap
+        }
+        lap(w, 5);
+      }),
+    );
+    expect(t.segments.map((s) => s.length)).toEqual([4, 4]);
+    expect(sensorsAt(t, 3)).toEqual([
+      ['cadence', 0],
+      ['heart_rate', 140],
+      ['power', 0],
+    ]);
+    expect(sensorsAt(t, 7)).toEqual([
+      ['cadence', 82],
+      ['heart_rate', 145],
+    ]);
+  });
+});
