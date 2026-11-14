@@ -13,7 +13,7 @@ appId: app.pace.ios
 - launchApp:
     clearState: true
     permissions:
-      location: allow
+      location: inuse
 - extendedWaitUntil:
     visible: 'PACE is not configured'
     timeout: 120000
