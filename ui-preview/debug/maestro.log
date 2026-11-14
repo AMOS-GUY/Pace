@@ -1,0 +1,774 @@
+08:08:56.371 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+08:08:56.695 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+08:08:56.697 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+08:08:56.698 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+08:08:56.699 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "app.pace.ios" with clear state RUNNING
+08:08:56.762 [ INFO] maestro.Maestro.clearAppState$lambda$9: Clearing app state app.pace.ios
+08:09:50.643 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app app.pace.ios
+08:09:50.648 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping app.pace.ios app during launch
+08:10:53.892 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "app.pace.ios" with clear state COMPLETED
+08:10:53.988 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "PACE is not configured" is visible RUNNING
+08:11:17.364 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "PACE is not configured" is visible COMPLETED
+08:11:17.384 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 01-not-configured RUNNING
+08:11:17.396 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:11:17.405 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:11:17.699 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 01-not-configured COMPLETED
+08:11:17.700 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://welcome RUNNING
+08:11:17.707 [ INFO] maestro.Maestro.openLink: Opening link pace://welcome for app: app.pace.ios with autoVerify config as false
+08:11:39.757 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://welcome COMPLETED
+08:11:39.768 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+08:11:40.144 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Open, title=, value=, text=, hintText=, resource-id=, bounds=[205,450][345,498], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=205, y=450, width=140, height=48))
+08:11:40.524 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+08:11:40.540 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (275, 474) using hierarchy based logic for wait
+08:11:40.562 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:11:40.563 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:11:42.832 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+08:11:42.833 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" COMPLETED
+08:11:42.833 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:11:42.844 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:11:42.849 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:11:42.849 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:11:43.292 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:11:43.292 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:11:50.227 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:11:50.247 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 02-auth-welcome RUNNING
+08:11:50.260 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:11:50.291 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:11:50.493 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 02-auth-welcome COMPLETED
+08:11:50.515 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Create account" RUNNING
+08:11:58.699 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Create account
+08:12:04.195 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:12:04.208 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:04.978 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Create account" WARNED
+08:12:04.980 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:12:04.982 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:12:04.985 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:12:04.985 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:05.534 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:12:05.535 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:10.822 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:12:10.824 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 03-auth-sign-up RUNNING
+08:12:10.826 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:12:10.828 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:11.024 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 03-auth-sign-up COMPLETED
+08:12:11.027 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://sign-in RUNNING
+08:12:11.029 [ INFO] maestro.Maestro.openLink: Opening link pace://sign-in for app: app.pace.ios with autoVerify config as false
+08:12:23.121 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://sign-in COMPLETED
+08:12:23.144 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:12:23.146 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:12:23.148 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:12:23.148 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:23.667 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:12:23.673 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:28.792 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:12:28.803 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 04-auth-sign-in RUNNING
+08:12:28.807 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:12:28.808 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:29.122 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 04-auth-sign-in COMPLETED
+08:12:29.123 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://forgot-password RUNNING
+08:12:29.126 [ INFO] maestro.Maestro.openLink: Opening link pace://forgot-password for app: app.pace.ios with autoVerify config as false
+08:12:31.391 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://forgot-password COMPLETED
+08:12:31.392 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:12:31.400 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:12:31.400 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:12:31.401 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:33.146 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:12:33.260 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:54.562 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:12:54.570 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 05-auth-forgot-password RUNNING
+08:12:54.577 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:12:54.578 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:54.846 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 05-auth-forgot-password COMPLETED
+08:12:54.846 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://sports RUNNING
+08:12:54.847 [ INFO] maestro.Maestro.openLink: Opening link pace://sports for app: app.pace.ios with autoVerify config as false
+08:12:57.999 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://sports COMPLETED
+08:12:58.000 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:12:58.001 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:12:58.001 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:12:58.001 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:12:58.304 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:12:58.305 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:01.337 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:13:01.370 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 06-onboarding-sports RUNNING
+08:13:01.372 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:13:01.378 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:01.517 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 06-onboarding-sports COMPLETED
+08:13:01.518 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Run" RUNNING
+08:13:02.026 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Run, title=, value=checkbox, unchecked, text=checkbox, unchecked, hintText=, resource-id=, bounds=[16,234][190,322], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=234, width=174, height=88))
+08:13:02.291 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+08:13:02.292 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (103, 278) using hierarchy based logic for wait
+08:13:02.293 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:02.293 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:03.261 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+08:13:03.261 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Run" COMPLETED
+08:13:03.261 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Ride" RUNNING
+08:13:03.493 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Ride, title=, value=checkbox, unchecked, text=checkbox, unchecked, hintText=, resource-id=, bounds=[202,234][375,322], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=202, y=234, width=173, height=88))
+08:13:03.786 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+08:13:03.788 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (288, 278) using hierarchy based logic for wait
+08:13:03.789 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:03.789 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:04.685 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+08:13:04.685 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Ride" COMPLETED
+08:13:04.685 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 07-onboarding-sports-selected RUNNING
+08:13:04.686 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:13:04.687 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:04.834 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 07-onboarding-sports-selected COMPLETED
+08:13:04.835 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Continue" RUNNING
+08:13:05.075 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Continue, title=, value=, text=, hintText=, resource-id=, bounds=[16,546][386,610], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=546, width=370, height=64))
+08:13:05.351 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+08:13:05.353 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 578) using hierarchy based logic for wait
+08:13:05.354 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:05.354 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:07.609 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+08:13:07.609 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Continue" COMPLETED
+08:13:07.609 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:13:07.610 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:13:07.610 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:07.610 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:07.794 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:07.794 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:08.512 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:13:08.512 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 08-onboarding-units RUNNING
+08:13:08.513 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:13:08.529 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:08.731 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 08-onboarding-units COMPLETED
+08:13:08.731 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Metric (km, m)" RUNNING
+08:13:09.058 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Metric (km, m), title=, value=, text=, hintText=, resource-id=, bounds=[18,236][201,272], enabled=true, focused=false, selected=true, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=true), bounds=Bounds(x=18, y=236, width=183, height=36))
+08:13:09.402 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+08:13:09.404 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (109, 254) using hierarchy based logic for wait
+08:13:09.405 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:09.405 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:10.358 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+08:13:10.359 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Metric (km, m)" COMPLETED
+08:13:10.359 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Continue" RUNNING
+08:13:10.652 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Continue, title=, value=, text=, hintText=, resource-id=, bounds=[16,391][386,455], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=391, width=370, height=64))
+08:13:11.045 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+08:13:11.046 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 423) using hierarchy based logic for wait
+08:13:11.047 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:11.047 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:13.330 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+08:13:13.331 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Continue" COMPLETED
+08:13:13.331 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:13:13.332 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:13:13.332 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:13.333 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:13.653 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:13.653 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:14.920 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:13:14.926 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 09-onboarding-permissions RUNNING
+08:13:14.929 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:13:14.930 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:15.130 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 09-onboarding-permissions COMPLETED
+08:13:15.130 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Not now" RUNNING
+08:13:15.636 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Not now, title=, value=, text=, hintText=, resource-id=, bounds=[16,629][386,693], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=629, width=370, height=64))
+08:13:16.032 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+08:13:16.035 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 661) using hierarchy based logic for wait
+08:13:16.037 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:16.037 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:17.082 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+08:13:17.083 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Not now" COMPLETED
+08:13:17.083 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Finish" RUNNING
+08:13:24.871 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Finish
+08:13:25.382 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:13:25.384 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:25.618 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Finish" WARNED
+08:13:25.619 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:13:25.621 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:13:25.621 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:25.621 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:26.277 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:26.278 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:31.060 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:13:31.107 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 10-home-empty RUNNING
+08:13:31.121 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:13:31.123 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:31.464 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 10-home-empty COMPLETED
+08:13:31.469 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Activities" RUNNING
+08:13:38.585 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Activities
+08:13:39.106 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:13:39.134 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:39.423 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Activities" WARNED
+08:13:39.490 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:13:39.494 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:13:39.495 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:39.495 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:39.974 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:39.975 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:41.959 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:13:41.964 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 11-activities-empty RUNNING
+08:13:41.978 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:13:42.018 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:42.271 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 11-activities-empty COMPLETED
+08:13:42.272 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Progress" RUNNING
+08:13:49.478 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Progress
+08:13:49.741 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:13:49.742 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:49.949 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Progress" WARNED
+08:13:49.950 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:13:49.951 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:13:49.951 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:49.951 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:50.305 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:13:50.305 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:52.193 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:13:52.194 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 12-progress-empty RUNNING
+08:13:52.196 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:13:52.199 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:13:52.396 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 12-progress-empty COMPLETED
+08:13:52.396 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Profile" RUNNING
+08:13:59.954 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Profile
+08:14:00.445 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:14:00.450 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:00.722 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Profile" WARNED
+08:14:00.725 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:14:00.730 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:14:00.730 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:14:00.730 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:01.087 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:14:01.088 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:03.041 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:14:03.048 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 13-profile RUNNING
+08:14:03.061 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:14:03.063 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:03.314 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 13-profile COMPLETED
+08:14:03.315 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Scroll vertically RUNNING
+08:14:03.327 [ INFO] maestro.Maestro.scrollVertical: Scrolling vertically
+08:14:06.004 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Scroll vertically COMPLETED
+08:14:06.005 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 14-profile-scrolled RUNNING
+08:14:06.007 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:14:06.008 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:06.200 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 14-profile-scrolled COMPLETED
+08:14:06.203 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Set location (47.3769, 8.5417) RUNNING
+08:14:06.207 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.3769, 8.5417)
+08:14:08.821 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Set location (47.3769, 8.5417) COMPLETED
+08:14:08.823 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Record" RUNNING
+08:14:16.146 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Record
+08:14:16.446 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:14:16.448 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:16.637 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Record" WARNED
+08:14:16.638 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:14:16.640 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:14:16.641 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:14:16.641 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:17.025 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:14:17.025 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:21.427 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:14:21.437 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 15-record RUNNING
+08:14:21.478 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:14:21.482 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:21.805 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 15-record COMPLETED
+08:14:21.805 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Start Run" RUNNING
+08:14:28.828 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Start Run
+08:14:29.214 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:14:29.215 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:29.419 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Start Run" WARNED
+08:14:29.420 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:14:29.421 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:14:29.421 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:14:29.421 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:29.802 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:14:29.803 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:32.474 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:14:32.475 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 16-recording-setup RUNNING
+08:14:32.482 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:14:32.485 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:32.675 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 16-recording-setup COMPLETED
+08:14:32.675 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Find GPS" RUNNING
+08:14:39.998 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Find GPS
+08:14:40.392 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:14:40.393 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:40.578 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Find GPS" WARNED
+08:14:40.579 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Allow While Using App" RUNNING
+08:14:41.230 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Allow While Using App
+08:14:41.546 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:14:41.564 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:41.755 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Allow While Using App" WARNED
+08:14:41.755 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Change to Always Allow" RUNNING
+08:14:42.258 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Change to Always Allow
+08:14:42.481 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:14:42.481 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:14:42.611 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Change to Always Allow" WARNED
+08:14:42.612 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Start" is visible RUNNING
+08:15:03.424 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Assertion is false: "Start" is visible
+08:15:03.795 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:15:03.805 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:15:04.000 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Start" is visible WARNED
+08:15:04.001 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 17-recording-gps RUNNING
+08:15:04.003 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:15:04.004 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:15:04.194 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 17-recording-gps COMPLETED
+08:15:04.197 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Start" RUNNING
+08:15:05.099 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Start
+08:15:05.478 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:15:05.479 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:15:05.671 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Start" WARNED
+08:15:05.671 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Start without a fix" RUNNING
+08:15:06.538 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Start without a fix
+08:15:06.836 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:15:06.859 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:15:07.009 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Start without a fix" WARNED
+08:15:07.044 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Travel path (47.3769, 8.5417), (47.3778, 8.5428), (47.3787, 8.5439), (47.3796, 8.545), (47.3805, 8.5461) RUNNING
+08:15:07.085 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.3769, 8.5417)
+08:15:12.489 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.376917999999996, 8.541722)
+08:15:14.040 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.376936, 8.541744000000001)
+08:15:14.747 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.376954, 8.541766)
+08:15:15.657 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.376972, 8.541788)
+08:15:16.298 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37699, 8.54181)
+08:15:16.802 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377008, 8.541832000000001)
+08:15:17.897 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377026, 8.541854)
+08:15:18.907 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377044, 8.541876)
+08:15:19.817 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377062, 8.541898)
+08:15:20.731 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37708, 8.541920000000001)
+08:15:22.476 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377098, 8.541942)
+08:15:23.639 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377116, 8.541964)
+08:15:24.859 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377134, 8.541986)
+08:15:26.504 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377152, 8.542008000000001)
+08:15:27.420 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37717, 8.54203)
+08:15:28.278 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377188, 8.542052)
+08:15:28.838 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377206, 8.542074)
+08:15:29.335 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377224, 8.542096)
+08:15:30.080 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377242, 8.542118)
+08:15:30.825 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37726, 8.54214)
+08:15:31.601 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377278, 8.542162)
+08:15:32.268 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377296, 8.542184)
+08:15:33.700 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377314, 8.542206)
+08:15:34.369 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377332, 8.542228)
+08:15:35.107 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37735, 8.54225)
+08:15:36.454 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377368, 8.542272)
+08:15:37.586 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377386, 8.542294)
+08:15:38.640 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377404, 8.542316)
+08:15:39.517 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377422, 8.542338)
+08:15:40.075 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37744, 8.54236)
+08:15:40.932 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377458, 8.542382)
+08:15:42.337 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377476, 8.542404)
+08:15:43.147 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377494, 8.542426)
+08:15:44.029 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377512, 8.542448)
+08:15:44.631 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37753, 8.54247)
+08:15:45.484 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377548, 8.542492)
+08:15:46.230 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377566, 8.542514)
+08:15:46.707 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377584, 8.542536)
+08:15:47.046 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377602, 8.542558)
+08:15:47.420 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37762, 8.54258)
+08:15:47.930 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377638, 8.542602)
+08:15:48.432 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377656, 8.542624)
+08:15:48.854 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377674, 8.542646)
+08:15:49.344 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377692, 8.542667999999999)
+08:15:49.765 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37771, 8.54269)
+08:15:50.132 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377728, 8.542712)
+08:15:50.530 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377746, 8.542734)
+08:15:50.873 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377764, 8.542755999999999)
+08:15:51.337 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377782, 8.542778)
+08:15:51.885 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.3778, 8.5428)
+08:15:52.305 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377818, 8.542822)
+08:15:52.716 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377836, 8.542844)
+08:15:53.150 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377854, 8.542866)
+08:15:53.759 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377872, 8.542888)
+08:15:54.254 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37789, 8.54291)
+08:15:54.582 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377908, 8.542932)
+08:15:54.878 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377926, 8.542954)
+08:15:55.325 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377944, 8.542976)
+08:15:55.817 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377962000000004, 8.542998)
+08:15:56.361 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37798, 8.54302)
+08:15:56.791 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.377998, 8.543042)
+08:15:57.204 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378016, 8.543064)
+08:15:57.666 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378034, 8.543086)
+08:15:58.079 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378052000000004, 8.543108)
+08:15:58.521 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37807, 8.54313)
+08:15:59.101 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378088, 8.543152)
+08:15:59.618 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378106, 8.543174)
+08:16:00.276 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378124, 8.543196)
+08:16:00.774 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378142000000004, 8.543218)
+08:16:01.312 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37816, 8.54324)
+08:16:01.834 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378178, 8.543262)
+08:16:02.430 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378196, 8.543284)
+08:16:02.903 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378214, 8.543306)
+08:16:03.373 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378232000000004, 8.543328)
+08:16:03.877 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37825, 8.54335)
+08:16:04.364 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378268, 8.543372)
+08:16:04.781 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378286, 8.543394000000001)
+08:16:05.292 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378304, 8.543416)
+08:16:05.707 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378322000000004, 8.543438)
+08:16:06.041 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37834, 8.54346)
+08:16:06.465 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378358, 8.543482000000001)
+08:16:06.835 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378376, 8.543504)
+08:16:07.200 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378394, 8.543526)
+08:16:07.599 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378412000000004, 8.543548000000001)
+08:16:07.997 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37843, 8.54357)
+08:16:08.391 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378448, 8.543592)
+08:16:08.858 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378466, 8.543614)
+08:16:09.171 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378484, 8.543636000000001)
+08:16:09.608 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378502000000005, 8.543658)
+08:16:10.055 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37852, 8.54368)
+08:16:10.340 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378538, 8.543702)
+08:16:10.590 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378556, 8.543724000000001)
+08:16:11.053 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378574, 8.543746)
+08:16:11.660 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378592000000005, 8.543768)
+08:16:12.130 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37861, 8.543790000000001)
+08:16:12.689 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378628, 8.543812)
+08:16:13.383 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378646, 8.543834)
+08:16:14.065 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378664, 8.543856)
+08:16:14.675 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378682000000005, 8.543878000000001)
+08:16:15.895 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.3787, 8.5439)
+08:16:16.505 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378718, 8.543922)
+08:16:17.170 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378736, 8.543944000000002)
+08:16:17.960 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378754, 8.543966000000001)
+08:16:18.674 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378772000000005, 8.543988)
+08:16:19.206 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37879, 8.54401)
+08:16:19.934 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378808, 8.544032000000001)
+08:16:20.494 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378826000000004, 8.544054000000001)
+08:16:21.344 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378844, 8.544076)
+08:16:22.051 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378862000000005, 8.544098)
+08:16:22.801 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37888, 8.544120000000001)
+08:16:23.598 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378898, 8.544142)
+08:16:24.369 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378916000000004, 8.544164)
+08:16:25.145 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378934, 8.544186)
+08:16:26.082 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378952000000005, 8.544208000000001)
+08:16:26.768 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37897, 8.54423)
+08:16:27.376 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.378988, 8.544252)
+08:16:28.312 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379006000000004, 8.544274)
+08:16:29.513 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379024, 8.544296000000001)
+08:16:30.309 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379042000000005, 8.544318)
+08:16:30.935 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37906, 8.54434)
+08:16:31.735 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379078, 8.544362)
+08:16:32.404 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379096000000004, 8.544384)
+08:16:33.041 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379114, 8.544406)
+08:16:33.847 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379132000000006, 8.544428)
+08:16:34.122 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37915, 8.544450000000001)
+08:16:34.828 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379168, 8.544472)
+08:16:36.785 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379186000000004, 8.544494)
+08:16:37.365 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379204, 8.544516)
+08:16:37.791 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379222000000006, 8.544538000000001)
+08:16:38.258 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37924, 8.54456)
+08:16:39.050 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379258, 8.544582)
+08:16:39.573 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379276000000004, 8.544604)
+08:16:40.100 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379294, 8.544626000000001)
+08:16:40.606 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379312000000006, 8.544648)
+08:16:41.074 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37933, 8.54467)
+08:16:41.446 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379348, 8.544692)
+08:16:41.780 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379366000000005, 8.544714)
+08:16:42.117 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379384, 8.544736)
+08:16:42.459 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379402000000006, 8.544758)
+08:16:42.903 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37942, 8.54478)
+08:16:43.239 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379438, 8.544802)
+08:16:43.556 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379456000000005, 8.544824)
+08:16:43.915 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379474, 8.544846)
+08:16:44.221 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379492000000006, 8.544868)
+08:16:44.678 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37951, 8.54489)
+08:16:45.061 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379528, 8.544912)
+08:16:45.400 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379546000000005, 8.544934)
+08:16:45.753 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379564, 8.544955999999999)
+08:16:46.043 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379582000000006, 8.544978)
+08:16:46.430 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.3796, 8.545)
+08:16:46.781 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379618, 8.545022)
+08:16:47.070 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379636000000005, 8.545044)
+08:16:47.368 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379654, 8.545066)
+08:16:47.764 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.37967200000001, 8.545088)
+08:16:48.273 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379690000000004, 8.54511)
+08:16:48.639 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379708, 8.545132)
+08:16:49.049 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379726000000005, 8.545154)
+08:16:49.427 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379744, 8.545176)
+08:16:49.890 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379762, 8.545198)
+08:16:50.264 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379780000000004, 8.54522)
+08:16:50.529 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379798, 8.545242)
+08:16:50.814 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379816000000005, 8.545264)
+08:16:51.294 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379834, 8.545285999999999)
+08:16:51.791 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379852, 8.545308)
+08:16:52.313 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379870000000004, 8.54533)
+08:16:52.694 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379888, 8.545352)
+08:16:53.033 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379906, 8.545373999999999)
+08:16:53.331 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379924, 8.545396)
+08:16:53.586 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379942, 8.545418)
+08:16:53.810 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379960000000004, 8.54544)
+08:16:54.030 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379978, 8.545461999999999)
+08:16:54.349 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.379996, 8.545484)
+08:16:54.659 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380014, 8.545506)
+08:16:54.922 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380032, 8.545528)
+08:16:55.249 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.38005, 8.545549999999999)
+08:16:55.541 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380068, 8.545572)
+08:16:55.949 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380086, 8.545594)
+08:16:56.216 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380104, 8.545615999999999)
+08:16:56.576 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380122, 8.545638)
+08:16:56.947 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.38014, 8.54566)
+08:16:57.247 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380158, 8.545682)
+08:16:57.539 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380176, 8.545703999999999)
+08:16:57.808 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380194, 8.545726)
+08:16:58.067 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380212, 8.545748)
+08:16:58.383 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.38023, 8.54577)
+08:16:58.685 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380248, 8.545791999999999)
+08:16:58.909 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380266, 8.545814)
+08:16:59.180 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380283999999996, 8.545836)
+08:16:59.454 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380302, 8.545857999999999)
+08:16:59.997 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.38032, 8.545879999999999)
+08:17:00.584 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380338, 8.545902)
+08:17:00.938 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380356, 8.545924)
+08:17:01.345 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380373999999996, 8.545945999999999)
+08:17:01.692 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380392, 8.545967999999998)
+08:17:02.036 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.38041, 8.54599)
+08:17:02.314 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380427999999995, 8.546012)
+08:17:02.704 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380446, 8.546033999999999)
+08:17:03.207 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380463999999996, 8.546055999999998)
+08:17:03.538 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.380482, 8.546078)
+08:17:03.856 [ INFO] maestro.Maestro.setLocation$lambda$51: Setting location: (47.3805, 8.5461)
+08:17:04.227 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Travel path (47.3769, 8.5417), (47.3778, 8.5428), (47.3787, 8.5439), (47.3796, 8.545), (47.3805, 8.5461) COMPLETED
+08:17:04.228 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 18-recording-live RUNNING
+08:17:04.239 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:04.241 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:04.490 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 18-recording-live COMPLETED
+08:17:04.500 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) id: Pause recording RUNNING
+08:17:11.484 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Id matching regex: Pause recording
+08:17:11.692 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:11.692 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:11.852 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) id: Pause recording WARNED
+08:17:11.852 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Pause recording" RUNNING
+08:17:12.242 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Pause recording
+08:17:12.462 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:12.463 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:12.610 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Pause recording" WARNED
+08:17:12.611 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:17:12.622 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:17:12.622 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:12.622 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:12.842 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:12.842 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:14.619 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:17:14.622 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 19-recording-paused RUNNING
+08:17:14.626 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:14.637 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:14.808 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 19-recording-paused COMPLETED
+08:17:14.808 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Finish" RUNNING
+08:17:21.958 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Finish
+08:17:22.193 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:22.194 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:22.313 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Finish" WARNED
+08:17:22.313 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Finish & save" RUNNING
+08:17:22.709 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Finish & save
+08:17:22.902 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:22.902 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:23.030 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Finish & save" WARNED
+08:17:23.030 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:17:23.031 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:17:23.031 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:23.032 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:23.223 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:23.223 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:23.806 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:17:23.807 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 20-recording-summary RUNNING
+08:17:23.808 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:23.808 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:23.951 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 20-recording-summary COMPLETED
+08:17:23.951 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "View activity" RUNNING
+08:17:31.295 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: View activity
+08:17:31.527 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:31.528 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:31.714 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "View activity" WARNED
+08:17:31.715 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:17:31.716 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:17:31.716 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:31.716 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:31.999 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:31.999 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:33.194 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:17:33.195 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 21-activity-detail RUNNING
+08:17:33.230 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:33.232 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:33.393 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 21-activity-detail COMPLETED
+08:17:33.393 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Scroll vertically RUNNING
+08:17:33.393 [ INFO] maestro.Maestro.scrollVertical: Scrolling vertically
+08:17:35.213 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Scroll vertically COMPLETED
+08:17:35.213 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 22-activity-detail-scrolled RUNNING
+08:17:35.214 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:35.214 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:35.368 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 22-activity-detail-scrolled COMPLETED
+08:17:35.368 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Scroll vertically RUNNING
+08:17:35.369 [ INFO] maestro.Maestro.scrollVertical: Scrolling vertically
+08:17:37.193 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Scroll vertically COMPLETED
+08:17:37.194 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 23-activity-detail-scrolled-more RUNNING
+08:17:37.195 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:37.195 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:37.318 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 23-activity-detail-scrolled-more COMPLETED
+08:17:37.319 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace:/// RUNNING
+08:17:37.319 [ INFO] maestro.Maestro.openLink: Opening link pace:/// for app: app.pace.ios with autoVerify config as false
+08:17:40.771 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace:/// COMPLETED
+08:17:40.771 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:17:40.773 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:17:40.773 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:40.773 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:41.034 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:41.034 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:42.022 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:17:42.025 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Home" RUNNING
+08:17:49.419 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Home
+08:17:49.605 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:49.605 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:49.753 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Home" WARNED
+08:17:49.765 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:17:49.766 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:17:49.766 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:49.766 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:49.954 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:49.955 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:50.919 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:17:50.920 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 24-home-with-activity RUNNING
+08:17:50.921 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:50.921 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:51.053 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 24-home-with-activity COMPLETED
+08:17:51.053 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Activities" RUNNING
+08:17:58.197 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Activities
+08:17:58.372 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:58.373 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:58.489 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Activities" WARNED
+08:17:58.490 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:17:58.491 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:17:58.491 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:58.491 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:58.671 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:17:58.671 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:59.695 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:17:59.697 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 25-activities-with-activity RUNNING
+08:17:59.700 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:17:59.702 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:17:59.847 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 25-activities-with-activity COMPLETED
+08:17:59.848 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Progress" RUNNING
+08:18:06.886 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandWarned: Element not found: Text matching regex: Progress
+08:18:07.092 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:18:07.092 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:07.217 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Progress" WARNED
+08:18:07.217 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:18:07.217 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:18:07.218 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:07.218 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:07.431 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:07.431 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:08.801 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:18:08.802 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 26-progress-with-activity RUNNING
+08:18:08.807 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:18:08.808 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:09.012 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 26-progress-with-activity COMPLETED
+08:18:09.012 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://import RUNNING
+08:18:09.013 [ INFO] maestro.Maestro.openLink: Opening link pace://import for app: app.pace.ios with autoVerify config as false
+08:18:10.908 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://import COMPLETED
+08:18:10.908 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:18:10.910 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:18:10.910 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:10.910 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:11.386 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:11.387 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:18.485 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:18.486 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:18.802 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:18.802 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:19.731 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:18:19.732 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 27-import RUNNING
+08:18:19.735 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:18:19.736 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:19.867 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 27-import COMPLETED
+08:18:19.868 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://settings/units RUNNING
+08:18:19.868 [ INFO] maestro.Maestro.openLink: Opening link pace://settings/units for app: app.pace.ios with autoVerify config as false
+08:18:21.222 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://settings/units COMPLETED
+08:18:21.222 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:18:21.223 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:18:21.223 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:21.223 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:21.485 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:21.486 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:26.522 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:26.526 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:26.810 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:26.810 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:28.462 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:18:28.463 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 28-settings-units RUNNING
+08:18:28.503 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:18:28.512 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:28.714 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 28-settings-units COMPLETED
+08:18:28.714 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://settings/goals RUNNING
+08:18:28.716 [ INFO] maestro.Maestro.openLink: Opening link pace://settings/goals for app: app.pace.ios with autoVerify config as false
+08:18:30.521 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://settings/goals COMPLETED
+08:18:30.522 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:18:30.523 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:18:30.524 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:30.524 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:31.062 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:31.062 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:33.593 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:33.596 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:33.991 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:33.992 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:35.189 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:18:35.190 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 29-settings-goals RUNNING
+08:18:35.195 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:18:35.197 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:35.431 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 29-settings-goals COMPLETED
+08:18:35.432 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://settings/privacy RUNNING
+08:18:35.451 [ INFO] maestro.Maestro.openLink: Opening link pace://settings/privacy for app: app.pace.ios with autoVerify config as false
+08:18:38.982 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://settings/privacy COMPLETED
+08:18:38.985 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:18:38.986 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:18:38.987 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:38.987 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:39.294 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:39.294 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:41.073 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:18:41.074 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 30-settings-privacy RUNNING
+08:18:41.080 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:18:41.082 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:41.372 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 30-settings-privacy COMPLETED
+08:18:41.372 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://settings/devices RUNNING
+08:18:41.373 [ INFO] maestro.Maestro.openLink: Opening link pace://settings/devices for app: app.pace.ios with autoVerify config as false
+08:18:43.364 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://settings/devices COMPLETED
+08:18:43.364 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:18:43.365 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:18:43.365 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:43.365 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:44.009 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:44.009 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:50.145 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:50.148 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:50.405 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:50.405 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:51.503 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:18:51.505 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 31-settings-devices RUNNING
+08:18:51.511 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:18:51.513 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:51.646 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 31-settings-devices COMPLETED
+08:18:51.647 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://settings/export RUNNING
+08:18:51.651 [ INFO] maestro.Maestro.openLink: Opening link pace://settings/export for app: app.pace.ios with autoVerify config as false
+08:18:53.694 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://settings/export COMPLETED
+08:18:53.694 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:18:53.696 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:18:53.696 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:53.696 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:53.942 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:53.942 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:54.767 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:18:54.768 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 32-settings-export RUNNING
+08:18:54.769 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:18:54.771 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:54.904 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 32-settings-export COMPLETED
+08:18:54.904 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://settings/backup RUNNING
+08:18:54.904 [ INFO] maestro.Maestro.openLink: Opening link pace://settings/backup for app: app.pace.ios with autoVerify config as false
+08:18:56.707 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://settings/backup COMPLETED
+08:18:56.713 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:18:56.714 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:18:56.714 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:56.714 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:56.990 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:18:56.990 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:58.143 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:18:58.144 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 33-settings-backup RUNNING
+08:18:58.147 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:18:58.147 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:18:58.289 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 33-settings-backup COMPLETED
+08:18:58.290 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://settings/account RUNNING
+08:18:58.290 [ INFO] maestro.Maestro.openLink: Opening link pace://settings/account for app: app.pace.ios with autoVerify config as false
+08:19:00.502 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://settings/account COMPLETED
+08:19:00.510 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+08:19:00.516 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+08:19:00.517 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:19:00.517 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:19:00.768 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+08:19:00.768 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:19:02.178 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+08:19:02.190 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 34-settings-account RUNNING
+08:19:02.199 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+08:19:02.201 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+08:19:02.352 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 34-settings-account COMPLETED
