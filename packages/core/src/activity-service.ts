@@ -16,6 +16,7 @@ import {
   parseFit,
   parseGpxTrack,
   parseTcx,
+  plausibleTime,
   toGpx,
   trimPrivacyZone,
 } from '@pace/formats';
@@ -157,6 +158,13 @@ export class ActivityService {
       );
 
     const all = parsed.segments.flat();
+    // Parsers skip such times already; this guards any other source of a ParsedTrack, because
+    // one time outside 2000–2100 would make every later backup unrestorable.
+    if (
+      all.some((s) => !plausibleTime(s.recordedAt)) ||
+      parsed.sensors.some((s) => !plausibleTime(s.recordedAt))
+    )
+      throw new ImportError('The file contains times outside 2000–2100', 'invalid_file');
     const externalId = importFingerprint(all);
     const existing = await this.ctx.db.get<{ id: string }>(
       'SELECT id FROM activities WHERE external_id = ? AND deleted_at IS NULL',

@@ -1,7 +1,13 @@
 import type { LocationSample, SportType } from '@pace/domain';
 import { IMPORT_LIMITS } from '@pace/validation';
 import { XMLParser } from 'fast-xml-parser';
-import { type ImportedSensorSample, type ParsedTrack, SensorCollector, listOf } from './track';
+import {
+  type ImportedSensorSample,
+  type ParsedTrack,
+  SensorCollector,
+  listOf,
+  plausibleTime,
+} from './track';
 
 export interface GpxExportInput {
   name: string;
@@ -272,7 +278,7 @@ export function parseGpx(xml: string): GpxImportResult {
         lat > 90 ||
         lon < -180 ||
         lon > 180 ||
-        !Number.isFinite(time)
+        !plausibleTime(time)
       ) {
         invalid++;
         continue;

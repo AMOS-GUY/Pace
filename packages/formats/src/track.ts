@@ -1,4 +1,5 @@
 import type { LocationSample, SportType } from '@pace/domain';
+import { MAX_EPOCH_MS, MIN_EPOCH_MS } from '@pace/validation';
 
 /**
  * Format-neutral result of parsing one activity from a file (GPX, TCX or FIT). Importers turn this
@@ -76,6 +77,16 @@ export function importedSample(
     recordedAt,
     source: 'import',
   };
+}
+
+/**
+ * A time PACE can store: finite and within 2000–2100, the range every stored activity time and
+ * backup must satisfy (epochMsSchema). Anything else is an invalid time, skipped like a
+ * missing one. One far-future point would otherwise drop every later point as out of order, and
+ * make backups unrestorable.
+ */
+export function plausibleTime(ms: number): boolean {
+  return Number.isFinite(ms) && ms >= MIN_EPOCH_MS && ms <= MAX_EPOCH_MS;
 }
 
 export function validCoordinate(lat: number, lon: number): boolean {
