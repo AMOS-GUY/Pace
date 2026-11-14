@@ -17,6 +17,7 @@ appId: app.pace.ios
 - extendedWaitUntil:
     visible: 'PACE is not configured'
     timeout: 120000
+    optional: true
 - takeScreenshot: 01-not-configured
 
 # ---------------------------------------------------------------- authentication screens

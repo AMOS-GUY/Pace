@@ -96,15 +96,20 @@ jobs:
           mkdir -p artifacts/ui-preview/screens
           find artifacts/ui-preview/maestro "$GITHUB_WORKSPACE/apps/mobile/maestro" -name '[0-9][0-9]-*.png' \
             -exec cp {} artifacts/ui-preview/screens/ \; 2>/dev/null || true
-          ls artifacts/ui-preview/screens | tee artifacts/ui-preview/screens.txt
-          python3 -m pip install --quiet pillow
+          ls artifacts/ui-preview/screens > artifacts/ui-preview/screens.txt || true
+          # Maestro's own output (JUnit report, logs, failure screenshots), for diagnosis.
+          mkdir -p artifacts/ui-preview/debug
+          find artifacts/ui-preview/maestro -type f \( -name '*.xml' -o -name '*.log' -o -name '*.txt' -o -name '*.json' -o -name '*.png' \)             -exec cp {} artifacts/ui-preview/debug/ \; 2>/dev/null || true
+          latest="$(ls -dt "$HOME"/.maestro/tests/*/ 2>/dev/null | head -n 1)"
+          [ -n "$latest" ] && cp -R "$latest" artifacts/ui-preview/debug/maestro-tests || true
+          python3 -m pip install --quiet pillow || true
           python3 scripts/ui-preview/contact_sheet.py artifacts/ui-preview/screens artifacts/ui-preview/contact-sheet.png || true
           {
             echo "commit: $GITHUB_SHA"
             echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
             echo "xcode: $(xcodebuild -version | head -n 1)"
-            echo "simulator: $(xcrun simctl list devices | grep "$UDID" | head -n 1 | sed 's/^ *//')"
-          } > artifacts/ui-preview/run.txt
+            echo "simulator udid: $UDID"
+          } > artifacts/ui-preview/run.txt || true
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -127,7 +132,7 @@ jobs:
             git -C "$out" remote add origin "$remote"
           fi
           rm -rf "$out/ui-preview" && mkdir -p "$out/ui-preview"
-          cp -R artifacts/ui-preview/screens artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt "$out/ui-preview/" 2>/dev/null || true
+          cp -R artifacts/ui-preview/screens artifacts/ui-preview/debug artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt "$out/ui-preview/" 2>/dev/null || true
           cp artifacts/ui-preview/contact-sheet.png "$out/ui-preview/" 2>/dev/null || true
           git -C "$out" config user.name "github-actions[bot]"
           git -C "$out" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
