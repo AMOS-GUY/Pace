@@ -172,7 +172,10 @@ export function parseBackup(
   if (typeof version !== 'number' || !Number.isInteger(version) || version < 1)
     throw new BackupError('Backup has no valid format version', 'invalid_format');
   if (version > BACKUP_FORMAT_VERSION)
-    throw new BackupError('Backup was created by a newer version of PACE', 'unsupported_version');
+    throw new BackupError(
+      'This backup was made by a newer version of PACE. Update PACE to restore it.',
+      'unsupported_version',
+    );
   const parsed =
     version === 1 ? backupDocumentSchemaV1.safeParse(json) : backupDocumentSchemaV2.safeParse(json);
   if (!parsed.success)

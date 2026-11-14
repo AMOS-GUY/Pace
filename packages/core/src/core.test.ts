@@ -201,6 +201,7 @@ describe('backup and restore', () => {
       sensorSamplesRestored: 0,
       settingsRestored: [],
       settingsIgnored: 0,
+      otherFailures: [],
     });
 
     const srcList = (await new ActivityRepository(src.ctx).list()).items;

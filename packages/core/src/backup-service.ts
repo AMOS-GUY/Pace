@@ -49,6 +49,11 @@ export interface RestoreReport {
   settingsRestored: PortableSettingKey[];
   /** Settings in the backup that were not applied: not portable, or failing validation. */
   settingsIgnored: number;
+  /**
+   * Goals or settings that could not be written. Activities restored before are kept; goals and
+   * settings are each written all-or-nothing, so running the restore again completes them.
+   */
+  otherFailures: Array<{ part: 'goals' | 'settings'; reason: string }>;
 }
 
 /**
@@ -191,6 +196,7 @@ export class BackupService {
       sensorSamplesRestored: 0,
       settingsRestored: [],
       settingsIgnored: 0,
+      otherFailures: [],
     };
     const p = doc.payload;
     const samplesBy = groupBy(p.samples, (s) => s.activityId);
@@ -317,29 +323,39 @@ export class BackupService {
       }
     }
 
-    for (const g of p.goals) {
-      const r = await this.ctx.db.run(
-        `INSERT OR IGNORE INTO training_goals (id, user_id, sport_type, goal_type, target_value, period, start_date, end_date, created_at, updated_at)
+    const reason = (e: unknown): string => (e instanceof Error ? e.message : String(e));
+    try {
+      let goals = 0;
+      await this.ctx.db.transaction(async (tx) => {
+        for (const g of p.goals) {
+          const r = await tx.run(
+            `INSERT OR IGNORE INTO training_goals (id, user_id, sport_type, goal_type, target_value, period, start_date, end_date, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          g.id,
-          g.userId,
-          g.sportType,
-          g.goalType,
-          g.targetValue,
-          g.period,
-          g.startDate,
-          g.endDate,
-          g.createdAt,
-          g.updatedAt,
-        ],
-      );
-      report.goalsRestored += r.changes;
+            [
+              g.id,
+              g.userId,
+              g.sportType,
+              g.goalType,
+              g.targetValue,
+              g.period,
+              g.startDate,
+              g.endDate,
+              g.createdAt,
+              g.updatedAt,
+            ],
+          );
+          goals += r.changes;
+        }
+      });
+      report.goalsRestored = goals;
+    } catch (e) {
+      report.otherFailures.push({ part: 'goals', reason: reason(e) });
     }
     // Portable settings replace the device's values: restoring brings back the athlete's
     // preferences and profile. Anything else in the backup (in version 1 that includes the
     // encrypted auth-session rows) is ignored, as is any value failing validation.
     const seen = new Set<string>();
+    const apply: Array<{ key: PortableSettingKey; value: string }> = [];
     for (const s of p.settings) {
       const value =
         PORTABLE.has(s.key) && !seen.has(s.key)
@@ -350,11 +366,19 @@ export class BackupService {
         continue;
       }
       seen.add(s.key);
-      await this.ctx.db.run(
-        'INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at',
-        [s.key, value, this.ctx.now()],
-      );
-      report.settingsRestored.push(s.key as PortableSettingKey);
+      apply.push({ key: s.key as PortableSettingKey, value });
+    }
+    try {
+      await this.ctx.db.transaction(async (tx) => {
+        for (const s of apply)
+          await tx.run(
+            'INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at',
+            [s.key, s.value, this.ctx.now()],
+          );
+      });
+      report.settingsRestored = apply.map((s) => s.key);
+    } catch (e) {
+      report.otherFailures.push({ part: 'settings', reason: reason(e) });
     }
     return report;
   }

@@ -72,8 +72,17 @@ A setting that fails validation is ignored and counted in the restore report
     none;
   - its portable settings are applied under the same allowlist; its `secure:*` rows are
     ignored.
+- **Goals and settings:** each is written in one transaction, after the activities. If writing
+  them fails, the failure is reported in `otherFailures` (not thrown), the activities already
+  restored are kept, and restoring the same backup again completes it. A restore of several
+  activities is therefore not all-or-nothing as a whole, by design: it is additive and safe to
+  repeat.
 - **Report:** `formatVersion`, activities `restored`, `skippedExisting` and `failed`,
-  `goalsRestored`, `sensorSamplesRestored`, `settingsRestored` and `settingsIgnored`.
+  `goalsRestored`, `sensorSamplesRestored`, `settingsRestored`, `settingsIgnored` and
+  `otherFailures`.
+- **In the app:** the restore message states the backup version, says when an older backup has
+  no heart rate, cadence or power (as a warning), and explains kept activities, replaced
+  settings and any failure.
 
 ## Security
 
@@ -83,9 +92,12 @@ A setting that fails validation is ignored and counted in the restore report
 - **Strict format detection:**
   - a missing, non-integer or non-positive `formatVersion` is invalid;
   - a version newer than the build is refused as unsupported;
-  - version-1 payloads and counts are strict, so a version-2 backup relabelled as version 1 is
-    refused, not silently stripped of its sensor samples;
-  - a version-1 backup relabelled as version 2 fails the version-2 schema.
+  - both versions are strict: a field the build does not know (in the document, its counts or
+    its payload) is refused, never silently dropped;
+  - so a version-2 backup relabelled as version 1 is refused, not stripped of its sensor
+    samples, and a version-1 backup relabelled as version 2 fails the version-2 schema;
+  - empty files, empty or non-object JSON and deeply nested JSON (200,000 levels, tested in
+    Node) are refused as invalid without crashing.
 - **Validated at creation:** a backup that restore would refuse is never written. Backup creation
   validates the document with the same schema and fails instead.
 - **Unchanged:** encryption (XChaCha20-Poly1305 with an authenticated header), scrypt parameter
@@ -96,3 +108,22 @@ A setting that fails validation is ignored and counted in the restore report
 Tests: `packages/core/src/backup-v2.test.ts` and `packages/backup/src/backup.test.ts`. The genuine
 version-1 backups in `packages/core/src/test-fixtures/v1-backups.ts` were written by the production
 code at `5747af8`.
+
+## Performance
+
+Measured on **synthetic data, in Node on the development PC**. This is not iPhone performance,
+and has not been measured on a device. Opt-in benchmark:
+`PACE_PERF=1 npx jest packages/core/src/backup-perf.test.ts`.
+
+| Scenario | GPS points | Sensor samples | Create (encrypted) | Size | Restore |
+|---|---|---|---|---|---|
+| 100 activities × 10 min | 60,100 | 180,300 | 9.1 s | 2.17 MB | 9.2 s |
+| 1,000 activities × 1 min | 61,000 | 183,000 | 9.9 s | 1.29 MB | 12.5 s |
+| 1 activity × 4 h, 1 Hz | 14,401 | 43,203 | 2.9 s | 0.53 MB | 2.5 s |
+| 5 activities × 2 h, 1 Hz | 36,005 | 108,015 | 6.1 s | 1.32 MB | 4.9 s |
+
+- **Memory risk:** backups are built and read entirely in memory. Restore grew the Node heap by
+  roughly 60–200 MB in these runs; the heap figures are approximate, because garbage collection
+  ran during measurement. Very large histories are a memory risk on a phone; streaming is not
+  implemented.
+

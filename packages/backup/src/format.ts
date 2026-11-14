@@ -145,14 +145,18 @@ export const backupDocumentSchemaV2 = z
   .object({
     ...documentBase,
     formatVersion: z.literal(2),
-    counts: z.object({
-      activities: z.number().int(),
-      samples: z.number().int(),
-      events: z.number().int(),
-      sensorSamples: z.number().int(),
-    }),
-    payload: backupPayloadSchemaV2,
+    counts: z
+      .object({
+        activities: z.number().int(),
+        samples: z.number().int(),
+        events: z.number().int(),
+        sensorSamples: z.number().int(),
+      })
+      .strict(),
+    payload: backupPayloadSchemaV2.strict(),
   })
+  // Strict like version 1: a field this build does not know is refused, never silently dropped.
+  .strict()
   .superRefine((doc, ctx) => {
     const p = doc.payload;
     const c = doc.counts;
