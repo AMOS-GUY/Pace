@@ -7,7 +7,8 @@
 # from a real recording, driven by simulated GPS movement (Maestro `travel`).
 #
 # Almost every step is optional, so one missing label never stops the walk: the screenshots show
-# what was really reached. Labels match the iOS accessibility tree (tabs read "Activities, tab,
+# what was really reached. iOS asks "Open in PACE?" for a deep link, so each one is followed by
+# a tap on Open. Labels match the iOS accessibility tree (tabs read "Activities, tab,
 # 3 of 5"), and each screen is awaited before its screenshot.
 appId: app.pace.ios
 ---
@@ -23,6 +24,7 @@ appId: app.pace.ios
 
 # ---------------------------------------------------------------- authentication screens
 - openLink: pace://welcome
+- tapOn: { text: 'Open', optional: true }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000, optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 02-auth-welcome
@@ -31,17 +33,20 @@ appId: app.pace.ios
 - waitForAnimationToEnd
 - takeScreenshot: 03-auth-sign-up
 - openLink: pace://sign-in
+- tapOn: { text: 'Open', optional: true }
 - extendedWaitUntil: { notVisible: 'Confirm password', timeout: 20000, optional: true }
 - extendedWaitUntil: { visible: 'Password', timeout: 20000, optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 04-auth-sign-in
 - openLink: pace://forgot-password
+- tapOn: { text: 'Open', optional: true }
 - extendedWaitUntil: { visible: 'Send reset link', timeout: 20000, optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 05-auth-forgot-password
 
 # ---------------------------------------------------------------- onboarding
 - openLink: pace://sports
+- tapOn: { text: 'Open', optional: true }
 - extendedWaitUntil: { visible: 'What do you train\?', timeout: 20000, optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 06-onboarding-sports
@@ -126,6 +131,7 @@ appId: app.pace.ios
 
 # ---------------------------------------------------------------- tabs with one activity
 - openLink: pace://
+- tapOn: { text: 'Open', optional: true }
 - extendedWaitUntil: { visible: 'Home, tab.*', timeout: 20000, optional: true }
 - tapOn: { text: 'Home, tab.*', optional: true }
 - waitForAnimationToEnd
@@ -143,26 +149,34 @@ appId: app.pace.ios
 
 # ---------------------------------------------------------------- other screens
 - openLink: pace://import
+- tapOn: { text: 'Open', optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 27-import
 - openLink: pace://settings/units
+- tapOn: { text: 'Open', optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 28-settings-units
 - openLink: pace://settings/goals
+- tapOn: { text: 'Open', optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 29-settings-goals
 - openLink: pace://settings/privacy
+- tapOn: { text: 'Open', optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 30-settings-privacy
 - openLink: pace://settings/devices
+- tapOn: { text: 'Open', optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 31-settings-devices
 - openLink: pace://settings/export
+- tapOn: { text: 'Open', optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 32-settings-export
 - openLink: pace://settings/backup
+- tapOn: { text: 'Open', optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 33-settings-backup
 - openLink: pace://settings/account
+- tapOn: { text: 'Open', optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 34-settings-account
