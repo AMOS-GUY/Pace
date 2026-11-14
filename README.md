@@ -110,4 +110,4 @@ pnpm --filter @pace/api start                                      # http://loca
 [Design system](docs/DESIGN_SYSTEM.md) · [Testing](docs/TESTING.md) · [Roadmap](docs/ROADMAP.md) ·
 [Decisions](docs/DECISIONS.md) · [Import validation](docs/IMPORT_VALIDATION.md) ·
 [M4.7 release readiness](docs/M4_7_RELEASE_READINESS.md) ·
-[Data fidelity](docs/DATA_FIDELITY.md) · [Export formats](docs/EXPORT_FORMATS.md)
+[M4.8 release readiness](docs/M4_8_RELEASE_READINESS.md) · [Data fidelity](docs/DATA_FIDELITY.md) · [Export formats](docs/EXPORT_FORMATS.md)

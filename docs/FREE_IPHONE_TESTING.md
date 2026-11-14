@@ -73,6 +73,26 @@ The minimums below come from the project's own dependencies.
 | **Network** | Mac and iPhone on the **same Wi-Fi** for Metro | — |
 | **Supabase project** | Project URL and **publishable** key. Signing in is mandatory, or PACE stops at "PACE is not configured". | `apps/mobile/src/config/env.ts` |
 
+### Which Xcode? (decision table)
+
+Per Apple's [Xcode system requirements](https://developer.apple.com/xcode/system-requirements/),
+read on 2026-11-12:
+
+| Xcode | Runs on macOS | Builds PACE? | PACE CI validated | Physical-device build tested |
+|---|---|---|---|---|
+| 26.0–26.3 | Sequoia 15.6 – Tahoe 26.x | Should (Swift 6.2) | No | No |
+| **26.6** | Tahoe 26.2 – Tahoe 26.x (**not macOS 27**) | Yes | **Yes** (simulator build, launch, Maestro) | No |
+| **27.x** | Tahoe 26.6 or later, **including macOS 27** | Unknown (Swift 6.4; Expo SDK 58 untested) | No | No |
+
+**The borrowed Mac reports macOS 27.0.1.**
+- Apple lists Xcode 26.6 only up to Tahoe 26.x, so on this Mac the supported choice is **Xcode
+  27.x** (the Mac App Store version), which PACE has never been built with.
+- Don't downgrade macOS. Use Xcode 27 and treat the first build as the compatibility test: if
+  it fails, stop and send the exact error. Don't change native code or dependencies to make it
+  build.
+- **Confirm the installed version first:** `xcodebuild -version`. Until it is known, the Mac's
+  compatibility is unknown.
+
 **Check the iPhone first:** Settings → General → About → **iOS Version**.
 - **iOS 26.x or earlier:** use Xcode 26.6, the validated route.
 - **iOS 27 or later:** Xcode 26.x will most likely refuse to install onto it, and you need
@@ -120,15 +140,15 @@ Swift must report **6.2 or later**.
 
 ### 4.1 One-time tools (the Mac's owner, as admin)
 
-1. **Xcode 26.6:** download it from [developer.apple.com/download/all](https://developer.apple.com/download/all/)
-   (sign in with a free Apple Account), search "Xcode 26.6", download the `.xip`, double-click it,
-   and move **Xcode.app** to Applications. Open it once and let it install its components; choose
-   the iOS platform when asked (a physical device needs no simulator runtimes).
+1. **Xcode:** choose by the Mac's macOS (see "Which Xcode?" above).
+   - **macOS 27 (the borrowed Mac):** Xcode 27 from the Mac App Store. Not yet tested with PACE.
+   - **macOS Tahoe 26.2–26.x:** Xcode 26.6, the version PACE's CI validates. Download it from
+     [developer.apple.com/download/all](https://developer.apple.com/download/all/) (sign in with
+     a free Apple Account), search "Xcode 26.6", download the `.xip`, double-click it and move
+     **Xcode.app** to Applications. The App Store would install the current Xcode 27 instead.
 
-   **Don't take Xcode from the Mac App Store by default:** it installs the *current* Xcode (27.x
-   as of November 2026). Xcode 27 needs macOS Tahoe 26.6 or later and has **not** been tested with
-   PACE (Expo SDK 58). Use it only if your iPhone requires it (see "Check the iPhone first"
-   below), and record that combination as untested.
+   Open Xcode once and let it install its components. Choose the iOS platform when asked; a
+   physical device needs no simulator runtimes.
 2. **Command-line tools:**
    ```bash
    sudo xcode-select -s /Applications/Xcode.app
