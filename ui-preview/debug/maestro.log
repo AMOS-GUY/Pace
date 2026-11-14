@@ -1,0 +1,10 @@
+06:54:04.715 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+06:54:04.721 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+06:54:04.722 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+06:54:04.722 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+06:54:04.723 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "app.pace.ios" with clear state RUNNING
+06:54:04.725 [ INFO] maestro.Maestro.clearAppState$lambda$9: Clearing app state app.pace.ios
+06:54:20.486 [ERROR] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandFailed: wrong argument value 'allow' was provided for 'location' permission
+06:54:23.408 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+06:54:23.418 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+06:54:23.980 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "app.pace.ios" with clear state FAILED

@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 - iOS 26.5 - 23C8F95C-765D-46A9-AE82-0BEE2921C8D7" tests="1" failures="1" time="25.26" timestamp="2026-11-14T06:54:03">
+    <testcase id="ui-preview" name="ui-preview" classname="ui-preview" file="/Users/runner/work/Pace/Pace/apps/mobile/maestro/ui-preview/ui-preview.yaml" time="25.07" timestamp="2026-11-14T06:54:03" status="ERROR">
+      <failure>Unknown error</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
