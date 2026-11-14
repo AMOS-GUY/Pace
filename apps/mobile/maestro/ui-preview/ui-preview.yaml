@@ -1,0 +1,192 @@
+# UI preview (CI only, .github/workflows/ui-preview.yml): walks the real Release build on an iOS
+# simulator and takes a screenshot of every screen it can reach. It changes nothing in the app.
+#
+# The CI build has no Supabase settings, so the app starts on "PACE is not configured". The
+# auth screens and onboarding are opened through the app's own pace:// deep links. Finishing
+# onboarding opens the tabs (existing behaviour of an unconfigured build). Activity data comes
+# from a real recording, driven by simulated GPS movement (Maestro `travel`).
+#
+# Almost every step is optional, so one missing label never stops the walk: the screenshots show
+# what was really reached. iOS asks "Open in PACE?" for a deep link, so each one is followed by
+# a tap on Open. Labels match the iOS accessibility tree (tabs read "Activities, tab,
+# 3 of 5"), and each screen is awaited before its screenshot.
+appId: app.pace.ios
+---
+- launchApp:
+    clearState: true
+    permissions:
+      location: inuse
+- extendedWaitUntil:
+    visible: 'PACE is not configured'
+    timeout: 120000
+    optional: true
+- takeScreenshot: 01-not-configured
+
+# ---------------------------------------------------------------- authentication screens
+- openLink: pace://welcome
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Create account', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 02-auth-welcome
+- tapOn: { text: 'Create account', optional: true }
+- extendedWaitUntil: { visible: 'Confirm password', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 03-auth-sign-up
+- openLink: pace://sign-in
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { notVisible: 'Confirm password', timeout: 20000, optional: true }
+- extendedWaitUntil: { visible: 'Password', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 04-auth-sign-in
+- openLink: pace://forgot-password
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Send reset link', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 05-auth-forgot-password
+- openLink: pace://auth/reset-password
+- tapOn: { text: 'Open', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 05b-auth-reset-password-link
+
+# ---------------------------------------------------------------- onboarding
+- openLink: pace://profile
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 05c-onboarding-profile
+- openLink: pace://sports
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'What do you train\?', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 06-onboarding-sports
+- tapOn: { text: 'Run', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 07-onboarding-sports-selected
+- tapOn: { text: 'Continue', optional: true }
+- extendedWaitUntil: { visible: 'Units', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 08-onboarding-units
+- tapOn: { text: 'Metric \(km, m\)', optional: true }
+- tapOn: { text: 'Continue', optional: true }
+- extendedWaitUntil: { visible: 'Location access', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 09-onboarding-permissions
+- tapOn: { text: 'Not now', optional: true }
+- extendedWaitUntil: { visible: 'Home, tab.*', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 10-home-empty
+
+# ---------------------------------------------------------------- tabs before any activity
+- tapOn: { text: 'Activities, tab.*', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 11-activities-empty
+- tapOn: { text: 'Progress, tab.*', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 12-progress-empty
+- tapOn: { text: 'Profile, tab.*', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 13-profile
+- scroll
+- takeScreenshot: 14-profile-scrolled
+
+# ---------------------------------------------------------------- a real recording (simulated GPS)
+- setLocation:
+    latitude: 47.3769
+    longitude: 8.5417
+- tapOn: { text: 'Record, tab.*', optional: true }
+- extendedWaitUntil: { visible: 'Start .*', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 15-record
+- tapOn: { text: 'Start (Run|Ride|Walk|Hike|Swim|Triathlon)', optional: true }
+- extendedWaitUntil: { visible: 'Find GPS', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 16-recording-setup
+- tapOn: { text: 'Find GPS', optional: true }
+- tapOn: { text: 'Allow While Using App', optional: true }
+- setLocation:
+    latitude: 47.3770
+    longitude: 8.5418
+- extendedWaitUntil: { visible: 'Start( without a fix)?', timeout: 45000, optional: true }
+- takeScreenshot: 17-recording-gps
+- tapOn: { text: 'Start( without a fix)?', optional: true }
+- extendedWaitUntil: { visible: 'Pause recording', timeout: 20000, optional: true }
+- travel:
+    points:
+      - 47.3770,8.5418
+      - 47.3778,8.5428
+      - 47.3787,8.5439
+      - 47.3796,8.5450
+      - 47.3805,8.5461
+    speed: 6
+- takeScreenshot: 18-recording-live
+- tapOn: { text: 'Pause recording', optional: true }
+- extendedWaitUntil: { visible: 'Resume', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 19-recording-paused
+- tapOn: { text: 'Finish', optional: true }
+- extendedWaitUntil: { visible: 'Finish & save', timeout: 10000, optional: true }
+- takeScreenshot: 20a-recording-finish-dialog
+- tapOn: { text: 'Finish & save', optional: true }
+- extendedWaitUntil: { visible: 'View activity', timeout: 30000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 20-recording-summary
+- tapOn: { text: 'View activity', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 21-activity-detail
+- scroll
+- takeScreenshot: 22-activity-detail-scrolled
+- scroll
+- takeScreenshot: 23-activity-detail-scrolled-more
+
+# ---------------------------------------------------------------- tabs with one activity
+# Back from the activity, not via pace:// (that reopens the start screen, which in this build is
+# "PACE is not configured"). The back button reads "(tabs)".
+- tapOn: { text: '.*\(tabs\).*', optional: true }
+- extendedWaitUntil: { visible: 'Home, tab.*', timeout: 20000, optional: true }
+- tapOn: { text: 'Home, tab.*', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 24-home-with-activity
+- scroll
+- takeScreenshot: 24b-home-with-activity-scrolled
+- tapOn: { text: 'Activities, tab.*', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 25-activities-with-activity
+- tapOn: { text: 'Progress, tab.*', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 26-progress-with-activity
+- scroll
+- takeScreenshot: 26b-progress-with-activity-scrolled
+
+# ---------------------------------------------------------------- other screens
+- openLink: pace://import
+- tapOn: { text: 'Open', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 27-import
+- openLink: pace://settings/units
+- tapOn: { text: 'Open', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 28-settings-units
+- openLink: pace://settings/goals
+- tapOn: { text: 'Open', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 29-settings-goals
+- openLink: pace://settings/privacy
+- tapOn: { text: 'Open', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 30-settings-privacy
+- openLink: pace://settings/devices
+- tapOn: { text: 'Open', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 31-settings-devices
+- openLink: pace://settings/export
+- tapOn: { text: 'Open', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 32-settings-export
+- openLink: pace://settings/backup
+- tapOn: { text: 'Open', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 33-settings-backup
+- openLink: pace://settings/account
+- tapOn: { text: 'Open', optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 34-settings-account
