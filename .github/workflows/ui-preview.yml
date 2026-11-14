@@ -94,7 +94,7 @@ jobs:
         if: always()
         run: |
           mkdir -p artifacts/ui-preview/screens
-          find artifacts/ui-preview/maestro "$GITHUB_WORKSPACE/apps/mobile/maestro" -name '[0-9][0-9]-*.png' \
+          find artifacts/ui-preview/maestro "$GITHUB_WORKSPACE/apps/mobile/maestro" -name '[0-9][0-9]*-*.png' \
             -exec cp {} artifacts/ui-preview/screens/ \; 2>/dev/null || true
           ls artifacts/ui-preview/screens > artifacts/ui-preview/screens.txt || true
           # Maestro's own output (JUnit report, logs, failure screenshots), for diagnosis.
@@ -102,8 +102,9 @@ jobs:
           find artifacts/ui-preview/maestro -type f \( -name '*.xml' -o -name '*.log' -o -name '*.txt' -o -name '*.json' -o -name '*.png' \)             -exec cp {} artifacts/ui-preview/debug/ \; 2>/dev/null || true
           latest="$(ls -dt "$HOME"/.maestro/tests/*/ 2>/dev/null | head -n 1)"
           [ -n "$latest" ] && cp -R "$latest" artifacts/ui-preview/debug/maestro-tests || true
-          python3 -m pip install --quiet pillow || true
-          python3 scripts/ui-preview/contact_sheet.py artifacts/ui-preview/screens artifacts/ui-preview/contact-sheet.png || true
+          # The runner's Python is externally managed, so Pillow goes into a throwaway venv.
+          python3 -m venv "$RUNNER_TEMP/venv" && "$RUNNER_TEMP/venv/bin/pip" install --quiet pillow || true
+          "$RUNNER_TEMP/venv/bin/python" scripts/ui-preview/contact_sheet.py artifacts/ui-preview/screens artifacts/ui-preview/contact-sheet.png || true
           {
             echo "commit: $GITHUB_SHA"
             echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
