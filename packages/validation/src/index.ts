@@ -7,7 +7,10 @@ import { z } from 'zod';
  */
 
 export const uuidSchema = z.uuid();
-export const epochMsSchema = z.number().int().min(946_684_800_000).max(4_102_444_800_000);
+/** Every stored activity time must lie in 2000-01-01 .. 2100-01-01 (UTC). */
+export const MIN_EPOCH_MS = 946_684_800_000;
+export const MAX_EPOCH_MS = 4_102_444_800_000;
+export const epochMsSchema = z.number().int().min(MIN_EPOCH_MS).max(MAX_EPOCH_MS);
 export const sportTypeSchema = z.enum(SPORT_TYPES);
 export const segmentTypeSchema = z.enum(MULTISPORT_SEGMENT_TYPES);
 const nonNegative = z.number().finite().nonnegative();

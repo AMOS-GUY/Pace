@@ -10,6 +10,7 @@ import {
   listOf,
   text,
   validCoordinate,
+  plausibleTime,
 } from './track';
 
 export class TcxImportError extends Error {}
@@ -88,7 +89,7 @@ function parseActivity(
   const laps = asArray(activity['Lap'] as XmlNode | XmlNode[] | undefined);
   laps.forEach((lap, i) => {
     const start = Date.parse(String(lap['@_StartTime'] ?? ''));
-    if (i > 0 && Number.isFinite(start)) lapStarts.push(start);
+    if (i > 0 && plausibleTime(start)) lapStarts.push(start);
     if (lap['Calories'] != null) ignored.add('calories');
     if (
       lap['AverageHeartRateBpm'] != null ||
@@ -111,7 +112,7 @@ function parseActivity(
       for (const tp of asArray(trackNode['Trackpoint'] as XmlNode | XmlNode[] | undefined)) {
         if (++total > pointBudget) throw new TcxImportError('TCX has too many points');
         const time = Date.parse(String(tp['Time'] ?? ''));
-        if (!Number.isFinite(time)) {
+        if (!plausibleTime(time)) {
           invalid++;
           continue;
         }

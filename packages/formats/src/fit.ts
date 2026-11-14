@@ -14,6 +14,7 @@ import {
   SensorCollector,
   importedSample,
   listOf,
+  plausibleTime,
   validCoordinate,
 } from './track';
 
@@ -267,6 +268,11 @@ class FileBuilder {
       return;
     }
     const t = fitTimeToMs(ts);
+    // FIT time reaches 2126; PACE stores 2000–2100 (as GPX and TCX): later is an invalid time.
+    if (!plausibleTime(t)) {
+      this.noTime++;
+      return;
+    }
     if (t < this.lastTime) {
       this.outOfOrder++;
       return;
