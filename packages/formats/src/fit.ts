@@ -188,6 +188,7 @@ class FileBuilder {
   conflicting = 0;
   private readonly sensorsAtLastTime = new Map<ImportedSensorSample['type'], number>();
   private pointAtLastTime = false;
+  private lastPointRaw: [number, number] | null = null;
   relativeTime = 0;
   noTime = 0;
   deviceDistance = false;
@@ -312,7 +313,12 @@ class FileBuilder {
         if (!repeat) this.withoutPosition++;
         return false;
       }
-      if (this.pointAtLastTime) return false; // the first position at this time is kept
+      if (this.pointAtLastTime) {
+        // The first position at this time is kept; a different one is reported, not silently lost.
+        if (latRaw !== this.lastPointRaw?.[0] || lonRaw !== this.lastPointRaw?.[1])
+          this.conflicting++;
+        return false;
+      }
       const lat = degrees(latRaw);
       const lon = degrees(lonRaw);
       if (!validCoordinate(lat, lon)) {
@@ -324,6 +330,7 @@ class FileBuilder {
       const alt = altRaw == null ? null : altRaw / 5 - 500;
       this.points.push({ t, sample: importedSample(lat, lon, alt, t) });
       this.pointAtLastTime = true;
+      this.lastPointRaw = [latRaw, lonRaw];
       return true;
     };
     added = position() || added;
