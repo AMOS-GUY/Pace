@@ -1,0 +1,16 @@
+# Phase 1 smoke launch (CI): the Release app starts on an iOS simulator and reaches its first
+# screen. The CI build has no Supabase configuration, so the expected screen is
+# "PACE is not configured". Reaching it proves: native startup, the embedded JS bundle, font
+# loading, and opening + migrating the local SQLite database (a failure there renders
+# "PACE could not open its local database" instead, which this flow rejects).
+# Run: maestro test apps/mobile/maestro/smoke-launch.yaml
+appId: app.pace.ios
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: 'PACE is not configured'
+    timeout: 90000
+- assertVisible: '.*EXPO_PUBLIC_SUPABASE_URL.*'
+- assertNotVisible: '.*could not open its local database.*'
+- takeScreenshot: smoke-launch

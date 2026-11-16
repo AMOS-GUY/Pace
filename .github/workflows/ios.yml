@@ -1,0 +1,198 @@
+name: iOS
+
+# The repository is public, so GitHub-hosted macOS runners are free (D19). The complete iOS
+# verification therefore runs automatically:
+#
+#   full            Swift tests, toolchain check, prebuild, pods, autolink check, Release
+#                   simulator build, launch check on a simulator, Maestro first-screen flow, and
+#                   the Debug (development build) compile (about 55 minutes). Runs on every pull
+#                   request, on every push to main, and manually (suite: full).
+#   swift-tests     Swift XCTests of the native recorder core only (about 2 minutes). Manual
+#                   (suite: swift-tests), for a quick check of a branch without a pull request.
+#
+# How to start a manual run: docs/TESTING.md, "Running the full iOS verification".
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: 'full (about 55 min) or swift-tests (about 2 min)'
+        type: choice
+        options: [full, swift-tests]
+        default: full
+      debug_build:
+        description: 'full only: also compile the Debug development build (about 20 min more)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  # One group per ref and kind of run. A newer push or pull request commit cancels the older
+  # automatic run; a manual run is never cancelled.
+  group: ios-${{ github.ref }}-${{ github.event_name }}-${{ inputs.suite || 'auto' }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+jobs:
+  swift-tests:
+    name: Swift native tests
+    if: github.event_name == 'workflow_dispatch' && inputs.suite == 'swift-tests'
+    runs-on: macos-26
+    timeout-minutes: 20
+    env:
+      XCODE_APP: /Applications/Xcode_26.6.app
+    defaults:
+      run:
+        # Explicit bash runs with `-eo pipefail`.
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s "$XCODE_APP"
+          xcodebuild -version
+          xcrun swift --version
+      - name: Swift unit tests (recorder core, journal, serialisation)
+        working-directory: apps/mobile/modules/pace-tracking/ios
+        run: swift test
+
+  full:
+    name: Full iOS verification (Swift tests, Release launch, Maestro, Debug build)
+    if: github.event_name != 'workflow_dispatch' || inputs.suite == 'full'
+    # Expo SDK 58 builds ExpoModulesJSI from a Swift package that needs swift-tools-version 6.2
+    # (Xcode 26+). macos-15 defaults to Xcode 16.4 (Swift 6.1), which cannot build it.
+    runs-on: macos-26
+    timeout-minutes: 120
+    env:
+      XCODE_APP: /Applications/Xcode_26.6.app
+      APP_BUNDLE_ID: app.pace.ios
+      MAESTRO_VERSION: cli-2.12.0
+      MAESTRO_SHA256: a6044a84542f522f434c5dc3d609e60c7446d423f3ed1b2ae513f5c48663ec5e
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s "$XCODE_APP"
+          xcodebuild -version
+          xcrun swift --version
+      - name: Swift unit tests (recorder core, journal, serialisation)
+        working-directory: apps/mobile/modules/pace-tracking/ios
+        run: swift test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Check Swift toolchain against package requirements
+        run: scripts/ci/check-swift-toolchain.sh .
+      - run: pnpm build
+      - name: Prebuild iOS project
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform ios --no-install
+      - name: Install pods
+        id: pods
+        working-directory: apps/mobile/ios
+        run: pod install
+      - name: Verify the native tracking module is autolinked
+        working-directory: apps/mobile/ios
+        run: |
+          grep -q "PaceTracking" Podfile.lock || { echo "PaceTracking pod is not linked"; exit 1; }
+
+      # Phase 1 of the first-launch milestone: a standalone Release app (JS bundle embedded, no
+      # Metro), installed and launched on a simulator, must start and keep running.
+      - name: Build Release app for simulator
+        working-directory: apps/mobile/ios
+        run: |
+          WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
+          SCHEME="${WORKSPACE%.xcworkspace}"
+          echo "Building $WORKSPACE / $SCHEME (Release) with $(xcodebuild -version | head -n 1)"
+          # The full log is kept (uploaded below); nothing is piped, so the exit code is xcodebuild's own.
+          set +e
+          args=(-workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator)
+          args+=(-destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dd")
+          args+=(CODE_SIGNING_ALLOWED=NO build)
+          xcodebuild "${args[@]}" > "$RUNNER_TEMP/xcodebuild-release.log" 2>&1
+          status=$?
+          set -e
+          echo "xcodebuild exit code: $status"
+          if [ "$status" -ne 0 ]; then
+            echo "::group::Error lines"
+            grep -nE "(error|fatal error):|BUILD FAILED|failed with exit code" "$RUNNER_TEMP/xcodebuild-release.log" || true
+            echo "::endgroup::"
+            echo "::group::Last 300 lines"
+            tail -n 300 "$RUNNER_TEMP/xcodebuild-release.log"
+            echo "::endgroup::"
+          fi
+          exit "$status"
+      - name: Launch on simulator and verify it keeps running
+        run: |
+          scripts/ci/ios-simulator-launch.sh \
+            "$RUNNER_TEMP/dd/Build/Products/Release-iphonesimulator/PACE.app" \
+            "$APP_BUNDLE_ID" "$RUNNER_TEMP/launch" 30
+      - name: Install Maestro (pinned, checksum verified)
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/maestro.zip" \
+            "https://github.com/mobile-dev-inc/maestro/releases/download/${MAESTRO_VERSION}/maestro.zip"
+          echo "${MAESTRO_SHA256}  $RUNNER_TEMP/maestro.zip" | shasum -a 256 -c -
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP/maestro-dist"
+          echo "$RUNNER_TEMP/maestro-dist/maestro/bin" >> "$GITHUB_PATH"
+      - name: Verify first screen (Maestro)
+        run: |
+          maestro --version
+          maestro test --format junit --output "$RUNNER_TEMP/launch/maestro-junit.xml" \
+            --test-output-dir "$RUNNER_TEMP/launch/maestro" apps/mobile/maestro/smoke-launch.yaml
+
+      # The development build (Debug, expo-dev-client) must keep compiling. It reuses the pods
+      # installed above and runs even when a launch step failed, so one run reports both;
+      # the job still fails if any step failed.
+      - name: Build Debug app for simulator (development build)
+        if: ${{ !cancelled() && steps.pods.outcome == 'success' && (github.event_name != 'workflow_dispatch' || inputs.debug_build) }}
+        working-directory: apps/mobile/ios
+        run: |
+          WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
+          SCHEME="${WORKSPACE%.xcworkspace}"
+          echo "Building $WORKSPACE / $SCHEME (Debug) with $(xcodebuild -version | head -n 1)"
+          set +e
+          args=(-workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug -sdk iphonesimulator)
+          args+=(-destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dd-debug")
+          args+=(CODE_SIGNING_ALLOWED=NO build)
+          xcodebuild "${args[@]}" > "$RUNNER_TEMP/xcodebuild.log" 2>&1
+          status=$?
+          set -e
+          echo "xcodebuild exit code: $status"
+          if [ "$status" -ne 0 ]; then
+            echo "::group::Error lines"
+            grep -nE "(error|fatal error):|BUILD FAILED|failed with exit code" "$RUNNER_TEMP/xcodebuild.log" || true
+            echo "::endgroup::"
+            echo "::group::Last 300 lines"
+            tail -n 300 "$RUNNER_TEMP/xcodebuild.log"
+            echo "::endgroup::"
+          fi
+          exit "$status"
+
+      - name: Upload launch artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-launch
+          path: |
+            ${{ runner.temp }}/launch
+            ${{ runner.temp }}/xcodebuild-release.log
+          if-no-files-found: ignore
+      - name: Upload Debug xcodebuild log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-log
+          path: ${{ runner.temp }}/xcodebuild.log
+          if-no-files-found: ignore
