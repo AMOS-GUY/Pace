@@ -43,8 +43,7 @@ export default function OnboardingPermissions() {
         },
       }).catch((e: unknown) => reportError(e, { area: 'profile' }));
     }
-    // Through the entry screen, which opens the tabs from the updated onboarding state.
-    router.replace('/');
+    router.replace('/(tabs)');
   };
 
   const denied = status === 'denied' || status === 'restricted';

@@ -8,12 +8,10 @@ env:
 - extendedWaitUntil: { visible: 'Create account', timeout: 120000 }
 - tapOn: 'Sign in'
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
-# Each label text appears twice in the accessibility tree before its field, so the field is the
-# third match. Wait for the keyboard before typing: characters typed earlier are lost.
-- tapOn: { text: 'Email', index: 2 }
+- tapOn: { id: 'sign-in-email' }
 - waitForAnimationToEnd
 - inputText: ${PREVIEW_EMAIL}
-- tapOn: { text: 'Password', index: 2 }
+- tapOn: { id: 'sign-in-password' }
 - waitForAnimationToEnd
 - inputText: ${PREVIEW_PASSWORD}
 - pressKey: Enter

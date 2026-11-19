@@ -144,6 +144,30 @@ describe('entryHref', () => {
   });
 });
 
+describe('denied routes', () => {
+  it('redirect to a route the state may open, never back into a guard that denies it', () => {
+    const statuses: AuthStatus[] = ['loading', 'unconfigured', 'signedOut', 'signedIn'];
+    for (const status of statuses) {
+      for (const onboarding of [false, true]) {
+        for (const recording of [false, true]) {
+          const s = state(status, onboarding, recording);
+          const access = routeAccess(s);
+          for (const guard of Object.keys(access) as (keyof typeof access)[]) {
+            if (access[guard]) continue;
+            const href = entryHref(s);
+            if (href === null) continue; // loading renders nothing; unconfigured shows its notice
+            // Never "/": app/index and app/(tabs)/index share it (a redirect loop on iOS).
+            expect(href).not.toBe('/');
+            const target = ROOT_ROUTE_GUARDS[href.split('/')[1] as keyof typeof ROOT_ROUTE_GUARDS];
+            expect(target).not.toBe(guard);
+            expect(access[target]).toBe(true);
+          }
+        }
+      }
+    }
+  });
+});
+
 describe('isRecordingActive', () => {
   it('matches the Record tab: anything but ready or saved', () => {
     expect(isRecordingActive(undefined)).toBe(false);
