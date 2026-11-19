@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 - iOS 26.5 - F5450765-59B9-4D0C-9B64-845B8C9EE51F" tests="1" failures="0" time="857.132" timestamp="2026-11-19T14:49:04">
+    <testcase id="ui-preview" name="ui-preview" classname="ui-preview" file="/Users/runner/work/Pace/Pace/apps/mobile/maestro/ui-preview/ui-preview.yaml" time="856.843" timestamp="2026-11-19T14:49:04" status="SUCCESS"/>
+  </testsuite>
+</testsuites>
