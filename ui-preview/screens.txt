@@ -1,0 +1,2 @@
+02-auth-welcome.png
+ac-01-signed-out-welcome.png

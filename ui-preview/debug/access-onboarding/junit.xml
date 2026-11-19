@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 - iOS 26.5 - F5450765-59B9-4D0C-9B64-845B8C9EE51F" tests="1" failures="1" time="202.258" timestamp="2026-11-19T15:53:07">
+    <testcase id="access-onboarding" name="access-onboarding" classname="access-onboarding" file="/Users/runner/work/Pace/Pace/apps/mobile/maestro/ui-preview/access-onboarding.yaml" time="202.066" timestamp="2026-11-19T15:53:07" status="ERROR">
+      <failure>Assertion is false: "Create account" is visible</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
