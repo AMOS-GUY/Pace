@@ -12,40 +12,46 @@ appId: app.pace.ios
 - extendedWaitUntil: { visible: 'Create account', timeout: 120000 }
 - takeScreenshot: ac-01-signed-out-welcome
 
-- tapOn: 'Sign in'
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://activities' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Activities, tab.*'
 - takeScreenshot: ac-02-signed-out-tabs-link
 
-- tapOn: 'Sign in'
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/backup' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Backup file'
 - takeScreenshot: ac-03-signed-out-settings-link
 
-- tapOn: 'Sign in'
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://import' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Bring your history'
 
-- tapOn: 'Sign in'
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://recording' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Find GPS'
 
-- tapOn: 'Sign in'
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow:
     { file: open-link.yaml, env: { LINK: 'pace://activity/00000000-0000-0000-0000-000000000000' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Splits'
 
-- tapOn: 'Sign in'
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://sports' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
