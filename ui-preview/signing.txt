@@ -1,0 +1,2 @@
+Executable=/Users/runner/work/_temp/dd/Build/Products/Release-iphonesimulator/PACE.app/PACE
+[Dict]

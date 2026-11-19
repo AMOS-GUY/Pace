@@ -1,0 +1,3 @@
+2026-11-19 17:54:30.864680+0000  localhost PACE[73942]: (BoardServices) [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.frontboard.systemappservices
+2026-11-19 17:54:31.247592+0000  localhost PACE[73942]: (BoardServices) [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.backboard.hid-services.xpc
+2026-11-19 17:54:48.151353+0000  localhost PACE[73942]: (UIKitCore) [com.apple.UIKit:UIFocus] RCTScrollViewComponentView implements focusItemsInRect: - caching for linear focus movement is limited as long as this view is on screen.

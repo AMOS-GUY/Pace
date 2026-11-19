@@ -1,0 +1,68 @@
+17:53:02.547 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+17:53:02.554 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+17:53:02.557 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+17:53:02.557 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+17:53:02.558 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "app.pace.ios" with clear state RUNNING
+17:53:02.560 [ INFO] maestro.Maestro.clearAppState$lambda$9: Clearing app state app.pace.ios
+17:53:36.471 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app app.pace.ios
+17:53:36.471 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping app.pace.ios app during launch
+17:54:33.399 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "app.pace.ios" with clear state COMPLETED
+17:54:33.526 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run flow when "Open in .*" is visible RUNNING
+17:54:41.241 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandSkipped: null
+17:54:41.241 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run flow when "Open in .*" is visible SKIPPED
+17:54:41.243 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+17:54:41.557 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+17:54:41.605 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot ac-01-signed-out-welcome RUNNING
+17:54:41.690 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+17:54:41.720 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+17:54:41.986 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot ac-01-signed-out-welcome COMPLETED
+17:54:41.986 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+17:54:41.990 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+17:54:41.999 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+17:54:42.000 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+17:54:43.418 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+17:54:43.419 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+17:54:46.332 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+17:54:46.375 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Sign in" RUNNING
+17:54:46.864 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Sign in, title=, value=, text=, hintText=, resource-id=, bounds=[16,728][386,792], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=728, width=370, height=64))
+17:54:47.296 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+17:54:47.331 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 760) using hierarchy based logic for wait
+17:54:47.332 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+17:54:47.333 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+17:54:49.834 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+17:54:49.843 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Sign in" COMPLETED
+17:54:49.844 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Forgot password\?" is visible RUNNING
+17:54:50.283 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Forgot password\?" is visible COMPLETED
+17:54:50.284 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run open-link.yaml RUNNING
+17:54:50.288 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+17:54:50.288 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+17:54:50.289 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+17:54:50.289 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+17:54:50.290 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open ${LINK} RUNNING
+17:54:57.312 [ INFO] maestro.Maestro.openLink: Opening link pace://activities for app: app.pace.ios with autoVerify config as false
+17:55:04.344 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open ${LINK} COMPLETED
+17:55:04.345 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is visible RUNNING
+17:55:04.855 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is visible COMPLETED
+17:55:04.857 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+17:55:05.233 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Open, title=, value=, text=, hintText=, resource-id=, bounds=[205,450][345,498], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=205, y=450, width=140, height=48))
+17:55:05.652 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+17:55:05.654 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (275, 474) using hierarchy based logic for wait
+17:55:05.655 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+17:55:05.655 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+17:55:07.131 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+17:55:07.132 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" COMPLETED
+17:55:07.132 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is not visible RUNNING
+17:55:08.199 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is not visible COMPLETED
+17:55:08.199 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+17:55:08.201 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+17:55:08.201 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+17:55:08.201 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+17:55:08.457 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+17:55:08.457 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+17:55:10.057 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+17:55:10.063 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run open-link.yaml COMPLETED
+17:55:10.063 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+17:55:30.783 [ERROR] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandFailed: Assertion is false: "Create account" is visible
+17:55:31.787 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+17:55:31.788 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+17:55:32.118 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible FAILED
