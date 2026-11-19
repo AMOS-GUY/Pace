@@ -1,0 +1,31 @@
+07:47:34.191 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+07:47:34.198 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+07:47:34.206 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+07:47:34.207 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+07:47:34.238 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "app.pace.ios" with clear state RUNNING
+07:47:34.285 [ INFO] maestro.Maestro.clearAppState$lambda$9: Clearing app state app.pace.ios
+07:47:53.808 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app app.pace.ios
+07:47:53.815 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping app.pace.ios app during launch
+07:48:05.999 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "app.pace.ios" with clear state COMPLETED
+07:48:06.112 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+07:48:09.120 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+07:48:09.122 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot ac-01-signed-out-welcome RUNNING
+07:48:09.131 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:48:09.142 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:48:09.356 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot ac-01-signed-out-welcome COMPLETED
+07:48:09.356 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open pace://activities RUNNING
+07:48:09.361 [ INFO] maestro.Maestro.openLink: Opening link pace://activities for app: app.pace.ios with autoVerify config as false
+07:48:37.532 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open pace://activities COMPLETED
+07:48:37.542 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+07:48:37.892 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Open, title=, value=, text=, hintText=, resource-id=, bounds=[205,450][345,498], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=205, y=450, width=140, height=48))
+07:48:38.258 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+07:48:38.267 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (275, 474) using hierarchy based logic for wait
+07:48:38.274 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+07:48:38.275 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:48:45.277 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+07:48:45.279 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" COMPLETED
+07:48:45.279 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+07:49:06.652 [ERROR] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandFailed: Assertion is false: "Create account" is visible
+07:49:07.913 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+07:49:07.925 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+07:49:08.519 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible FAILED

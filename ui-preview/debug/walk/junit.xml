@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 - iOS 26.5 - 23C8F95C-765D-46A9-AE82-0BEE2921C8D7" tests="1" failures="1" time="68.893" timestamp="2026-11-19T07:53:17">
+    <testcase id="ui-preview" name="ui-preview" classname="ui-preview" file="/Users/runner/work/Pace/Pace/apps/mobile/maestro/ui-preview/ui-preview.yaml" time="68.808" timestamp="2026-11-19T07:53:17" status="ERROR">
+      <failure>Element not found: Text matching regex: Email, Index: 2</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
