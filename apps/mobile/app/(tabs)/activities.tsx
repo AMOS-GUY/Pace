@@ -8,8 +8,10 @@ import { Input } from '@/components/Input';
 import { Text } from '@/components/Text';
 import { Chip, EmptyState, ErrorState, LoadingState } from '@/components/layout';
 import { groupByMonth } from '@/features/activity-view';
+import { contentState } from '@/features/list-state';
 import { sportIcon, sportLabel } from '@/features/display';
 import { useActivityList } from '@/hooks/queries';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { deviceTimeZone } from '@/services/container';
 import { useImport } from '@/stores/import';
 import { useUnits } from '@/stores/preferences';
@@ -50,6 +52,12 @@ export default function Activities() {
   const items = useMemo(() => q.data?.pages.flatMap((p) => p.items) ?? [], [q.data]);
   const total = q.data?.pages[0]?.total ?? 0;
   const sections = useMemo(() => groupByMonth(items, deviceTimeZone()), [items]);
+  const view = contentState({
+    hasData: q.data !== undefined,
+    isError: q.isError,
+    isPending: q.isPending,
+  });
+  const pull = usePullToRefresh(q.refetch);
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.background }}>
@@ -122,9 +130,9 @@ export default function Activities() {
           />
         </ScrollView>
       </View>
-      {q.isLoading ? (
+      {view === 'loading' ? (
         <LoadingState />
-      ) : q.error ? (
+      ) : view === 'error' ? (
         <ErrorState message="Could not load activities." onRetry={() => void q.refetch()} />
       ) : (
         <SectionList
@@ -151,7 +159,7 @@ export default function Activities() {
           }}
           onEndReachedThreshold={0.5}
           refreshControl={
-            <RefreshControl refreshing={q.isRefetching} onRefresh={() => void q.refetch()} />
+            <RefreshControl refreshing={pull.refreshing} onRefresh={pull.onRefresh} />
           }
           ListHeaderComponent={
             total > 0 ? (

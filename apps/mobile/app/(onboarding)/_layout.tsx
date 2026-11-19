@@ -1,10 +1,8 @@
 import { darkColors } from '@pace/design-system';
-import { Redirect, Stack } from 'expo-router';
-import { useSession } from '@/stores/session';
+import { Stack } from 'expo-router';
 
+/** Access is checked by the root layout (signed in; src/features/route-access.ts). */
 export default function OnboardingLayout() {
-  const status = useSession((s) => s.status);
-  if (status === 'signedOut') return <Redirect href="/(auth)/welcome" />;
   return (
     <Stack
       screenOptions={{
