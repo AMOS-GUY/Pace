@@ -1,9 +1,10 @@
 import type { AuthStatus } from '@/stores/session';
 
 /**
- * Who may open which part of the app. The root layout applies it with `Stack.Protected`, so a
- * route that is not allowed is never shown, however it was reached: a tap, a pace:// deep link
- * or navigation state restored at launch.
+ * Who may open which part of the app. Every route under app/ except the entry screen renders
+ * through <Guard> (src/components/Guard.tsx) with one of these guards, so a route that is not
+ * allowed is never shown, however it was reached: a tap, a pace:// deep link or navigation
+ * state restored at launch. The user is sent to the entry screen, which routes them on.
  *
  * Policy (app/index.tsx: "authentication is mandatory; onboarding follows the first sign-in"):
  * - A build without its authentication settings ('unconfigured') shows only the entry screen.
@@ -25,8 +26,7 @@ export interface AccessState {
 
 /**
  * Every route directly under app/ (except the entry screen, index) and the guard protecting it.
- * expo-router adds any route a layout does not declare without a guard, so a test checks this
- * table against the app/ directory.
+ * A test checks this table against the app/ directory and each route's <Guard>.
  */
 export const ROOT_ROUTE_GUARDS = {
   '(auth)': 'auth',

@@ -2,9 +2,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ErrorState, LoadingState, Screen } from '@/components/layout';
 import { authErrorMessage, exchangeCode } from '@/services/auth';
+import { Guard } from '@/components/Guard';
 
 /** Deep link target for email verification (pace://auth/callback?code=…, PKCE flow). */
-export default function AuthCallback() {
+function AuthCallbackContent() {
   const { code, error_description } = useLocalSearchParams<{
     code?: string;
     error_description?: string;
@@ -35,5 +36,14 @@ export default function AuthCallback() {
         />
       )}
     </Screen>
+  );
+}
+
+/** Guarded route (authLinks): see src/features/route-access.ts. */
+export default function AuthCallback() {
+  return (
+    <Guard guard="authLinks">
+      <AuthCallbackContent />
+    </Guard>
   );
 }

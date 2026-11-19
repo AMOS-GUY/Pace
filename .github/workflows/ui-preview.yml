@@ -131,6 +131,8 @@ jobs:
             find "$d" -type f \( -name '*.xml' -o -name '*.log' -o -name '*.json' -o -name 'step-*.png' \)               -exec cp {} "artifacts/ui-preview/debug/$n/" \; 2>/dev/null || true
           done
           cp "$RUNNER_TEMP/auth-stub.log" artifacts/ui-preview/debug/ 2>/dev/null || true
+          # The simulator log is too large to publish: keep only the app's own lines.
+          find artifacts/ui-preview/debug -name device-simulator.log -exec sh -c             'grep -E "PACE\[|ReactNativeJS|RCTLog|Fatal|crash" "$1" | tail -n 3000 > "${1%.log}-app.log"; rm -f "$1"' _ {} \; || true
           echo "access-control checks: ${{ steps.access.outcome }}" > artifacts/ui-preview/access-control.txt
           latest="$(ls -dt "$HOME"/.maestro/tests/*/ 2>/dev/null | head -n 1)"
           [ -n "$latest" ] && cp -R "$latest" artifacts/ui-preview/debug/maestro-tests || true

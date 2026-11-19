@@ -45,6 +45,20 @@ describe('ROOT_ROUTE_GUARDS', () => {
     expect(rootRoutes()).toEqual(['index', ...guarded].sort());
   });
 
+  it('makes every guarded route render through <Guard> with its guard from this table', () => {
+    for (const [route, guard] of Object.entries(ROOT_ROUTE_GUARDS)) {
+      const layout = path.join(APP_DIR, route, '_layout.tsx');
+      const file = fs.existsSync(layout) ? layout : path.join(APP_DIR, `${route}.tsx`);
+      const source = fs.readFileSync(file, 'utf8');
+      expect({ route, guards: source.match(/<Guard guard="(\w+)">/g) }).toEqual({
+        route,
+        guards: [`<Guard guard="${guard}">`],
+      });
+      // The default export is what expo-router renders: it must be the guarded wrapper.
+      expect(source).toMatch(/export default function \w+\(\) \{\s*return \(\s*<Guard /);
+    }
+  });
+
   it('keeps the screens of the app behind the signed-in, onboarded guard', () => {
     for (const r of ['(tabs)', 'activity/[id]', 'settings', 'import'] as const) {
       expect(ROOT_ROUTE_GUARDS[r]).toBe('app');

@@ -6,9 +6,10 @@ import { Input } from '@/components/Input';
 import { Text } from '@/components/Text';
 import { Banner, LoadingState, Screen } from '@/components/layout';
 import { authErrorMessage, exchangeCode, updatePassword } from '@/services/auth';
+import { Guard } from '@/components/Guard';
 
 /** Deep link target for password recovery (pace://auth/reset-password?code=…). */
-export default function ResetPassword() {
+function ResetPasswordContent() {
   const { code } = useLocalSearchParams<{ code?: string }>();
   const router = useRouter();
   const [ready, setReady] = useState(false);
@@ -64,5 +65,14 @@ export default function ResetPassword() {
         </>
       ) : null}
     </Screen>
+  );
+}
+
+/** Guarded route (authLinks): see src/features/route-access.ts. */
+export default function ResetPassword() {
+  return (
+    <Guard guard="authLinks">
+      <ResetPasswordContent />
+    </Guard>
   );
 }
