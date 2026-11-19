@@ -1,11 +1,15 @@
 name: UI preview
 
 # Screenshots of the real app (Release build, iOS simulator), on request only. Runs on pushes to
-# preview/ui-screenshots or manually. It changes nothing in the app; the output is a CI artifact
+# preview/** branches or manually. It changes nothing in the app; the output is a CI artifact
 # and a new `ui-preview-run-<id>` branch per run (never main).
+#
+# The build's Supabase URL points at a local stand-in (scripts/ui-preview/auth-stub.mjs, test
+# account only), so Maestro signs in through the real sign-in screen. The access-control flows
+# use hard assertions and fail the job if a protected screen opens when it must not.
 on:
   push:
-    branches: [preview/ui-screenshots]
+    branches: ['preview/**']
   workflow_dispatch:
 
 permissions:
@@ -25,6 +29,9 @@ jobs:
       APP_BUNDLE_ID: app.pace.ios
       MAESTRO_VERSION: cli-2.12.0
       MAESTRO_SHA256: a6044a84542f522f434c5dc3d609e60c7446d423f3ed1b2ae513f5c48663ec5e
+      # Not secrets: the local auth stand-in on the runner, and a placeholder key.
+      EXPO_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ui-preview-placeholder-publishable-key
     defaults:
       run:
         shell: bash
@@ -46,7 +53,10 @@ jobs:
       - run: pnpm build
       - name: Prebuild iOS project
         working-directory: apps/mobile
-        run: npx expo prebuild --platform ios --no-install
+        run: |
+          npx expo prebuild --platform ios --no-install
+          # The stand-in is plain http on 127.0.0.1; show what App Transport Security allows.
+          plutil -p ios/*/Info.plist | grep -A4 NSAppTransportSecurity || true
       - name: Install pods
         working-directory: apps/mobile/ios
         run: pod install
@@ -83,23 +93,45 @@ jobs:
           echo "${MAESTRO_SHA256}  $RUNNER_TEMP/maestro.zip" | shasum -a 256 -c -
           unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP/maestro-dist"
           echo "$RUNNER_TEMP/maestro-dist/maestro/bin" >> "$GITHUB_PATH"
+      - name: Start the local auth stand-in
+        run: |
+          nohup node scripts/ui-preview/auth-stub.mjs 54321 > "$RUNNER_TEMP/auth-stub.log" 2>&1 &
+          for i in $(seq 1 20); do
+            curl -s -o /dev/null -X POST http://127.0.0.1:54321/auth/v1/logout && break
+            sleep 1
+          done
+      - name: Access-control checks (hard assertions)
+        id: access
+        continue-on-error: true
+        run: |
+          status=0
+          for flow in access-signed-out access-onboarding; do
+            mkdir -p "artifacts/ui-preview/maestro/$flow"
+            ( cd "artifacts/ui-preview/maestro/$flow" &&
+              maestro test --format junit --output junit.xml --test-output-dir .                 "$GITHUB_WORKSPACE/apps/mobile/maestro/ui-preview/$flow.yaml" ) || status=1
+          done
+          exit $status
       - name: Walk the app and take screenshots
         continue-on-error: true
         run: |
-          mkdir -p artifacts/ui-preview/maestro
-          cd artifacts/ui-preview/maestro
-          maestro test --format junit --output junit.xml --test-output-dir . \
-            "$GITHUB_WORKSPACE/apps/mobile/maestro/ui-preview/ui-preview.yaml"
+          mkdir -p artifacts/ui-preview/maestro/walk
+          cd artifacts/ui-preview/maestro/walk
+          maestro test --format junit --output junit.xml --test-output-dir .             "$GITHUB_WORKSPACE/apps/mobile/maestro/ui-preview/ui-preview.yaml"
       - name: Collect screenshots and build the contact sheet
         if: always()
         run: |
           mkdir -p artifacts/ui-preview/screens
-          find artifacts/ui-preview/maestro "$GITHUB_WORKSPACE/apps/mobile/maestro" -name '[0-9][0-9]*-*.png' \
+          find artifacts/ui-preview/maestro "$GITHUB_WORKSPACE/apps/mobile/maestro" \( -name '[0-9][0-9]*-*.png' -o -name 'ac-*.png' \) \
             -exec cp {} artifacts/ui-preview/screens/ \; 2>/dev/null || true
           ls artifacts/ui-preview/screens > artifacts/ui-preview/screens.txt || true
           # Maestro's own output (JUnit report, logs, failure screenshots), for diagnosis.
           mkdir -p artifacts/ui-preview/debug
-          find artifacts/ui-preview/maestro -type f \( -name '*.xml' -o -name '*.log' -o -name '*.txt' -o -name '*.json' -o -name '*.png' \)             -exec cp {} artifacts/ui-preview/debug/ \; 2>/dev/null || true
+          for d in artifacts/ui-preview/maestro/*/; do
+            n="$(basename "$d")"; mkdir -p "artifacts/ui-preview/debug/$n"
+            find "$d" -type f \( -name '*.xml' -o -name '*.log' -o -name '*.json' -o -name 'step-*.png' \)               -exec cp {} "artifacts/ui-preview/debug/$n/" \; 2>/dev/null || true
+          done
+          cp "$RUNNER_TEMP/auth-stub.log" artifacts/ui-preview/debug/ 2>/dev/null || true
+          echo "access-control checks: ${{ steps.access.outcome }}" > artifacts/ui-preview/access-control.txt
           latest="$(ls -dt "$HOME"/.maestro/tests/*/ 2>/dev/null | head -n 1)"
           [ -n "$latest" ] && cp -R "$latest" artifacts/ui-preview/debug/maestro-tests || true
           # The runner's Python is externally managed, so Pillow goes into a throwaway venv.
@@ -130,7 +162,7 @@ jobs:
           log="$RUNNER_TEMP/publish.log"
           mkdir -p "$out/ui-preview"
           cp -R artifacts/ui-preview/screens artifacts/ui-preview/debug "$out/ui-preview/" 2>/dev/null || true
-          cp artifacts/ui-preview/README.md artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt artifacts/ui-preview/contact-sheet.png \
+          cp artifacts/ui-preview/README.md artifacts/ui-preview/access-control.txt artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt artifacts/ui-preview/contact-sheet.png \
             "$out/ui-preview/" 2>/dev/null || true
           # GitHub refuses files over 100 MB; drop anything over 40 MB and say so.
           find "$out" -type f -size +40M -print -delete | sed 's/^/dropped (too large): /' >> "$out/ui-preview/screens.txt" || true
@@ -147,3 +179,8 @@ jobs:
             exit 1
           fi
           echo "::notice title=Published::$branch"
+      - name: Fail if an access-control check failed
+        if: steps.access.outcome == 'failure'
+        run: |
+          echo "::error title=Access control::A protected screen opened when it must not (see debug/access-*)."
+          exit 1

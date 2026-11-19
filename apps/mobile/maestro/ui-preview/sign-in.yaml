@@ -1,0 +1,17 @@
+# Signs in through the app's real sign-in screen. The UI preview build points at the local auth
+# stand-in (scripts/ui-preview/auth-stub.mjs), which accepts only this test account.
+appId: app.pace.ios
+env:
+  PREVIEW_EMAIL: preview@pace.test
+  PREVIEW_PASSWORD: preview-password-1
+---
+- extendedWaitUntil: { visible: 'Create account', timeout: 120000 }
+- tapOn: 'Sign in'
+- extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
+# The fields, by position (their visible labels are separate text elements).
+- tapOn: { point: '50%,30%' }
+- inputText: ${PREVIEW_EMAIL}
+- tapOn: { point: '50%,40%' }
+- inputText: ${PREVIEW_PASSWORD}
+- pressKey: Enter
+- extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 30000 }

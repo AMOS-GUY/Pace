@@ -1,61 +1,28 @@
 # UI preview (CI only, .github/workflows/ui-preview.yml): walks the real Release build on an iOS
 # simulator and takes a screenshot of every screen it can reach. It changes nothing in the app.
 #
-# The CI build has no Supabase settings, so the app starts on "PACE is not configured". The
-# auth screens and onboarding are opened through the app's own pace:// deep links. Finishing
-# onboarding opens the tabs (existing behaviour of an unconfigured build). Activity data comes
-# from a real recording, driven by simulated GPS movement (Maestro `travel`).
+# The preview build points its Supabase URL at a local stand-in (scripts/ui-preview/auth-stub.mjs)
+# so the walk signs in through the real sign-in screen, then goes through onboarding and the app.
+# Access control is checked separately, with hard assertions (access-*.yaml). Activity data
+# comes from a real recording, driven by simulated GPS movement (Maestro `travel`).
 #
-# Almost every step is optional, so one missing label never stops the walk: the screenshots show
-# what was really reached. iOS asks "Open in PACE?" for a deep link, so each one is followed by
-# a tap on Open. Labels match the iOS accessibility tree (tabs read "Activities, tab,
-# 3 of 5"), and each screen is awaited before its screenshot.
+# Almost every step here is optional, so one missing label never stops the walk: the screenshots
+# show what was really reached. iOS asks "Open in PACE?" for a deep link, so each one is followed
+# by a tap on Open. Labels match the iOS accessibility tree (tabs read "Activities, tab, 3 of 5").
 appId: app.pace.ios
 ---
 - launchApp:
     clearState: true
     permissions:
       location: inuse
-- extendedWaitUntil:
-    visible: 'PACE is not configured'
-    timeout: 120000
-    optional: true
-- takeScreenshot: 01-not-configured
-
-# ---------------------------------------------------------------- authentication screens
-- openLink: pace://welcome
-- tapOn: { text: 'Open', optional: true }
-- extendedWaitUntil: { visible: 'Create account', timeout: 20000, optional: true }
-- waitForAnimationToEnd
+- extendedWaitUntil: { visible: 'Create account', timeout: 120000, optional: true }
 - takeScreenshot: 02-auth-welcome
-- tapOn: { text: 'Create account', optional: true }
-- extendedWaitUntil: { visible: 'Confirm password', timeout: 20000, optional: true }
-- waitForAnimationToEnd
-- takeScreenshot: 03-auth-sign-up
-- openLink: pace://sign-in
-- tapOn: { text: 'Open', optional: true }
-- extendedWaitUntil: { notVisible: 'Confirm password', timeout: 20000, optional: true }
-- extendedWaitUntil: { visible: 'Password', timeout: 20000, optional: true }
-- waitForAnimationToEnd
-- takeScreenshot: 04-auth-sign-in
-- openLink: pace://forgot-password
-- tapOn: { text: 'Open', optional: true }
-- extendedWaitUntil: { visible: 'Send reset link', timeout: 20000, optional: true }
-- waitForAnimationToEnd
-- takeScreenshot: 05-auth-forgot-password
-- openLink: pace://auth/reset-password
-- tapOn: { text: 'Open', optional: true }
-- waitForAnimationToEnd
-- takeScreenshot: 05b-auth-reset-password-link
+- runFlow: sign-in.yaml
 
 # ---------------------------------------------------------------- onboarding
-- openLink: pace://profile
-- tapOn: { text: 'Open', optional: true }
-- extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000, optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 05c-onboarding-profile
-- openLink: pace://sports
-- tapOn: { text: 'Open', optional: true }
+- tapOn: { text: 'Continue', optional: true }
 - extendedWaitUntil: { visible: 'What do you train\?', timeout: 20000, optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 06-onboarding-sports
@@ -139,9 +106,15 @@ appId: app.pace.ios
 - takeScreenshot: 23-activity-detail-scrolled-more
 
 # ---------------------------------------------------------------- tabs with one activity
-# Back from the activity, not via pace:// (that reopens the start screen, which in this build is
-# "PACE is not configured"). The back button reads "(tabs)".
-- tapOn: { text: '.*\(tabs\).*', optional: true }
+# Back from the activity with its back chevron (VoiceOver label "Back"), not via pace://
+# (the entry screen would route to the tabs, but this keeps the real navigation).
+- tapOn: { text: 'Back', optional: true }
+- runFlow:
+    when:
+      notVisible: 'Home, tab.*'
+    commands:
+      - openLink: pace://
+      - tapOn: { text: 'Open', optional: true }
 - extendedWaitUntil: { visible: 'Home, tab.*', timeout: 20000, optional: true }
 - tapOn: { text: 'Home, tab.*', optional: true }
 - waitForAnimationToEnd
@@ -156,6 +129,14 @@ appId: app.pace.ios
 - takeScreenshot: 26-progress-with-activity
 - scroll
 - takeScreenshot: 26b-progress-with-activity-scrolled
+
+- tapOn: { text: 'Profile, tab.*', optional: true }
+- waitForAnimationToEnd
+- scroll
+- tapOn: { text: 'Connected devices', optional: true }
+- extendedWaitUntil: { visible: 'Bluetooth heart-rate monitor', timeout: 20000, optional: true }
+- waitForAnimationToEnd
+- takeScreenshot: 31a-connected-devices-from-profile
 
 # ---------------------------------------------------------------- other screens
 - openLink: pace://import
