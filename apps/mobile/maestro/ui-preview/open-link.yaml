@@ -1,9 +1,9 @@
-# Opens a pace:// link and accepts iOS's "Open in PACE?" prompt. The prompt can take a few
-# seconds to appear; skipping it leaves it blocking a later step (or the next flow's launch).
+# Opens a pace:// link and accepts iOS's "Open in PACE?" prompt. The prompt can take more than
+# ten seconds to appear; skipping it leaves it blocking a later step (or the next flow's launch).
 appId: app.pace.ios
 ---
 - openLink: ${LINK}
-- extendedWaitUntil: { visible: 'Open', timeout: 10000, optional: true }
+- extendedWaitUntil: { visible: 'Open in .*', timeout: 30000, optional: true }
 - tapOn: { text: 'Open', optional: true }
 - extendedWaitUntil: { notVisible: 'Open in .*', timeout: 10000, optional: true }
 - waitForAnimationToEnd

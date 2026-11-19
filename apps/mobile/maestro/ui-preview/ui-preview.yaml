@@ -15,6 +15,12 @@ appId: app.pace.ios
     clearState: true
     permissions:
       location: inuse
+# A link prompt left over from an earlier flow would cover this one.
+- runFlow:
+    when:
+      visible: 'Open in .*'
+    commands:
+      - tapOn: 'Cancel'
 - extendedWaitUntil: { visible: 'Create account', timeout: 120000, optional: true }
 - takeScreenshot: 02-auth-welcome
 - runFlow: sign-in.yaml
