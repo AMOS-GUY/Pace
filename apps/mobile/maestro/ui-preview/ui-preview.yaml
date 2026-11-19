@@ -22,7 +22,7 @@ appId: app.pace.ios
 # ---------------------------------------------------------------- onboarding
 - waitForAnimationToEnd
 - takeScreenshot: 05c-onboarding-profile
-- tapOn: { text: 'Continue', optional: true }
+- runFlow: profile-name.yaml
 - extendedWaitUntil: { visible: 'What do you train\?', timeout: 20000, optional: true }
 - waitForAnimationToEnd
 - takeScreenshot: 06-onboarding-sports

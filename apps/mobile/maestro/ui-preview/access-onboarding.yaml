@@ -11,14 +11,14 @@ appId: app.pace.ios
 - takeScreenshot: ac-05-signed-in-onboarding
 
 - waitForAnimationToEnd
-- tapOn: { text: 'Continue', retryTapIfNoChange: true }
+- runFlow: profile-name.yaml
 - extendedWaitUntil: { visible: 'STEP 2 OF 4', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://activities' } }
 - extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000 }
 - assertNotVisible: 'Activities, tab.*'
 
 - waitForAnimationToEnd
-- tapOn: { text: 'Continue', retryTapIfNoChange: true }
+- runFlow: profile-name.yaml
 - extendedWaitUntil: { visible: 'STEP 2 OF 4', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/backup' } }
 - extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000 }
@@ -26,7 +26,7 @@ appId: app.pace.ios
 - takeScreenshot: ac-06-onboarding-settings-link
 
 - waitForAnimationToEnd
-- tapOn: { text: 'Continue', retryTapIfNoChange: true }
+- runFlow: profile-name.yaml
 - extendedWaitUntil: { visible: 'STEP 2 OF 4', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://welcome' } }
 - extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000 }

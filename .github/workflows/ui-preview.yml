@@ -29,6 +29,8 @@ jobs:
       APP_BUNDLE_ID: app.pace.ios
       MAESTRO_VERSION: cli-2.12.0
       MAESTRO_SHA256: a6044a84542f522f434c5dc3d609e60c7446d423f3ed1b2ae513f5c48663ec5e
+      MAESTRO_DRIVER_STARTUP_TIMEOUT: '240000'
+      MAESTRO_CLI_NO_ANALYTICS: '1'
       # Not secrets: the local auth stand-in on the runner, and a placeholder key.
       EXPO_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
       EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ui-preview-placeholder-publishable-key
@@ -111,11 +113,26 @@ jobs:
         run: |
           status=0
           for flow in access-signed-out access-onboarding; do
-            mkdir -p "artifacts/ui-preview/maestro/$flow"
-            ( cd "artifacts/ui-preview/maestro/$flow" &&
-              maestro test --format junit --output junit.xml --test-output-dir .                 "$GITHUB_WORKSPACE/apps/mobile/maestro/ui-preview/$flow.yaml" > maestro-stdout.log 2>&1 ) || status=1
-            # Readable without signing in to GitHub: the end of each failed flow's output.
-            [ $status -eq 0 ] || echo "::warning title=$flow::$(tail -n 12 "artifacts/ui-preview/maestro/$flow/maestro-stdout.log" | tr '\n' ' ' | cut -c1-900)"
+            dir="artifacts/ui-preview/maestro/$flow"
+            for attempt in 1 2; do
+              rm -rf "$dir" && mkdir -p "$dir"
+              ok=0
+              ( cd "$dir" && maestro test --format junit --output junit.xml --test-output-dir . \
+                  "$GITHUB_WORKSPACE/apps/mobile/maestro/ui-preview/$flow.yaml" > maestro-stdout.log 2>&1 ) || ok=1
+              [ $ok -eq 0 ] && break
+              # Retry once, only when the simulator driver failed (never for a failed assertion).
+              if [ $attempt -eq 1 ] && grep -qE "driver not ready|DeviceUnreachable|Transport unreachable" \
+                  "$dir/maestro-stdout.log" "$dir/junit.xml" 2>/dev/null; then
+                echo "::warning title=$flow::simulator driver failed; retrying once"
+                continue
+              fi
+              break
+            done
+            if [ $ok -ne 0 ]; then
+              status=1
+              # Readable without signing in to GitHub: the end of the failed flow's output.
+              echo "::warning title=$flow::$(grep -v '^\s*at ' "$dir/maestro-stdout.log" | tail -n 12 | tr '\n' ' ' | cut -c1-900)"
+            fi
           done
           exit $status
       - name: Walk the app and take screenshots

@@ -1,0 +1,8 @@
+# Fills onboarding step 1's required display name and moves on to step 2.
+appId: app.pace.ios
+---
+- tapOn: { id: 'onboarding-display-name' }
+- waitForAnimationToEnd
+- inputText: 'Preview Runner'
+- hideKeyboard
+- tapOn: { text: 'Continue', retryTapIfNoChange: true }
