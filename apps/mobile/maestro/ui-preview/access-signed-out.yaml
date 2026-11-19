@@ -19,7 +19,7 @@ appId: app.pace.ios
 - takeScreenshot: ac-01-signed-out-welcome
 
 - waitForAnimationToEnd
-- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://activities' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
@@ -27,7 +27,7 @@ appId: app.pace.ios
 - takeScreenshot: ac-02-signed-out-tabs-link
 
 - waitForAnimationToEnd
-- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/backup' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
@@ -35,21 +35,21 @@ appId: app.pace.ios
 - takeScreenshot: ac-03-signed-out-settings-link
 
 - waitForAnimationToEnd
-- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://import' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Bring your history'
 
 - waitForAnimationToEnd
-- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://recording' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Find GPS'
 
 - waitForAnimationToEnd
-- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow:
     { file: open-link.yaml, env: { LINK: 'pace://activity/00000000-0000-0000-0000-000000000000' } }
@@ -57,7 +57,7 @@ appId: app.pace.ios
 - assertNotVisible: 'Splits'
 
 - waitForAnimationToEnd
-- tapOn: { text: 'Sign in', retryTapIfNoChange: true }
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - runFlow: { file: open-link.yaml, env: { LINK: 'pace://sports' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }

@@ -5,4 +5,4 @@ appId: app.pace.ios
 - waitForAnimationToEnd
 - inputText: 'Preview Runner'
 - hideKeyboard
-- tapOn: 'Continue'
+- tapOn: { text: 'Continue', retryTapIfNoChange: false }

@@ -11,13 +11,17 @@ own branch `ui-preview-run-<run id>`, and also uploads them as the `ui-preview` 
 
 ## How the walk gets around
 
-- **No sign-in settings.** The CI build has no Supabase settings, so the app opens on "PACE is not
-  configured".
-- **Deep links.** The walk opens the sign-in and onboarding screens through the app's own `pace://`
-  links and confirms iOS's "Open in PACE?" prompt each time.
-- **Reaching the tabs.** Finishing onboarding opens the tabs. This works without signing in
-  because the tab and onboarding guards only redirect when the status is `signedOut`, and an
-  unconfigured build reports `unconfigured`.
+- **Signing in.** The preview build points its Supabase URL at a local stand-in
+  (`scripts/ui-preview/auth-stub.mjs`, 127.0.0.1, one test account, CI only). Maestro signs in
+  through the real sign-in screen, then fills in onboarding.
+- **Access control.** Two flows check, with hard assertions, that deep links to protected screens
+  bring a signed-out user back to Welcome, and a user who hasn't finished onboarding back to step 1
+  (`access-*.yaml`). Each flow first moves to another screen, so a check only passes when the link
+  was really handled.
+- **Deep links.** Links go through `open-link.yaml`, which waits for iOS's "Open in PACE?"
+  prompt (it can take over 10 s) and accepts it.
+- **Simulator build.** The build is ad hoc signed (no Apple account), because the encrypted session
+  store needs the Keychain entitlement.
 - **No mock data.** The one activity is a real recording made by the app. Maestro moves the
   simulated GPS about 0.5 km along a made-up path (Zurich, at 6 m/s), and the app records, saves
   and analyses it as usual.
@@ -80,15 +84,15 @@ screen opened before it. That comes from the walk, not from the app.
   opened.
 - **Physical iPhone.** Not tested. These are simulator screenshots only.
 
-## Things noticed in the screenshots
+## Findings from the first preview, now fixed
 
-- **"(tabs)" back button.** The back button on Activity detail reads "(tabs)", which is the route
-  group's name.
-- **Overlapping text.** On Connected devices, "Bluetooth heart-rate monitor" runs into its "Future
-  release" label.
-- **Spinner stays up.** Activities still shows a loading spinner above a list that has already
-  loaded (screenshot 25).
-- **Cut-off chart labels.** The Progress chart's x-axis labels are cut off ("2… 31… 07…").
-- **Tabs reachable while unconfigured.** An unconfigured build reaches the tabs through the
-  onboarding deep link (see above). It needs a build without its sign-in settings, so it is not a
-  problem in a properly configured build.
+Branch `fix/ui-stabilization`. P1–P4 were confirmed in the run 44561787744 screenshots.
+
+- **Unconfigured build reached the tabs.** Every route now renders through `<Guard>`
+  (`src/features/route-access.ts`).
+- **"(tabs)" back button.** Activity detail now shows a plain chevron.
+- **Spinner over loaded data.** The pull-to-refresh spinner now shows only while you pull.
+- **Cut-off chart labels.** Every k-th bar is labelled, untruncated.
+- **Connected devices overlap.** Long labels now wrap.
+
+The screens table above describes the first preview, of the unconfigured build.
