@@ -15,11 +15,19 @@ import { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ErrorState, Screen } from '@/components/layout';
+import { ROOT_SCREEN_OPTIONS } from '@/features/root-screens';
+import {
+  ROOT_ROUTE_GUARDS,
+  type RootRoute,
+  type RouteGuard,
+  isRecordingActive,
+  routeAccess,
+} from '@/features/route-access';
 import { getServices } from '@/services/container';
 import { reportError } from '@/services/monitoring';
 import { startForegroundSync } from '@/services/sync';
 import { usePreferences } from '@/stores/preferences';
-import { useRecordingTicker } from '@/stores/recording';
+import { useRecording, useRecordingTicker } from '@/stores/recording';
 import { useSession } from '@/stores/session';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 
@@ -28,6 +36,9 @@ void SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
 });
+
+const GUARDS: readonly RouteGuard[] = ['auth', 'authLinks', 'onboarding', 'app', 'recording'];
+const ROUTES = Object.keys(ROOT_ROUTE_GUARDS) as RootRoute[];
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -41,6 +52,12 @@ export default function RootLayout() {
   const router = useRouter();
   useRecordingTicker();
   const authStatus = useSession((s) => s.status);
+  const onboardingComplete = useSession((s) => s.onboardingComplete);
+  const recordingActive = useRecording((s) => isRecordingActive(s.snapshot?.state.status));
+  // Every route but the entry screen sits behind a guard (src/features/route-access.ts). A route
+  // that is not allowed is never shown, whether it was tapped, deep-linked or restored; the
+  // user is sent to the entry screen, which routes them on.
+  const access = routeAccess({ status: authStatus, onboardingComplete, recordingActive });
 
   // Background-safe sync: only when signed in; recording never depends on it.
   useEffect(() => (authStatus === 'signedIn' ? startForegroundSync() : undefined), [authStatus]);
@@ -57,7 +74,11 @@ export default function RootLayout() {
           reportError(e, { area: 'recovery' });
           return { recovered: false as const };
         });
-        if (r.recovered) router.push('/recording');
+        if (r.recovered) {
+          // Load the recovered state first: the recording screen's guard reads it.
+          await useRecording.getState().refresh();
+          router.push('/recording');
+        }
       } catch (e) {
         reportError(e, { area: 'boot' });
         setBootError(e instanceof Error ? e.message : String(e));
@@ -88,30 +109,14 @@ export default function RootLayout() {
                   contentStyle: { backgroundColor: darkColors.background },
                 }}
               >
-                <Stack.Screen
-                  name="recording"
-                  options={{ presentation: 'fullScreenModal', gestureEnabled: false }}
-                />
-                <Stack.Screen
-                  name="activity/[id]"
-                  options={{
-                    headerShown: true,
-                    title: '',
-                    headerStyle: { backgroundColor: darkColors.background },
-                    headerTintColor: darkColors.textPrimary,
-                  }}
-                />
-                <Stack.Screen name="settings" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="import"
-                  options={{
-                    presentation: 'modal',
-                    headerShown: true,
-                    title: 'Import activities',
-                    headerStyle: { backgroundColor: darkColors.background },
-                    headerTintColor: darkColors.textPrimary,
-                  }}
-                />
+                <Stack.Screen name="index" />
+                {GUARDS.map((guard) => (
+                  <Stack.Protected key={guard} guard={access[guard]} redirectTo="/">
+                    {ROUTES.filter((r) => ROOT_ROUTE_GUARDS[r] === guard).map((name) => (
+                      <Stack.Screen key={name} name={name} options={ROOT_SCREEN_OPTIONS[name]} />
+                    ))}
+                  </Stack.Protected>
+                ))}
               </Stack>
             )}
           </QueryClientProvider>

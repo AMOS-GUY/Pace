@@ -302,7 +302,10 @@ export function ListRow({
         },
       ]}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+      {/* A long label wraps instead of running under the value (narrow screens, large text). */}
+      <View
+        style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: spacing.md }}
+      >
         {icon ? (
           <Ionicons
             name={icon}
@@ -311,14 +314,19 @@ export function ListRow({
             style={{ marginRight: spacing.md }}
           />
         ) : null}
-        <Text variant="body" color={destructive ? 'error' : 'primary'}>
+        <Text variant="body" color={destructive ? 'error' : 'primary'} style={{ flexShrink: 1 }}>
           {label}
         </Text>
       </View>
       {right ?? (
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', maxWidth: '60%' }}>
           {value ? (
-            <Text variant="bodySmall" color="secondary" style={{ marginRight: spacing.xs }}>
+            <Text
+              variant="bodySmall"
+              color="secondary"
+              align="right"
+              style={{ marginRight: spacing.xs, flexShrink: 1 }}
+            >
               {value}
             </Text>
           ) : null}

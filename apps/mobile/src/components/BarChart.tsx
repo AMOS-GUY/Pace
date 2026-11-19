@@ -1,6 +1,7 @@
-import { View } from 'react-native';
+import { useState } from 'react';
+import { PixelRatio, View } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
-import type { BarDatum } from '@/features/chart';
+import { type BarDatum, axisLabels } from '@/features/chart';
 import { Text } from './Text';
 
 export type { BarDatum };
@@ -18,10 +19,23 @@ export function BarChart({
   height?: number;
   formatValue: (v: number) => string;
 }) {
-  const { colors, radius, spacing } = useTheme();
+  const { colors, radius, spacing, typography } = useTheme();
+  const [width, setWidth] = useState(0);
+  const fontScale = PixelRatio.getFontScale();
+  // Only the labels that fit are drawn (see axisLabels); the bars are unchanged.
+  const labels = axisLabels(
+    data.map((d) => d.label),
+    width,
+    spacing.xs,
+    0.62 * typography.caption.fontSize * fontScale,
+  );
   const max = Math.max(0, ...data.map((d) => d.value));
   return (
-    <View accessibilityRole="image" accessibilityLabel={data.map((d) => d.description).join('. ')}>
+    <View
+      accessibilityRole="image"
+      accessibilityLabel={data.map((d) => d.description).join('. ')}
+      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+    >
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', height, gap: spacing.xs }}>
         {data.map((d, i) => {
           const h = max > 0 ? Math.max(d.value > 0 ? 4 : 2, (d.value / max) * (height - 20)) : 2;
@@ -45,17 +59,20 @@ export function BarChart({
           );
         })}
       </View>
-      <View style={{ flexDirection: 'row', gap: spacing.xs, marginTop: spacing.xs }}>
-        {data.map((d) => (
+      <View
+        style={{ height: typography.caption.lineHeight * fontScale, marginTop: spacing.xs }}
+        importantForAccessibility="no-hide-descendants"
+      >
+        {labels.map((l) => (
           <Text
-            key={d.key}
+            key={data[l.index]!.key}
             variant="caption"
             color="secondary"
             align="center"
-            style={{ flex: 1 }}
+            style={{ position: 'absolute', left: l.left, width: l.width }}
             numberOfLines={1}
           >
-            {d.label}
+            {data[l.index]!.label}
           </Text>
         ))}
       </View>

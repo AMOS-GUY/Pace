@@ -26,7 +26,9 @@ import {
   formatDate,
   sportLabel,
 } from '@/features/display';
+import { contentState } from '@/features/list-state';
 import { useProgress } from '@/hooks/queries';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useUnits } from '@/stores/preferences';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -55,12 +57,16 @@ export default function Progress() {
   const [metric, setMetric] = useState<'distance' | 'time'>('distance');
   const [sport, setSport] = useState<SportType | undefined>(undefined);
   const q = useProgress(period, sport);
+  const view = contentState({
+    hasData: q.data !== undefined,
+    isError: q.isError,
+    isPending: q.isPending,
+  });
+  const pull = usePullToRefresh(q.refetch);
 
   return (
     <Screen
-      refreshControl={
-        <RefreshControl refreshing={q.isRefetching} onRefresh={() => void q.refetch()} />
-      }
+      refreshControl={<RefreshControl refreshing={pull.refreshing} onRefresh={pull.onRefresh} />}
     >
       <Text variant="title" accessibilityRole="header" style={{ marginBottom: spacing.lg }}>
         Progress
@@ -92,8 +98,8 @@ export default function Progress() {
         )}
       </ScrollView>
 
-      {q.isLoading ? <LoadingState /> : null}
-      {q.error ? (
+      {view === 'loading' ? <LoadingState /> : null}
+      {view === 'error' ? (
         <ErrorState message="Could not compute your progress." onRetry={() => void q.refetch()} />
       ) : null}
       {q.data ? (

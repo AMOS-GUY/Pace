@@ -1,0 +1,50 @@
+# Access control, signed out (hard assertions: any failure fails the UI preview job).
+# Every route outside the sign-in screens must send a signed-out user to Welcome, however it
+# is reached. Deep links stand in for direct navigation and restored navigation state.
+appId: app.pace.ios
+---
+- launchApp:
+    clearState: true
+    permissions:
+      location: inuse
+- extendedWaitUntil: { visible: 'Create account', timeout: 120000 }
+- takeScreenshot: ac-01-signed-out-welcome
+- openLink: pace://activities
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
+- assertNotVisible: 'Activities, tab.*'
+- takeScreenshot: ac-02-signed-out-tabs-link
+- openLink: pace://settings/backup
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
+- assertNotVisible: 'Backup file'
+- takeScreenshot: ac-03-signed-out-settings-link
+- openLink: pace://import
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
+- assertNotVisible: 'Bring your history'
+- openLink: pace://recording
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
+- assertNotVisible: 'Find GPS'
+- openLink: pace://activity/00000000-0000-0000-0000-000000000000
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
+- openLink: pace://sports
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
+- assertNotVisible: 'What do you train\?'
+- takeScreenshot: ac-04-signed-out-onboarding-link
+# The sign-in screens themselves stay reachable.
+- openLink: pace://forgot-password
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Send reset link', timeout: 20000 }
+- takeScreenshot: 05-auth-forgot-password
+- openLink: pace://sign-up
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Confirm password', timeout: 20000 }
+- takeScreenshot: 03-auth-sign-up
+- openLink: pace://sign-in
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
+- takeScreenshot: 04-auth-sign-in

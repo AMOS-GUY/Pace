@@ -19,7 +19,9 @@ import {
 } from '@/components/layout';
 import { primaryWeeklyGoal } from '@/features/dashboard-view';
 import { goalDescription } from '@/features/goals';
+import { contentState } from '@/features/list-state';
 import { useDashboard } from '@/hooks/queries';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useStartActivity } from '@/hooks/useStartActivity';
 import { deviceTimeZone } from '@/services/container';
 import { usePreferences, useUnits } from '@/stores/preferences';
@@ -38,6 +40,12 @@ export default function Home() {
   const snapshot = useRecording((s) => s.snapshot);
   const { spacing } = useTheme();
   const q = useDashboard();
+  const view = contentState({
+    hasData: q.data !== undefined,
+    isError: q.isError,
+    isPending: q.isPending,
+  });
+  const pull = usePullToRefresh(q.refetch);
   // Figures were computed at fetch time; label "today" against the same instant.
   const now = q.dataUpdatedAt || Date.now();
   const timeZone = deviceTimeZone();
@@ -56,9 +64,7 @@ export default function Home() {
 
   return (
     <Screen
-      refreshControl={
-        <RefreshControl refreshing={q.isRefetching} onRefresh={() => void q.refetch()} />
-      }
+      refreshControl={<RefreshControl refreshing={pull.refreshing} onRefresh={pull.onRefresh} />}
     >
       <HomeHeader
         name={name}
@@ -108,8 +114,8 @@ export default function Home() {
         ]}
       />
 
-      {q.isLoading ? <LoadingState label="Loading your week…" /> : null}
-      {q.error ? (
+      {view === 'loading' ? <LoadingState label="Loading your week…" /> : null}
+      {view === 'error' ? (
         <ErrorState message="Could not load your summary." onRetry={() => void q.refetch()} />
       ) : null}
 

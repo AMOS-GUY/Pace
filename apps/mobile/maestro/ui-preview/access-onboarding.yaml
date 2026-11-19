@@ -1,0 +1,23 @@
+# Access control, signed in but onboarding not finished (hard assertions). The app's screens
+# must stay closed until onboarding is complete.
+appId: app.pace.ios
+---
+- launchApp:
+    clearState: true
+    permissions:
+      location: inuse
+- runFlow: sign-in.yaml
+- takeScreenshot: ac-05-signed-in-onboarding
+- openLink: pace://activities
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000 }
+- assertNotVisible: 'Activities, tab.*'
+- openLink: pace://settings/backup
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000 }
+- assertNotVisible: 'Backup file'
+- takeScreenshot: ac-06-onboarding-settings-link
+- openLink: pace://welcome
+- tapOn: { text: 'Open', optional: true }
+- extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000 }
+- assertNotVisible: 'Create account'

@@ -1,9 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { darkColors, fontFamily } from '@pace/design-system';
-import { Redirect, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import type { ComponentProps } from 'react';
 import type { ColorValue } from 'react-native';
-import { useSession } from '@/stores/session';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -13,10 +12,8 @@ const icon =
     <Ionicons name={name} color={color as string} size={size} />
   );
 
+/** Access is checked by the root layout (signed in and onboarded; src/features/route-access.ts). */
 export default function TabsLayout() {
-  const { status, onboardingComplete } = useSession();
-  if (status === 'signedOut') return <Redirect href="/(auth)/welcome" />;
-  if (!onboardingComplete) return <Redirect href="/(onboarding)/profile" />;
   return (
     <Tabs
       screenOptions={{

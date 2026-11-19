@@ -1,16 +1,18 @@
 import { Redirect } from 'expo-router';
 import { Text } from '@/components/Text';
 import { Card, Screen } from '@/components/layout';
+import { entryHref } from '@/features/route-access';
 import { useSession } from '@/stores/session';
 
-/** Entry gate: authentication is mandatory; onboarding follows the first sign-in. */
+/**
+ * Entry gate: authentication is mandatory; onboarding follows the first sign-in. The root layout
+ * guards every other route with the same policy (src/features/route-access.ts).
+ */
 export default function Index() {
   const { status, onboardingComplete } = useSession();
-  if (status === 'loading') return null;
-  if (status === 'unconfigured') return <Unconfigured />;
-  if (status === 'signedOut') return <Redirect href="/(auth)/welcome" />;
-  if (!onboardingComplete) return <Redirect href="/(onboarding)/profile" />;
-  return <Redirect href="/(tabs)" />;
+  const href = entryHref({ status, onboardingComplete });
+  if (href) return <Redirect href={href} />;
+  return status === 'unconfigured' ? <Unconfigured /> : null;
 }
 
 function Unconfigured() {
