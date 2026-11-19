@@ -1,0 +1,8 @@
+Anonymous analytics enabled. To opt out, set MAESTRO_CLI_NO_ANALYTICS environment variable to any value before running Maestro.
+
+
+Waiting for flows to complete...
+[Failed] access-signed-out (4m 7s) (Assertion is false: "Forgot password\?" is visible)
+
+1/1 Flow Failed
+

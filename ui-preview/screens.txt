@@ -1,0 +1,5 @@
+02-auth-welcome.png
+ac-01-signed-out-welcome.png
+ac-02-signed-out-tabs-link.png
+ac-03-signed-out-settings-link.png
+ac-05-signed-in-onboarding.png

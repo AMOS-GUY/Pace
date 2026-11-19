@@ -1,0 +1,85 @@
+13:57:00.986 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+13:57:00.996 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+13:57:01.004 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+13:57:01.006 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+13:57:01.006 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "app.pace.ios" with clear state RUNNING
+13:57:01.010 [ INFO] maestro.Maestro.clearAppState$lambda$9: Clearing app state app.pace.ios
+13:57:16.116 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app app.pace.ios
+13:57:16.117 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping app.pace.ios app during launch
+13:57:17.976 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "app.pace.ios" with clear state COMPLETED
+13:57:18.009 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run sign-in.yaml RUNNING
+13:57:18.117 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+13:57:18.117 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+13:57:18.121 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+13:57:18.122 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+13:57:18.123 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+13:57:21.743 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+13:57:21.745 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Sign in" RUNNING
+13:57:21.988 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Sign in, title=, value=, text=, hintText=, resource-id=, bounds=[16,728][386,792], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=728, width=370, height=64))
+13:57:22.308 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+13:57:22.323 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 760) using hierarchy based logic for wait
+13:57:22.335 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:57:22.336 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:57:25.107 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+13:57:25.110 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Sign in" COMPLETED
+13:57:25.110 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Forgot password\?" is visible RUNNING
+13:57:25.543 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Forgot password\?" is visible COMPLETED
+13:57:25.543 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on id: sign-in-email RUNNING
+13:57:25.806 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Email, title=, value=, text=, hintText=, resource-id=sign-in-email, bounds=[17,239][385,287], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=17, y=239, width=368, height=48))
+13:57:26.135 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+13:57:26.140 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 263) using hierarchy based logic for wait
+13:57:26.141 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:57:26.141 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:57:28.121 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+13:57:28.640 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on id: sign-in-email COMPLETED
+13:57:29.340 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+13:57:29.689 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+13:57:29.699 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:57:29.809 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:57:31.092 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:57:31.092 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:57:33.384 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+13:57:33.385 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Input text ${PREVIEW_EMAIL} RUNNING
+13:57:36.281 [ INFO] maestro.Maestro.inputText: Inputting text: preview@pace.test
+13:57:38.549 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Input text ${PREVIEW_EMAIL} COMPLETED
+13:57:38.551 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on id: sign-in-password RUNNING
+13:57:39.035 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Password, title=, value=, text=, hintText=, resource-id=sign-in-password, bounds=[17,328][385,376], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=17, y=328, width=368, height=48))
+13:57:39.396 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+13:57:39.398 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 352) using hierarchy based logic for wait
+13:57:39.400 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:57:39.400 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:57:41.191 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+13:57:41.192 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on id: sign-in-password COMPLETED
+13:57:41.192 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+13:57:41.207 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+13:57:41.207 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:57:41.207 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:57:41.613 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:57:41.613 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:57:43.145 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+13:57:43.153 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Input text ${PREVIEW_PASSWORD} RUNNING
+13:57:43.292 [ INFO] maestro.Maestro.inputText: Inputting text: preview-password-1
+13:57:45.395 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Input text ${PREVIEW_PASSWORD} COMPLETED
+13:57:45.399 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Press Enter key RUNNING
+13:57:45.405 [ INFO] maestro.Maestro.pressKey: Pressing key ENTER
+13:57:48.470 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Press Enter key COMPLETED
+13:57:48.471 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "STEP 1 OF 4" is visible RUNNING
+13:57:50.889 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "STEP 1 OF 4" is visible COMPLETED
+13:57:50.890 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run sign-in.yaml COMPLETED
+13:57:50.891 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot ac-05-signed-in-onboarding RUNNING
+13:57:50.922 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+13:57:50.924 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:57:51.153 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot ac-05-signed-in-onboarding COMPLETED
+13:57:51.154 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Continue" RUNNING
+13:57:51.561 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Continue, title=, value=, text=, hintText=, resource-id=, bounds=[16,431][386,495], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=431, width=370, height=64))
+13:57:51.973 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+13:57:51.980 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 463) using hierarchy based logic for wait
+13:57:51.981 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:57:51.982 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:57:54.269 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+13:57:54.272 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Continue" COMPLETED
+13:57:54.273 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "STEP 2 OF 4" is visible RUNNING
+13:58:14.852 [ERROR] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandFailed: Assertion is false: "STEP 2 OF 4" is visible
+13:58:15.286 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+13:58:15.287 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:58:15.496 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "STEP 2 OF 4" is visible FAILED

@@ -1,0 +1,233 @@
+13:58:34.426 [ INFO] maestro.cli.report.TestDebugReporter.logSystemInfo: Debug output path: /Users/runner/.maestro/tests/2026-11-19_135834
+13:58:34.430 [ INFO] MAESTRO.logSystemInfo: ---- System Info ----
+13:58:34.432 [ INFO] MAESTRO.logSystemInfo: Maestro Version: 2.12.0
+13:58:34.433 [ INFO] MAESTRO.logSystemInfo: CI: github
+13:58:34.434 [ INFO] MAESTRO.logSystemInfo: OS Name: Mac OS X
+13:58:34.434 [ INFO] MAESTRO.logSystemInfo: OS Version: 26.7.2
+13:58:34.434 [ INFO] MAESTRO.logSystemInfo: Architecture: aarch64
+13:58:34.435 [ INFO] MAESTRO.logSystemInfo: Java Version: 17
+13:58:34.572 [ INFO] MAESTRO.logSystemInfo: Xcode Version: 26.6
+13:58:34.579 [ INFO] MAESTRO.logSystemInfo: Flutter Version: Undefined
+13:58:34.588 [ INFO] MAESTRO.logSystemInfo: Flutter Channel: Undefined
+13:58:34.589 [ INFO] MAESTRO.logSystemInfo: ---------------------
+13:58:35.444 [DEBUG] io.micrometer.common.util.internal.logging.InternalLoggerFactory.newDefaultFactory: Using SLF4J as the default logging framework
+13:58:40.580 [ INFO] maestro.cli.command.TestCommand.runShardSuite: [shard 1] Selected device 23C8F95C-765D-46A9-AE82-0BEE2921C8D7 using port 54619 with execution plan ExecutionPlan(flowsToRun=[/Users/runner/work/Pace/Pace/apps/mobile/maestro/ui-preview/ui-preview.yaml], sequence=FlowSequence(flows=[], continueOnFailure=true), workspaceConfig=WorkspaceConfig(flows=null, includeTags=null, excludeTags=null, executionOrder=null, baselineBranch=null, notifications=null, disableRetries=false, platform=PlatformConfiguration(android=AndroidConfiguration(disableAnimations=false), ios=IOSConfiguration(disableAnimations=false, snapshotKeyHonorModalViews=null)), testOutputDir=null))
+13:58:43.319 [TRACE] ios.xctest.XCTestIOSDevice.open: Opening a connection
+13:58:43.321 [TRACE] xcuitest.XCTestDriverClient.restartXCTestRunner: Restarting XCTest Runner (uninstalling, installing and starting)
+13:58:43.324 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:43.339 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:43.340 [TRACE] xcuitest.XCTestDriverClient.restartXCTestRunner: XCTest Runner uninstalled, will install and start it
+13:58:43.342 [ INFO] xcuitest.installer.LocalXCTestInstaller.start$lambda$3: start()
+13:58:43.342 [ INFO] xcuitest.installer.LocalXCTestInstaller.start$lambda$3: [Start] Install XCUITest runner on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:43.343 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:43.344 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:43.344 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Start] Writing build products
+13:58:43.462 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Done] Writing build products
+13:58:43.463 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Start] Writing maestro-driver-iosUITests-Runner app
+13:58:44.071 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Done] Writing maestro-driver-iosUITests-Runner app
+13:58:44.072 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Start] Writing maestro-driver-ios app
+13:58:44.091 [ INFO] xcuitest.installer.IOSBuildProductsExtractor.extract: [Done] Writing maestro-driver-ios app
+13:58:44.093 [ INFO] xcuitest.installer.LocalXCTestInstaller.startXCTestRunner: Installing driver with xcodebuild
+13:58:44.099 [ INFO] xcuitest.installer.LocalXCTestInstaller.startXCTestRunner: [Start] Running XcUITest with `xcodebuild test-without-building` with 54619 and config: IOSDriverConfig(prebuiltRunner=false, sourceDirectory=driver-iPhoneSimulator, context=CLI, snapshotKeyHonorModalViews=null)
+13:58:44.102 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcodebuild, test-without-building, -xctestrun, /var/folders/h5/t85nd63d71x27_8gl5gw3l_w0000gn/T/23C8F95C-765D-46A9-AE82-0BEE2921C8D7680952063916938156/maestro-driver-ios-config.xctestrun, -destination, id=23C8F95C-765D-46A9-AE82-0BEE2921C8D7, -derivedDataPath, /var/folders/h5/t85nd63d71x27_8gl5gw3l_w0000gn/T/maestro_xctestrunner_xcodebuild_output9221121368621839944] with {TEST_RUNNER_PORT=54619}
+13:58:44.109 [ INFO] xcuitest.installer.LocalXCTestInstaller.startXCTestRunner: [Done] Running XcUITest with `xcodebuild test-without-building`
+13:58:44.109 [ INFO] xcuitest.installer.LocalXCTestInstaller.start$lambda$3: [Done] Install XCUITest runner on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:44.109 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:44.113 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:44.637 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:44.639 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:45.284 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:45.286 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:45.943 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:45.945 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:46.459 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:46.461 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:47.068 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:47.071 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:47.736 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:47.741 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:48.386 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:48.387 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:48.890 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:48.891 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:49.423 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:49.426 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:50.079 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:50.080 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:50.722 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:50.728 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:51.356 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:51.360 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:51.888 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:51.893 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:52.551 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:52.564 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:53.111 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:53.114 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:53.744 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:53.749 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:54.259 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:54.261 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:54.813 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:54.820 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:55.420 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:55.422 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:55.979 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:55.980 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:56.599 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:56.604 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:57.270 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:57.402 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:58.043 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:58.045 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:58.693 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:58.695 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:58:59.302 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:58:59.310 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:00.017 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:00.095 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:00.746 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:00.749 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:01.386 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:01.387 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:01.967 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:01.968 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:02.566 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:02.568 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:03.223 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:03.224 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:03.831 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:03.833 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:04.506 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:04.511 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:05.191 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:05.192 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:05.845 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:05.846 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:06.499 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:06.504 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:07.097 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:07.098 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:07.748 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:07.749 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:08.391 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:08.394 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:09.038 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:09.041 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:09.563 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:09.565 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:10.170 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:10.172 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Failed] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, exception: java.net.ConnectException: Failed to connect to /127.0.0.1:54619
+13:59:10.813 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Start] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:10.846 [ INFO] xcuitest.installer.LocalXCTestInstaller.xcTestDriverStatusCheck: [Done] Perform XCUITest driver status check on 23C8F95C-765D-46A9-AE82-0BEE2921C8D7
+13:59:11.658 [ INFO] maestro.cli.runner.TestSuiteInteractor.runFlow:  Running flow ui-preview
+13:59:11.711 [ INFO] maestro.Maestro.cachedDeviceInfo_delegate$lambda$0: Getting device info
+13:59:11.964 [ INFO] maestro.Maestro.cachedDeviceInfo_delegate$lambda$0: Got device info: DeviceInfo(platform=IOS, widthPixels=1206, heightPixels=2622, widthGrid=402, heightGrid=874)
+13:59:12.285 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+13:59:12.292 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+13:59:12.295 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+13:59:12.296 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+13:59:12.296 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "app.pace.ios" with clear state RUNNING
+13:59:12.299 [ INFO] maestro.Maestro.clearAppState$lambda$9: Clearing app state app.pace.ios
+13:59:12.301 [ INFO] util.LocalSimulatorUtils.clearAppState: Clearing app app.pace.ios state
+13:59:12.301 [ INFO] util.LocalSimulatorUtils.terminate: [Start] Terminating app app.pace.ios
+13:59:12.301 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, terminate, 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, app.pace.ios] with {}
+13:59:14.880 [ INFO] util.LocalSimulatorUtils.terminate: [Done] Terminating app app.pace.ios
+13:59:17.874 [ INFO] util.LocalSimulatorUtils.reinstallApp: Copying app binary from /Users/runner/Library/Developer/CoreSimulator/Devices/23C8F95C-765D-46A9-AE82-0BEE2921C8D7/data/Containers/Bundle/Application/2B9E3EEE-2AB8-4E36-98F3-B569B1A4F46B/app.pace.ios-1795096628610.app to /var/folders/h5/t85nd63d71x27_8gl5gw3l_w0000gn/T/7654873006206514087/app.pace.ios-1795096757859.app
+13:59:18.869 [ INFO] util.LocalSimulatorUtils.reinstallApp: Reinstalling and launching app.pace.ios
+13:59:18.869 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, uninstall, 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, app.pace.ios] with {}
+13:59:20.154 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, install, 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, /var/folders/h5/t85nd63d71x27_8gl5gw3l_w0000gn/T/7654873006206514087/app.pace.ios-1795096757859.app] with {}
+13:59:22.544 [ INFO] util.LocalSimulatorUtils.reinstallApp: App app.pace.ios reinstalled and launched
+13:59:22.559 [ INFO] device.SimctlIOSDevice.setPermissions: [Start] Setting permissions location=inuse through applesimutils
+13:59:22.560 [ INFO] device.SimctlIOSDevice.setPermissions: [Done] Setting permissions through applesimutils
+13:59:22.593 [ INFO] device.SimctlIOSDevice.setPermissions: [Start] Setting Permissions location=inuse through simctl
+13:59:22.594 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, privacy, 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, grant, location, app.pace.ios] with {}
+13:59:23.166 [ INFO] device.SimctlIOSDevice.setPermissions: [Done] Setting Permissions location=inuse through simctl
+13:59:23.345 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app app.pace.ios
+13:59:23.346 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping app.pace.ios app during launch
+13:59:23.381 [ INFO] util.CommandLineUtils.runCommand: Running command line operation: [xcrun, simctl, launch, 23C8F95C-765D-46A9-AE82-0BEE2921C8D7, app.pace.ios] with {}
+13:59:25.296 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "app.pace.ios" with clear state COMPLETED
+13:59:25.297 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Create account" is visible RUNNING
+13:59:29.117 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Create account" is visible COMPLETED
+13:59:29.120 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 02-auth-welcome RUNNING
+13:59:29.127 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+13:59:29.139 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:59:29.293 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 02-auth-welcome COMPLETED
+13:59:29.294 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run sign-in.yaml RUNNING
+13:59:29.296 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+13:59:29.296 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+13:59:29.298 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+13:59:29.298 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+13:59:29.299 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+13:59:29.626 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+13:59:29.628 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Sign in" RUNNING
+13:59:29.893 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Sign in, title=, value=, text=, hintText=, resource-id=, bounds=[16,728][386,792], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=728, width=370, height=64))
+13:59:29.902 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+13:59:30.248 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+13:59:30.267 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 760) using hierarchy based logic for wait
+13:59:30.274 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:59:30.278 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:59:31.377 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+13:59:33.035 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+13:59:33.036 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Sign in" COMPLETED
+13:59:33.036 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Forgot password\?" is visible RUNNING
+13:59:33.414 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Forgot password\?" is visible COMPLETED
+13:59:33.416 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on id: sign-in-email RUNNING
+13:59:33.694 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Email, title=, value=, text=, hintText=, resource-id=sign-in-email, bounds=[17,239][385,287], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=17, y=239, width=368, height=48))
+13:59:33.696 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+13:59:34.005 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+13:59:34.005 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 263) using hierarchy based logic for wait
+13:59:34.006 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:59:34.006 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:59:34.650 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+13:59:35.099 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+13:59:35.106 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on id: sign-in-email COMPLETED
+13:59:35.107 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+13:59:35.717 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+13:59:35.738 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:59:35.738 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:59:36.741 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:59:36.741 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:59:44.649 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:59:44.651 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:59:45.021 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:59:45.022 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:59:46.049 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+13:59:46.050 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Input text ${PREVIEW_EMAIL} RUNNING
+13:59:48.771 [ INFO] maestro.Maestro.inputText: Inputting text: preview@pace.test
+13:59:50.404 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+13:59:50.779 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Input text ${PREVIEW_EMAIL} COMPLETED
+13:59:50.780 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on id: sign-in-password RUNNING
+13:59:51.153 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Password, title=, value=, text=, hintText=, resource-id=sign-in-password, bounds=[17,328][385,376], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=17, y=328, width=368, height=48))
+13:59:51.154 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+13:59:51.874 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+13:59:51.876 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 352) using hierarchy based logic for wait
+13:59:51.877 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:59:51.877 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:59:52.712 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+13:59:53.026 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+13:59:53.027 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on id: sign-in-password COMPLETED
+13:59:53.027 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+13:59:53.028 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+13:59:53.028 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:59:53.028 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:59:53.259 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+13:59:53.260 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+13:59:54.338 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+13:59:54.339 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Input text ${PREVIEW_PASSWORD} RUNNING
+13:59:54.384 [ INFO] maestro.Maestro.inputText: Inputting text: preview-password-1
+13:59:55.926 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+13:59:56.994 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Input text ${PREVIEW_PASSWORD} COMPLETED
+13:59:56.996 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Press Enter key RUNNING
+13:59:57.001 [ INFO] maestro.Maestro.pressKey: Pressing key ENTER
+13:59:57.367 [ INFO] device.IOSDevice.invoke-F9mIFpk: Waiting for animation to end with timeout 3000
+13:59:59.383 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Press Enter key COMPLETED
+13:59:59.383 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "STEP 1 OF 4" is visible RUNNING
+14:00:31.787 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+14:00:31.800 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+14:00:32.002 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "STEP 1 OF 4" is visible FAILED
+14:00:32.006 [ERROR] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandFailed: Assertion is false: "STEP 1 OF 4" is visible
+14:00:32.008 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+14:00:32.009 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+14:00:32.299 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run sign-in.yaml FAILED
+14:00:43.198 [ INFO] maestro.cli.report.TestDebugReporter.deleteOldFiles: Performing purge of logs older than 14 days from /Users/runner/work/Pace/Pace/artifacts/ui-preview/maestro/walk/.
