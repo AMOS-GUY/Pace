@@ -1,0 +1,5 @@
+02-auth-welcome.png
+ac-01-signed-out-welcome.png
+dropped (too large): /Users/runner/work/_temp/publish/ui-preview/debug/walk/device-simulator.log
+dropped (too large): /Users/runner/work/_temp/publish/ui-preview/debug/access-signed-out/device-simulator.log
+dropped (too large): /Users/runner/work/_temp/publish/ui-preview/debug/access-onboarding/device-simulator.log
