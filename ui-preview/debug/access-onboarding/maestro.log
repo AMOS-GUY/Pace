@@ -1,0 +1,22 @@
+11:01:53.279 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+11:01:53.295 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+11:01:53.300 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+11:01:53.331 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+11:01:53.332 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "app.pace.ios" with clear state RUNNING
+11:01:53.340 [ INFO] maestro.Maestro.clearAppState$lambda$9: Clearing app state app.pace.ios
+11:02:13.979 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app app.pace.ios
+11:02:13.983 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping app.pace.ios app during launch
+11:02:16.198 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "app.pace.ios" with clear state COMPLETED
+11:02:16.291 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run sign-in.yaml RUNNING
+11:02:16.359 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+11:02:16.360 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+11:02:16.362 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+11:02:16.362 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+11:02:16.364 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+11:05:35.524 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+11:05:35.894 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+11:05:36.927 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible FAILED
+11:05:36.939 [ERROR] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandFailed: Assertion is false: "Create account" is visible
+11:05:36.940 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+11:05:36.946 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+11:05:37.245 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run sign-in.yaml FAILED

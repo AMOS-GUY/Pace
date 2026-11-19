@@ -1,0 +1,2 @@
+2026-11-19 11:07:37.090832+0000  localhost PACE[87719]: (BoardServices) [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.frontboard.systemappservices
+2026-11-19 11:07:37.405945+0000  localhost PACE[87719]: (BoardServices) [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.backboard.hid-services.xpc
