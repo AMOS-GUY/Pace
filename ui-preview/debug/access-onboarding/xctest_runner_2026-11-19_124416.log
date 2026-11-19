@@ -1,0 +1,17 @@
+2026-11-19 12:44:20.072 xcodebuild[70919:181004] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-11-19 12:44:20.088 xcodebuild[70919:181004] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, arch:arm64, id:F5450765-59B9-4D0C-9B64-845B8C9EE51F, OS:26.
+Test session results, code coverage, and logs:
+	/var/folders/q2/p1t6rgxj5fj32g1dc7dmd49r0000gn/T/maestro_xctestrunner_xcodebuild_output15703635336936515836/Logs/Test/Test-maestro-driver-ios-2026.11.19_12-44-20-+0000.xcresult
+
+Testing started
+e current scheme is empty.
+2026-11-19 12:46:15.799 xcodebuild[70919:181004] [MT] IDETestOperationsObserverDebug: 112.504 elapsed -- Testing started completed.
+2026-11-19 12:46:15.800 xcodebuild[70919:181004] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-11-19 12:46:15.800 xcodebuild[70919:181004] [MT] IDETestOperationsObserverDebug: 112.504 sec, +112.504 sec -- end
+Testing failed:
+	maestro-driver-iosUITests-Runner encountered an error (Early unexpected exit, operation never finished bootstrapping - no restart will be attempted. (Underlying Error: The test runner exited with code 0 before establishing connection.))
+
+** TEST EXECUTE FAILED **
+
