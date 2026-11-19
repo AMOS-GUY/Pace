@@ -113,8 +113,7 @@ appId: app.pace.ios
     when:
       notVisible: 'Home, tab.*'
     commands:
-      - openLink: pace://
-      - tapOn: { text: 'Open', optional: true }
+      - runFlow: { file: open-link.yaml, env: { LINK: 'pace://' } }
 - extendedWaitUntil: { visible: 'Home, tab.*', timeout: 20000, optional: true }
 - tapOn: { text: 'Home, tab.*', optional: true }
 - waitForAnimationToEnd
@@ -139,35 +138,27 @@ appId: app.pace.ios
 - takeScreenshot: 31a-connected-devices-from-profile
 
 # ---------------------------------------------------------------- other screens
-- openLink: pace://import
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://import' } }
 - waitForAnimationToEnd
 - takeScreenshot: 27-import
-- openLink: pace://settings/units
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/units' } }
 - waitForAnimationToEnd
 - takeScreenshot: 28-settings-units
-- openLink: pace://settings/goals
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/goals' } }
 - waitForAnimationToEnd
 - takeScreenshot: 29-settings-goals
-- openLink: pace://settings/privacy
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/privacy' } }
 - waitForAnimationToEnd
 - takeScreenshot: 30-settings-privacy
-- openLink: pace://settings/devices
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/devices' } }
 - waitForAnimationToEnd
 - takeScreenshot: 31-settings-devices
-- openLink: pace://settings/export
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/export' } }
 - waitForAnimationToEnd
 - takeScreenshot: 32-settings-export
-- openLink: pace://settings/backup
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/backup' } }
 - waitForAnimationToEnd
 - takeScreenshot: 33-settings-backup
-- openLink: pace://settings/account
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/account' } }
 - waitForAnimationToEnd
 - takeScreenshot: 34-settings-account
