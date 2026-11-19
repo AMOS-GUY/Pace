@@ -12,6 +12,29 @@
 - Every cloud query filters by the token's user id; a foreign activity id returns `id_conflict`
   without data.
 
+### Which screens open in which state (mobile)
+
+Every route under `apps/mobile/app/` except the entry screen is declared in the root stack
+behind `Stack.Protected`, using one policy in `src/features/route-access.ts`. A route that is
+not allowed is never shown: not when it is tapped, not through a `pace://` deep link, and not
+from restored navigation state. The user goes to the entry screen, which routes them on.
+
+| State | Opens |
+|---|---|
+| Unconfigured build (no Supabase settings) | Only the "PACE is not configured" screen |
+| Signed out | Sign-in screens, and the email-verification and password-reset links |
+| Signed in, onboarding not finished | Onboarding (and the two links) |
+| Signed in and onboarded | Everything except the sign-in screens. Onboarding stays open for editing the profile |
+
+- **Active recording.** The recording screen stays open whatever happens to the session, so
+  losing it mid-run never takes the recording off the screen. Recording itself never depends on
+  the session.
+- **Offline use.** A signed-in user's session is read from encrypted local storage without the
+  network, so offline launches still open the app.
+- **Tests.** Unit tests cover every state. A test fails if a new route is added without a
+  guard. The UI preview workflow checks the signed-out and not-yet-onboarded states on a
+  simulator with deep links (`apps/mobile/maestro/ui-preview/access-*.yaml`).
+
 ## Data at rest
 
 | Data | Protection |
