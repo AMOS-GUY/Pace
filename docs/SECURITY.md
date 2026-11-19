@@ -14,8 +14,8 @@
 
 ### Which screens open in which state (mobile)
 
-Every route under `apps/mobile/app/` except the entry screen is declared in the root stack
-behind `Stack.Protected`, using one policy in `src/features/route-access.ts`. A route that is
+Every route under `apps/mobile/app/` except the entry screen renders through `<Guard>`
+(`src/components/Guard.tsx`), using one policy in `src/features/route-access.ts`. A route that is
 not allowed is never shown: not when it is tapped, not through a `pace://` deep link, and not
 from restored navigation state. The user goes to the entry screen, which routes them on.
 
@@ -31,8 +31,8 @@ from restored navigation state. The user goes to the entry screen, which routes 
   the session.
 - **Offline use.** A signed-in user's session is read from encrypted local storage without the
   network, so offline launches still open the app.
-- **Tests.** Unit tests cover every state. A test fails if a new route is added without a
-  guard. The UI preview workflow checks the signed-out and not-yet-onboarded states on a
+- **Tests.** Unit tests cover every state. A test fails if a route is added without a guard,
+  or does not render through `<Guard>`. The UI preview workflow checks the signed-out and not-yet-onboarded states on a
   simulator with deep links (`apps/mobile/maestro/ui-preview/access-*.yaml`).
 
 ## Data at rest
