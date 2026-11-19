@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 17 - iOS 26.5 - F5450765-59B9-4D0C-9B64-845B8C9EE51F" tests="1" failures="0" time="451.761" timestamp="2026-11-19T18:59:58">
+    <testcase id="access-signed-out" name="access-signed-out" classname="access-signed-out" file="/Users/runner/work/Pace/Pace/apps/mobile/maestro/ui-preview/access-signed-out.yaml" time="446.545" timestamp="2026-11-19T19:00:04" status="SUCCESS"/>
+  </testsuite>
+</testsuites>

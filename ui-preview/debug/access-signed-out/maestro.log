@@ -1,0 +1,426 @@
+19:00:09.674 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+19:00:09.783 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+19:00:09.790 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+19:00:09.791 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+19:00:09.791 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "app.pace.ios" with clear state RUNNING
+19:00:09.796 [ INFO] maestro.Maestro.clearAppState$lambda$9: Clearing app state app.pace.ios
+19:00:45.586 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app app.pace.ios
+19:00:45.589 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping app.pace.ios app during launch
+19:00:54.079 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "app.pace.ios" with clear state COMPLETED
+19:00:55.919 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run flow when "Open in .*" is visible RUNNING
+19:01:05.066 [ INFO] maestro.orchestra.Orchestra.executeCommands: [Command execution] CommandSkipped: null
+19:01:05.076 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run flow when "Open in .*" is visible SKIPPED
+19:01:05.077 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+19:01:06.172 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+19:01:06.173 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot ac-01-signed-out-welcome RUNNING
+19:01:06.206 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:01:06.360 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:06.890 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot ac-01-signed-out-welcome COMPLETED
+19:01:06.890 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:01:06.903 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:01:06.918 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:01:06.918 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:08.706 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:01:08.706 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:12.354 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:01:12.360 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Sign in" RUNNING
+19:01:13.271 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Sign in, title=, value=, text=, hintText=, resource-id=, bounds=[16,728][386,792], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=728, width=370, height=64))
+19:01:13.657 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+19:01:13.676 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 760) using hierarchy based logic for wait
+19:01:13.681 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:01:13.681 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:16.434 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+19:01:16.437 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Sign in" COMPLETED
+19:01:16.437 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Forgot password\?" is visible RUNNING
+19:01:16.965 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Forgot password\?" is visible COMPLETED
+19:01:16.985 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run open-link.yaml RUNNING
+19:01:17.000 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+19:01:17.001 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+19:01:17.003 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+19:01:17.004 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+19:01:17.004 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open ${LINK} RUNNING
+19:01:21.844 [ INFO] maestro.Maestro.openLink: Opening link pace://activities for app: app.pace.ios with autoVerify config as false
+19:01:25.270 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open ${LINK} COMPLETED
+19:01:25.270 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is visible RUNNING
+19:01:28.515 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is visible COMPLETED
+19:01:28.516 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+19:01:28.811 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Open, title=, value=, text=, hintText=, resource-id=, bounds=[205,450][345,498], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=205, y=450, width=140, height=48))
+19:01:29.266 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+19:01:29.269 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (275, 474) using hierarchy based logic for wait
+19:01:29.270 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:01:29.270 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:30.708 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+19:01:30.709 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" COMPLETED
+19:01:30.710 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is not visible RUNNING
+19:01:31.603 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is not visible COMPLETED
+19:01:31.603 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:01:31.604 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:01:31.604 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:01:31.604 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:31.820 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:01:31.821 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:32.826 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:01:32.827 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run open-link.yaml COMPLETED
+19:01:32.828 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+19:01:34.894 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+19:01:34.895 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Activities, tab.*" is not visible RUNNING
+19:01:35.747 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Activities, tab.*" is not visible COMPLETED
+19:01:35.747 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot ac-02-signed-out-tabs-link RUNNING
+19:01:35.749 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:01:35.752 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:35.888 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot ac-02-signed-out-tabs-link COMPLETED
+19:01:35.888 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:01:35.890 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:01:35.890 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:01:35.893 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:36.742 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:01:36.743 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:41.890 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:01:41.896 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Sign in" RUNNING
+19:01:42.277 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Sign in, title=, value=, text=, hintText=, resource-id=, bounds=[16,728][386,792], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=728, width=370, height=64))
+19:01:42.616 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+19:01:42.629 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 760) using hierarchy based logic for wait
+19:01:42.630 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:01:42.630 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:01:44.617 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+19:01:44.618 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Sign in" COMPLETED
+19:01:44.619 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Forgot password\?" is visible RUNNING
+19:01:45.028 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Forgot password\?" is visible COMPLETED
+19:01:45.028 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run open-link.yaml RUNNING
+19:01:45.042 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+19:01:45.042 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+19:01:45.043 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+19:01:45.043 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+19:01:45.043 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open ${LINK} RUNNING
+19:01:45.229 [ INFO] maestro.Maestro.openLink: Opening link pace://settings/backup for app: app.pace.ios with autoVerify config as false
+19:01:49.616 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open ${LINK} COMPLETED
+19:01:49.627 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is visible RUNNING
+19:02:20.339 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Assertion is false: "Open in .*" is visible
+19:02:20.815 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:02:20.816 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:02:21.006 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is visible WARNED
+19:02:21.008 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+19:02:21.447 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: Open
+19:02:21.655 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:02:21.656 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:02:21.815 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" WARNED
+19:02:21.815 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is not visible RUNNING
+19:02:22.678 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is not visible COMPLETED
+19:02:22.678 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:02:22.679 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:02:22.679 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:02:22.679 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:02:22.943 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:02:22.944 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:02:26.081 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:02:26.119 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run open-link.yaml COMPLETED
+19:02:26.121 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+19:02:26.620 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+19:02:26.620 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Backup file" is not visible RUNNING
+19:02:27.716 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Backup file" is not visible COMPLETED
+19:02:27.717 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot ac-03-signed-out-settings-link RUNNING
+19:02:27.720 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:02:27.723 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:02:27.895 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot ac-03-signed-out-settings-link COMPLETED
+19:02:27.895 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:02:27.896 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:02:27.896 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:02:27.896 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:02:28.174 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:02:28.174 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:02:31.012 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:02:31.136 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Sign in" RUNNING
+19:02:31.807 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Sign in, title=, value=, text=, hintText=, resource-id=, bounds=[16,728][386,792], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=728, width=370, height=64))
+19:02:32.223 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+19:02:32.229 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 760) using hierarchy based logic for wait
+19:02:32.230 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:02:32.230 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:02:34.392 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+19:02:34.394 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Sign in" COMPLETED
+19:02:34.395 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Forgot password\?" is visible RUNNING
+19:02:34.708 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Forgot password\?" is visible COMPLETED
+19:02:34.708 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run open-link.yaml RUNNING
+19:02:34.711 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+19:02:34.712 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+19:02:34.712 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+19:02:34.712 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+19:02:34.713 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open ${LINK} RUNNING
+19:02:34.765 [ INFO] maestro.Maestro.openLink: Opening link pace://import for app: app.pace.ios with autoVerify config as false
+19:02:37.293 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open ${LINK} COMPLETED
+19:02:37.303 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is visible RUNNING
+19:03:07.864 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Assertion is false: "Open in .*" is visible
+19:03:08.093 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:03:08.094 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:08.264 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is visible WARNED
+19:03:08.265 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+19:03:08.693 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: Open
+19:03:08.868 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:03:08.870 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:09.009 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" WARNED
+19:03:09.009 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is not visible RUNNING
+19:03:09.694 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is not visible COMPLETED
+19:03:09.694 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:03:09.696 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:03:09.696 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:03:09.696 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:09.891 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:03:09.891 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:12.792 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:03:12.793 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run open-link.yaml COMPLETED
+19:03:12.793 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+19:03:13.030 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+19:03:13.030 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Bring your history" is not visible RUNNING
+19:03:13.841 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Bring your history" is not visible COMPLETED
+19:03:13.841 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:03:13.846 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:03:13.847 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:03:13.847 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:14.100 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:03:14.100 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:15.231 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:03:15.232 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Sign in" RUNNING
+19:03:15.487 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Sign in, title=, value=, text=, hintText=, resource-id=, bounds=[16,728][386,792], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=728, width=370, height=64))
+19:03:15.774 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+19:03:15.779 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 760) using hierarchy based logic for wait
+19:03:15.781 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:03:15.781 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:18.033 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+19:03:18.035 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Sign in" COMPLETED
+19:03:18.035 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Forgot password\?" is visible RUNNING
+19:03:18.362 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Forgot password\?" is visible COMPLETED
+19:03:18.367 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run open-link.yaml RUNNING
+19:03:18.370 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+19:03:18.370 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+19:03:18.371 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+19:03:18.371 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+19:03:18.371 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open ${LINK} RUNNING
+19:03:18.546 [ INFO] maestro.Maestro.openLink: Opening link pace://recording for app: app.pace.ios with autoVerify config as false
+19:03:22.396 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open ${LINK} COMPLETED
+19:03:22.405 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is visible RUNNING
+19:03:52.844 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Assertion is false: "Open in .*" is visible
+19:03:53.042 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:03:53.043 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:53.212 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is visible WARNED
+19:03:53.213 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+19:03:53.668 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: Open
+19:03:53.921 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:03:53.922 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:54.152 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" WARNED
+19:03:54.152 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is not visible RUNNING
+19:03:54.963 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is not visible COMPLETED
+19:03:54.964 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:03:54.964 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:03:54.964 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:03:54.964 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:55.200 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:03:55.200 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:57.150 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:03:57.153 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run open-link.yaml COMPLETED
+19:03:57.154 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+19:03:57.391 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+19:03:57.391 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Find GPS" is not visible RUNNING
+19:03:58.137 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Find GPS" is not visible COMPLETED
+19:03:58.138 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:03:58.140 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:03:58.140 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:03:58.140 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:58.400 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:03:58.400 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:03:59.382 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:03:59.383 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Sign in" RUNNING
+19:03:59.598 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Sign in, title=, value=, text=, hintText=, resource-id=, bounds=[16,728][386,792], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=728, width=370, height=64))
+19:03:59.884 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+19:03:59.885 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 760) using hierarchy based logic for wait
+19:03:59.897 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:03:59.897 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:04:01.863 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+19:04:01.866 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Sign in" COMPLETED
+19:04:01.866 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Forgot password\?" is visible RUNNING
+19:04:02.082 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Forgot password\?" is visible COMPLETED
+19:04:02.082 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run open-link.yaml RUNNING
+19:04:02.083 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+19:04:02.083 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+19:04:02.084 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+19:04:02.084 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+19:04:02.084 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open ${LINK} RUNNING
+19:04:02.145 [ INFO] maestro.Maestro.openLink: Opening link pace://activity/00000000-0000-0000-0000-000000000000 for app: app.pace.ios with autoVerify config as false
+19:04:07.085 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open ${LINK} COMPLETED
+19:04:07.090 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is visible RUNNING
+19:04:38.087 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Assertion is false: "Open in .*" is visible
+19:04:38.473 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:04:38.476 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:04:38.954 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is visible WARNED
+19:04:38.955 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+19:04:39.442 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: Open
+19:04:39.675 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:04:39.677 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:04:39.820 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" WARNED
+19:04:39.820 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is not visible RUNNING
+19:04:40.675 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is not visible COMPLETED
+19:04:40.676 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:04:40.678 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:04:40.679 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:04:40.693 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:04:41.322 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:04:41.323 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:04:46.564 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:04:46.569 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run open-link.yaml COMPLETED
+19:04:46.570 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+19:04:47.020 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+19:04:47.020 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Splits" is not visible RUNNING
+19:04:47.925 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Splits" is not visible COMPLETED
+19:04:47.925 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:04:47.928 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:04:47.975 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:04:47.975 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:04:48.310 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:04:48.310 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:04:49.847 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:04:49.850 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on "Sign in" RUNNING
+19:04:50.043 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tapping on element:  UiElement(treeNode=TreeNode(attributes={accessibilityText=Sign in, title=, value=, text=, hintText=, resource-id=, bounds=[16,728][386,792], enabled=true, focused=false, selected=false, checked=false}, children=[], clickable=null, enabled=true, focused=false, checked=false, selected=false), bounds=Bounds(x=16, y=728, width=370, height=64))
+19:04:50.270 [ INFO] maestro.Maestro.tap-HgV9Ck0: Tap aimed via trusted pre-wait hierarchy (null settle, no recent scroll)
+19:04:50.275 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Try tapping at (201, 760) using hierarchy based logic for wait
+19:04:50.287 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:04:50.287 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:04:52.464 [ INFO] maestro.Maestro.screenshotBasedTap-ogj28Uc: Something have changed in the UI judging by view hierarchy. Proceed.
+19:04:52.464 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on "Sign in" COMPLETED
+19:04:52.466 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Forgot password\?" is visible RUNNING
+19:04:52.729 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Forgot password\?" is visible COMPLETED
+19:04:52.730 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run open-link.yaml RUNNING
+19:04:52.731 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+19:04:52.731 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+19:04:52.731 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+19:04:52.731 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+19:04:52.731 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open ${LINK} RUNNING
+19:04:52.780 [ INFO] maestro.Maestro.openLink: Opening link pace://sports for app: app.pace.ios with autoVerify config as false
+19:04:57.782 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open ${LINK} COMPLETED
+19:04:57.786 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is visible RUNNING
+19:05:28.271 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Assertion is false: "Open in .*" is visible
+19:05:28.443 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:05:28.444 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:05:28.598 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is visible WARNED
+19:05:28.599 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+19:05:28.920 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: Open
+19:05:29.069 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:05:29.070 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:05:29.180 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" WARNED
+19:05:29.181 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is not visible RUNNING
+19:05:29.965 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is not visible COMPLETED
+19:05:29.965 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:05:29.966 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:05:29.966 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:05:29.966 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:05:30.174 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:05:30.174 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:05:31.631 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:05:31.633 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run open-link.yaml COMPLETED
+19:05:31.633 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Create account" is visible RUNNING
+19:05:31.894 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Create account" is visible COMPLETED
+19:05:31.894 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "What do you train\?" is not visible RUNNING
+19:05:32.787 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "What do you train\?" is not visible COMPLETED
+19:05:32.787 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot ac-04-signed-out-onboarding-link RUNNING
+19:05:32.791 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:05:32.792 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:05:32.931 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot ac-04-signed-out-onboarding-link COMPLETED
+19:05:32.932 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run open-link.yaml RUNNING
+19:05:32.932 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+19:05:32.932 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+19:05:32.933 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+19:05:32.933 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+19:05:32.933 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open ${LINK} RUNNING
+19:05:32.958 [ INFO] maestro.Maestro.openLink: Opening link pace://forgot-password for app: app.pace.ios with autoVerify config as false
+19:05:35.421 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open ${LINK} COMPLETED
+19:05:35.421 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is visible RUNNING
+19:06:06.039 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Assertion is false: "Open in .*" is visible
+19:06:06.270 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:06:06.271 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:06:06.409 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is visible WARNED
+19:06:06.410 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+19:06:06.785 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: Open
+19:06:07.078 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:06:07.078 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:06:07.194 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" WARNED
+19:06:07.195 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is not visible RUNNING
+19:06:07.916 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is not visible COMPLETED
+19:06:07.916 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:06:07.917 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:06:07.917 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:06:07.917 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:06:08.130 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:06:08.130 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:06:09.922 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:06:09.922 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run open-link.yaml COMPLETED
+19:06:09.922 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Send reset link" is visible RUNNING
+19:06:10.137 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Send reset link" is visible COMPLETED
+19:06:10.137 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 05-auth-forgot-password RUNNING
+19:06:10.139 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:06:10.142 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:06:10.268 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 05-auth-forgot-password COMPLETED
+19:06:10.268 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run open-link.yaml RUNNING
+19:06:10.271 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+19:06:10.272 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+19:06:10.272 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+19:06:10.272 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+19:06:10.272 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open ${LINK} RUNNING
+19:06:10.331 [ INFO] maestro.Maestro.openLink: Opening link pace://sign-up for app: app.pace.ios with autoVerify config as false
+19:06:13.461 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open ${LINK} COMPLETED
+19:06:13.465 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is visible RUNNING
+19:06:43.922 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Assertion is false: "Open in .*" is visible
+19:06:44.136 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:06:44.137 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:06:44.291 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is visible WARNED
+19:06:44.292 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+19:06:44.896 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: Open
+19:06:45.156 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:06:45.157 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:06:45.316 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" WARNED
+19:06:45.316 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is not visible RUNNING
+19:06:46.046 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is not visible COMPLETED
+19:06:46.046 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:06:46.047 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:06:46.047 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:06:46.047 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:06:46.236 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:06:46.236 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:06:47.140 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:06:47.141 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run open-link.yaml COMPLETED
+19:06:47.141 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Confirm password" is visible RUNNING
+19:06:47.336 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Confirm password" is visible COMPLETED
+19:06:47.337 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 03-auth-sign-up RUNNING
+19:06:47.339 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:06:47.340 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:06:47.451 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 03-auth-sign-up COMPLETED
+19:06:47.451 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run open-link.yaml RUNNING
+19:06:47.452 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+19:06:47.452 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+19:06:47.452 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+19:06:47.452 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+19:06:47.452 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Open ${LINK} RUNNING
+19:06:47.485 [ INFO] maestro.Maestro.openLink: Opening link pace://sign-in for app: app.pace.ios with autoVerify config as false
+19:06:50.276 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Open ${LINK} COMPLETED
+19:06:50.278 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is visible RUNNING
+19:07:20.774 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Assertion is false: "Open in .*" is visible
+19:07:20.947 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:07:20.948 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:07:21.072 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is visible WARNED
+19:07:21.072 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Tap on (Optional) "Open" RUNNING
+19:07:21.465 [ INFO] maestro.orchestra.Orchestra.executeSubflowCommands: [Command execution subflow] CommandWarned: Element not found: Text matching regex: Open
+19:07:21.665 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:07:21.666 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:07:21.861 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Tap on (Optional) "Open" WARNED
+19:07:21.862 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that (Optional) "Open in .*" is not visible RUNNING
+19:07:22.761 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that (Optional) "Open in .*" is not visible COMPLETED
+19:07:22.761 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Wait for animation to end RUNNING
+19:07:22.762 [ INFO] maestro.Maestro.waitForAnimationToEnd$lambda$54: Waiting for animation to end with timeout 15000
+19:07:22.762 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:07:22.762 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:07:22.933 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to byte array
+19:07:22.933 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:07:24.254 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Wait for animation to end COMPLETED
+19:07:24.255 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Run open-link.yaml COMPLETED
+19:07:24.256 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Assert that "Forgot password\?" is visible RUNNING
+19:07:24.539 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Assert that "Forgot password\?" is visible COMPLETED
+19:07:24.540 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Take screenshot 04-auth-sign-in RUNNING
+19:07:24.542 [ INFO] maestro.Maestro.takeScreenshot: Taking screenshot
+19:07:24.543 [TRACE] maestro.utils.ScreenshotUtils.takeScreenshot: Taking screenshot to output sink
+19:07:24.689 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Take screenshot 04-auth-sign-in COMPLETED
