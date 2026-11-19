@@ -68,10 +68,15 @@ jobs:
           set +e
           xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dd" \
-            CODE_SIGNING_ALLOWED=NO build > "$RUNNER_TEMP/xcodebuild.log" 2>&1
+            CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= PROVISIONING_PROFILE_SPECIFIER=             build > "$RUNNER_TEMP/xcodebuild.log" 2>&1
           status=$?
           set -e
           [ "$status" -eq 0 ] || { tail -n 200 "$RUNNER_TEMP/xcodebuild.log"; exit "$status"; }
+          # Ad-hoc signed (no Apple account): an unsigned build has no Keychain entitlement, and the
+          # app's encrypted session store keeps its key in the Keychain.
+          mkdir -p "$GITHUB_WORKSPACE/artifacts/ui-preview"
+          codesign -d --entitlements - "$RUNNER_TEMP/dd/Build/Products/Release-iphonesimulator/PACE.app"             > "$GITHUB_WORKSPACE/artifacts/ui-preview/signing.txt" 2>&1 || true
+          cat "$GITHUB_WORKSPACE/artifacts/ui-preview/signing.txt"
       - name: Boot a simulator and install the app
         run: |
           udid="$(xcrun simctl list devices available -j | python3 -c '
@@ -108,7 +113,9 @@ jobs:
           for flow in access-signed-out access-onboarding; do
             mkdir -p "artifacts/ui-preview/maestro/$flow"
             ( cd "artifacts/ui-preview/maestro/$flow" &&
-              maestro test --format junit --output junit.xml --test-output-dir .                 "$GITHUB_WORKSPACE/apps/mobile/maestro/ui-preview/$flow.yaml" ) || status=1
+              maestro test --format junit --output junit.xml --test-output-dir .                 "$GITHUB_WORKSPACE/apps/mobile/maestro/ui-preview/$flow.yaml" > maestro-stdout.log 2>&1 ) || status=1
+            # Readable without signing in to GitHub: the end of each failed flow's output.
+            [ $status -eq 0 ] || echo "::warning title=$flow::$(tail -n 12 "artifacts/ui-preview/maestro/$flow/maestro-stdout.log" | tr '\n' ' ' | cut -c1-900)"
           done
           exit $status
       - name: Walk the app and take screenshots
@@ -116,7 +123,7 @@ jobs:
         run: |
           mkdir -p artifacts/ui-preview/maestro/walk
           cd artifacts/ui-preview/maestro/walk
-          maestro test --format junit --output junit.xml --test-output-dir .             "$GITHUB_WORKSPACE/apps/mobile/maestro/ui-preview/ui-preview.yaml"
+          maestro test --format junit --output junit.xml --test-output-dir .             "$GITHUB_WORKSPACE/apps/mobile/maestro/ui-preview/ui-preview.yaml" > maestro-stdout.log 2>&1
       - name: Collect screenshots and build the contact sheet
         if: always()
         run: |
@@ -164,7 +171,7 @@ jobs:
           log="$RUNNER_TEMP/publish.log"
           mkdir -p "$out/ui-preview"
           cp -R artifacts/ui-preview/screens artifacts/ui-preview/debug "$out/ui-preview/" 2>/dev/null || true
-          cp artifacts/ui-preview/README.md artifacts/ui-preview/access-control.txt artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt artifacts/ui-preview/contact-sheet.png \
+          cp artifacts/ui-preview/README.md artifacts/ui-preview/access-control.txt artifacts/ui-preview/signing.txt artifacts/ui-preview/run.txt artifacts/ui-preview/screens.txt artifacts/ui-preview/contact-sheet.png \
             "$out/ui-preview/" 2>/dev/null || true
           # GitHub refuses files over 100 MB; drop anything over 40 MB and say so.
           find "$out" -type f -size +40M -print -delete | sed 's/^/dropped (too large): /' >> "$out/ui-preview/screens.txt" || true
@@ -184,5 +191,5 @@ jobs:
       - name: Fail if an access-control check failed
         if: steps.access.outcome == 'failure'
         run: |
-          echo "::error title=Access control::A protected screen opened when it must not (see debug/access-*)."
+          echo "::error title=Access control::An access-control flow failed: a protected screen opened, or the flow could not finish (see debug/access-* and the warnings above)."
           exit 1
