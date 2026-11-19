@@ -1,0 +1,55 @@
+2026-11-19 16:41:13.736 xcodebuild[70674:180635] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-11-19 16:41:13.770 xcodebuild[70674:180635] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS Simulator, arch:arm64, id:23C8F95C-765D-46A9-AE82-0BEE2921C8D7, OS:26.2026-11-19 16:41:26.549973+0000 maestro-driver-iosUITests-Runner[71275:182223] [Default] Running tests...
+2026-11-19 16:41:26.860067+0000 maestro-driver-iosUITests-Runner[71275:182223] snapshotKeyHonorModalViews configured to value: (null)
+    t =      nans Interface or2026-11-19 16:43:23.975 xcodebuild[70674:180635] [MT] IDETesting: Failed to construct test run summaries and write them to the result bundle: fileSystemFailure(reason: "mkstemp: No such file or directory")
+2026-11-19 16:43:24.010 xcodebuild[70674:180635] [MT] IDETestOperationsObserverDebug: 124.645 elapsed -- Testing started completed.
+2026-11-19 16:43:24.010 xcodebuild[70674:180635] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-11-19 16:43:24.010 xcodebuild[70674:180635] [MT] IDETestOperationsObserverDebug: 124.645 sec, +124.645 sec -- end
+2026-11-19 16:43:25.893 xcodebuild[70674:180635] [MT] IDEResultKit: Warning: While writing a result bundle to /var/folders/h5/t85nd63d71x27_8gl5gw3l_w0000gn/T/maestro_xctestrunner_xcodebuild_output5304298262386210891/Logs/Test/Test-maestro-driver-ios-2026.11.19_16-41-13-+0000.xcresult, not all contents have been imported, as the Staging directory still contains the following files/directories: ["1_Test"]
+2026-11-19 16:43:25.906 xcodebuild[70674:180635] [MT] IDETesting: Result bundle saving failed with error: Error Domain=IDEFoundationErrorDomain Code=12 "The result bundle could not be saved due to multiple errors: failed to import activity log, underlying error: fileSystemFailure(reason: "mkstemp: No such file or directory"), The operation couldn’t be completed. (XCResultKit_CASDB.FileBackedCASDatabase.Error error 0.)" UserInfo={NSLocalizedDescription=The result bundle could not be saved due to multiple errors: failed to import activity log, underlying error: fileSystemFailure(reason: "mkstemp: No such file or directory"), The operation couldn’t be completed. (XCResultKit_CASDB.FileBackedCASDatabase.Error error 0.), NSUnderlyingError=0x798bc00c0 {Error Domain=IDEFoundation.ResultBundleError Code=2 "failed to import activity log, underlying error: fileSystemFailure(reason: "mkstemp: No such file or directory")"}}.
+Failing tests:
+	maestro_driver_iosUITests.testHttpServer()
+
+** TEST EXECUTE FAILED **
+
+9
+    t =     0.00s Set Up
+    t =     0.00s Tear Down
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testUnrelatedXCTFutureErrorStaysInternal]' passed (0.003 seconds).
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testXCTFutureCode1000WithUnrelatedMessageStaysInternal]' started.
+    t =     0.00s Start Test at 2026-11-19 16:41:30.183
+    t =     0.00s Set Up
+    t =     0.00s Tear Down
+Test Case '-[maestro_driver_iosUITests.SwipeRouteHandlerV2ClassificationTests testXCTFutureCode1000WithUnrelatedMessageStaysInternal]' passed (0.004 seconds).
+Test Suite 'SwipeRouteHandlerV2ClassificationTests' passed at 2026-11-19 16:41:30.185.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.063 (0.081) seconds
+Test Suite 'maestro_driver_iosUITests' started at 2026-11-19 16:41:30.186.
+    t =      nans Suite Set Up
+Test Case '-[maestro_driver_iosUITests.maestro_driver_iosUITests testHttpServer]' started.
+    t =     0.00s Start Test at 2026-11-19 16:41:30.188
+    t =     0.00s Set Up
+2026-11-19 16:41:30.189946+0000 maestro-driver-iosUITests-Runner[71275:182547] [maestro_driver_iosUITests] Will start HTTP server
+2026-11-19 16:41:30.445755+0000 maestro-driver-iosUITests-Runner[71275:182547] [FlyingFox] starting server 127.0.0.1:54832
+2026-11-19 16:41:30.524396+0000 maestro-driver-iosUITests-Runner[71275:182547] [FlyingFox] <127.0.0.1> open connection
+2026-11-19 16:41:30.534807+0000 maestro-driver-iosUITests-Runner[71275:182547] [FlyingFox] <127.0.0.1> request: GET /status
+objc[71275]: Class UIAccessibilityLoaderWebShared is implemented in both /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebCore.axbundle/WebCore (0x10816c310) and /Library/Developer/CoreSimulator/Volumes/iOS_23F77/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.5.simruntime/Contents/Resources/RuntimeRoot/System/Library/AccessibilityBundles/WebKit.axbundle/WebKit (0x108d10398). This may cause spurious casting failures and mysterious crashes. One of the duplicates must be removed or renamed.
+2026-11-19 16:41:30.942273+0000 maestro-driver-iosUITests-Runner[71275:182523] [FlyingFox] <127.0.0.1> open connection
+2026-11-19 16:41:30.944876+0000 maestro-driver-iosUITests-Runner[71275:182547] [FlyingFox] <127.0.0.1> request: POST /deviceInfo
+    t =     0.76s Getting device orientation
+2026-11-19 16:41:31.036412+0000 maestro-driver-iosUITests-Runner[71275:182223] Using singleton test manager
+2026-11-19 16:41:31.043023+0000 maestro-driver-iosUITests-Runner[71275:182223] Detected running apps: ["com.apple.springboard"]
+    t =     0.86s Getting device orientation
+    t =     0.86s Find the Application 'com.apple.springboard'
+2026-11-19 16:41:31.447051+0000 maestro-driver-iosUITests-Runner[71275:182223] Device orientation is 1
+2026-11-19 16:41:39.481975+0000 maestro-driver-iosUITests-Runner[71275:182523] [FlyingFox] <127.0.0.1> request: POST /setPermissions
+2026-11-19 16:41:39.535397+0000 maestro-driver-iosUITests-Runner[71275:182527] [FlyingFox] <127.0.0.1> request: POST /terminateApp
+2026-11-19 16:41:39.538124+0000 maestro-driver-iosUITests-Runner[71275:182223] [Start] Terminating app app.pace.ios
+    t =     9.36s Terminate app.pace.ios:0
+2026-11-19 16:41:39.544415+0000 maestro-driver-iosUITests-Runner[71275:182223] [End] Terminating app app.pace.ios
+
+Test session results, code coverage, and logs:
+	/var/folders/h5/t85nd63d71x27_8gl5gw3l_w0000gn/T/maestro_xctestrunner_xcodebuild_output5304298262386210891/Logs/Test/Test-maestro-driver-ios-2026.11.19_16-41-13-+0000.xcresult
+
+Testing started

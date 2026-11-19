@@ -1,0 +1,4 @@
+UI preview auth stub on http://127.0.0.1:54321
+POST /auth/v1/logout
+POST /auth/v1/token?grant_type=password
+POST /auth/v1/token?grant_type=password

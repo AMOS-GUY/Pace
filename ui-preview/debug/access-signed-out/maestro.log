@@ -1,0 +1,10 @@
+16:41:31.641 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Define variables RUNNING
+16:41:31.644 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Define variables COMPLETED
+16:41:31.645 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Apply configuration RUNNING
+16:41:31.646 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Apply configuration COMPLETED
+16:41:31.646 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Launch app "app.pace.ios" with clear state RUNNING
+16:41:31.647 [ INFO] maestro.Maestro.clearAppState$lambda$9: Clearing app state app.pace.ios
+16:41:39.511 [ INFO] maestro.Maestro.launchApp$lambda$6: Launching app app.pace.ios
+16:41:39.511 [ INFO] maestro.Maestro.launchApp$lambda$6: Stopping app.pace.ios app during launch
+16:42:01.058 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandFinished: Launch app "app.pace.ios" with clear state COMPLETED
+16:42:01.373 [ INFO] maestro.cli.runner.CliConsoleListener.onCommandStart: Run flow when "Open in .*" is visible RUNNING
