@@ -1,23 +1,39 @@
 # Access control, signed in but onboarding not finished (hard assertions). The app's screens
-# must stay closed until onboarding is complete.
+# must stay closed until onboarding is complete. Before each link the walk moves on to step 2,
+# so step 1 only reappears if the link was handled and redirected.
 appId: app.pace.ios
 ---
 - launchApp:
     clearState: true
     permissions:
       location: inuse
+# A link prompt left over from an earlier flow would cover this one.
+- runFlow:
+    when:
+      visible: 'Open in .*'
+    commands:
+      - tapOn: 'Cancel'
 - runFlow: sign-in.yaml
 - takeScreenshot: ac-05-signed-in-onboarding
-- openLink: pace://activities
-- tapOn: { text: 'Open', optional: true }
+
+- waitForAnimationToEnd
+- runFlow: profile-name.yaml
+- extendedWaitUntil: { visible: 'STEP 2 OF 4', timeout: 20000 }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://activities' } }
 - extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000 }
 - assertNotVisible: 'Activities, tab.*'
-- openLink: pace://settings/backup
-- tapOn: { text: 'Open', optional: true }
+
+- waitForAnimationToEnd
+- runFlow: profile-name.yaml
+- extendedWaitUntil: { visible: 'STEP 2 OF 4', timeout: 20000 }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/backup' } }
 - extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000 }
 - assertNotVisible: 'Backup file'
 - takeScreenshot: ac-06-onboarding-settings-link
-- openLink: pace://welcome
-- tapOn: { text: 'Open', optional: true }
+
+- waitForAnimationToEnd
+- runFlow: profile-name.yaml
+- extendedWaitUntil: { visible: 'STEP 2 OF 4', timeout: 20000 }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://welcome' } }
 - extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 20000 }
 - assertNotVisible: 'Create account'

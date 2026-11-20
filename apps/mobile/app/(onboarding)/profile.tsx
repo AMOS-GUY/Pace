@@ -52,6 +52,7 @@ export default function OnboardingProfile() {
       </Text>
       <Input
         label="Display name"
+        testID="onboarding-display-name"
         value={name}
         onChangeText={setName}
         error={errors.name}

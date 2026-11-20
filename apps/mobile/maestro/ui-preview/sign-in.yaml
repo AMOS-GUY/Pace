@@ -8,10 +8,14 @@ env:
 - extendedWaitUntil: { visible: 'Create account', timeout: 120000 }
 - tapOn: 'Sign in'
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
-# The fields, by position (their visible labels are separate text elements).
-- tapOn: { point: '50%,30%' }
+- tapOn: { id: 'sign-in-email' }
+- waitForAnimationToEnd
 - inputText: ${PREVIEW_EMAIL}
-- tapOn: { point: '50%,40%' }
+- tapOn: { id: 'sign-in-password' }
+- waitForAnimationToEnd
 - inputText: ${PREVIEW_PASSWORD}
 - pressKey: Enter
+# iOS offers to save the password in a sheet over the next screen.
+- extendedWaitUntil: { visible: 'Not Now', timeout: 15000, optional: true }
+- tapOn: { text: 'Not Now', optional: true }
 - extendedWaitUntil: { visible: 'STEP 1 OF 4', timeout: 30000 }

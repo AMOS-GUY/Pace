@@ -28,13 +28,14 @@ import { reportError } from '@/services/monitoring';
 import { usePreferences, useUnits } from '@/stores/preferences';
 import { useRecording } from '@/stores/recording';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Guard } from '@/components/Guard';
 
 /**
  * Full-screen recorder designed for outdoor use: large tabular metrics, large controls,
  * the map secondary. All state comes from the RecordingCoordinator; this screen only renders
  * it and forwards commands.
  */
-export default function RecordingScreen() {
+function RecordingScreenContent() {
   const { colors } = useTheme();
   const snapshot = useRecording((s) => s.snapshot);
   const [summary, setSummary] = useState<SessionSummary | null>(null);
@@ -655,5 +656,14 @@ function Header({ title, onClose }: { title: string; onClose: () => void }) {
         <Ionicons name="close" size={28} color={colors.textPrimary} />
       </Pressable>
     </View>
+  );
+}
+
+/** Guarded route (recording): see src/features/route-access.ts. */
+export default function RecordingScreen() {
+  return (
+    <Guard guard="recording">
+      <RecordingScreenContent />
+    </Guard>
   );
 }

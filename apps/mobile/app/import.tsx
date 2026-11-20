@@ -19,12 +19,13 @@ import { pickImportFiles } from '@/services/portability';
 import { useImport } from '@/stores/import';
 import { useSession } from '@/stores/session';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Guard } from '@/components/Guard';
 
 const FALLBACK_SPORTS: ReadonlyArray<SportType> = ['running', 'cycling', 'walking', 'hiking'];
 /** Long reports stay fast: each group shows this many rows, then a count. */
 const ROWS_PER_GROUP = 40;
 
-export default function ImportScreen() {
+function ImportScreenContent() {
   const router = useRouter();
   const { colors, spacing } = useTheme();
   const invalidate = useInvalidateAll();
@@ -408,5 +409,14 @@ function OutcomeRow({
           ))
         : null}
     </View>
+  );
+}
+
+/** Guarded route (app): see src/features/route-access.ts. */
+export default function ImportScreen() {
+  return (
+    <Guard guard="app">
+      <ImportScreenContent />
+    </Guard>
   );
 }

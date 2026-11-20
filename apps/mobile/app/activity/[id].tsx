@@ -49,6 +49,7 @@ import { useActivityDetail, useInvalidateAll } from '@/hooks/queries';
 import { getServices } from '@/services/container';
 import { usePreferences, useUnits } from '@/stores/preferences';
 import { useTheme } from '@/theme/ThemeProvider';
+import { Guard } from '@/components/Guard';
 
 const SEGMENT_LABELS = {
   swim: 'Swim',
@@ -58,7 +59,7 @@ const SEGMENT_LABELS = {
   run: 'Run',
 } as const;
 
-export default function ActivityDetail() {
+function ActivityDetailContent() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const units = useUnits();
@@ -401,5 +402,14 @@ function EditModal({
         />
       </View>
     </Modal>
+  );
+}
+
+/** Guarded route (app): see src/features/route-access.ts. */
+export default function ActivityDetail() {
+  return (
+    <Guard guard="app">
+      <ActivityDetailContent />
+    </Guard>
   );
 }

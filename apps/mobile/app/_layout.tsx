@@ -16,13 +16,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ErrorState, Screen } from '@/components/layout';
 import { ROOT_SCREEN_OPTIONS } from '@/features/root-screens';
-import {
-  ROOT_ROUTE_GUARDS,
-  type RootRoute,
-  type RouteGuard,
-  isRecordingActive,
-  routeAccess,
-} from '@/features/route-access';
+import { ROOT_ROUTE_GUARDS, type RootRoute } from '@/features/route-access';
 import { getServices } from '@/services/container';
 import { reportError } from '@/services/monitoring';
 import { startForegroundSync } from '@/services/sync';
@@ -37,7 +31,6 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
 });
 
-const GUARDS: readonly RouteGuard[] = ['auth', 'authLinks', 'onboarding', 'app', 'recording'];
 const ROUTES = Object.keys(ROOT_ROUTE_GUARDS) as RootRoute[];
 
 export default function RootLayout() {
@@ -52,12 +45,6 @@ export default function RootLayout() {
   const router = useRouter();
   useRecordingTicker();
   const authStatus = useSession((s) => s.status);
-  const onboardingComplete = useSession((s) => s.onboardingComplete);
-  const recordingActive = useRecording((s) => isRecordingActive(s.snapshot?.state.status));
-  // Every route but the entry screen sits behind a guard (src/features/route-access.ts). A route
-  // that is not allowed is never shown, whether it was tapped, deep-linked or restored; the
-  // user is sent to the entry screen, which routes them on.
-  const access = routeAccess({ status: authStatus, onboardingComplete, recordingActive });
 
   // Background-safe sync: only when signed in; recording never depends on it.
   useEffect(() => (authStatus === 'signedIn' ? startForegroundSync() : undefined), [authStatus]);
@@ -75,7 +62,7 @@ export default function RootLayout() {
           return { recovered: false as const };
         });
         if (r.recovered) {
-          // Load the recovered state first: the recording screen's guard reads it.
+          // Load the recovered state first: the recording screen's Guard reads it.
           await useRecording.getState().refresh();
           router.push('/recording');
         }
@@ -110,12 +97,9 @@ export default function RootLayout() {
                 }}
               >
                 <Stack.Screen name="index" />
-                {GUARDS.map((guard) => (
-                  <Stack.Protected key={guard} guard={access[guard]} redirectTo="/">
-                    {ROUTES.filter((r) => ROOT_ROUTE_GUARDS[r] === guard).map((name) => (
-                      <Stack.Screen key={name} name={name} options={ROOT_SCREEN_OPTIONS[name]} />
-                    ))}
-                  </Stack.Protected>
+                {/* Each route checks its own access with <Guard> (src/features/route-access.ts). */}
+                {ROUTES.map((name) => (
+                  <Stack.Screen key={name} name={name} options={ROOT_SCREEN_OPTIONS[name]} />
                 ))}
               </Stack>
             )}

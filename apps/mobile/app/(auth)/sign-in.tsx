@@ -43,6 +43,7 @@ export default function SignIn() {
       {error ? <Banner tone="error" message={error} /> : null}
       <Input
         label="Email"
+        testID="sign-in-email"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -52,6 +53,7 @@ export default function SignIn() {
       />
       <Input
         label="Password"
+        testID="sign-in-password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry

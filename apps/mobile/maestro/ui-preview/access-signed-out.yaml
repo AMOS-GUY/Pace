@@ -1,50 +1,76 @@
 # Access control, signed out (hard assertions: any failure fails the UI preview job).
 # Every route outside the sign-in screens must send a signed-out user to Welcome, however it
-# is reached. Deep links stand in for direct navigation and restored navigation state.
+# is reached. Deep links stand in for direct navigation and restored navigation state. Before
+# each link the walk moves to Sign in, so Welcome only reappears if the link was handled and
+# redirected.
 appId: app.pace.ios
 ---
 - launchApp:
     clearState: true
     permissions:
       location: inuse
+# A link prompt left over from an earlier flow would cover this one.
+- runFlow:
+    when:
+      visible: 'Open in .*'
+    commands:
+      - tapOn: 'Cancel'
 - extendedWaitUntil: { visible: 'Create account', timeout: 120000 }
 - takeScreenshot: ac-01-signed-out-welcome
-- openLink: pace://activities
-- tapOn: { text: 'Open', optional: true }
+
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
+- extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://activities' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Activities, tab.*'
 - takeScreenshot: ac-02-signed-out-tabs-link
-- openLink: pace://settings/backup
-- tapOn: { text: 'Open', optional: true }
+
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
+- extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://settings/backup' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Backup file'
 - takeScreenshot: ac-03-signed-out-settings-link
-- openLink: pace://import
-- tapOn: { text: 'Open', optional: true }
+
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
+- extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://import' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Bring your history'
-- openLink: pace://recording
-- tapOn: { text: 'Open', optional: true }
+
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
+- extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://recording' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'Find GPS'
-- openLink: pace://activity/00000000-0000-0000-0000-000000000000
-- tapOn: { text: 'Open', optional: true }
+
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
+- extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
+- runFlow:
+    { file: open-link.yaml, env: { LINK: 'pace://activity/00000000-0000-0000-0000-000000000000' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
-- openLink: pace://sports
-- tapOn: { text: 'Open', optional: true }
+- assertNotVisible: 'Splits'
+
+- waitForAnimationToEnd
+- tapOn: { text: 'Sign in', retryTapIfNoChange: false }
+- extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://sports' } }
 - extendedWaitUntil: { visible: 'Create account', timeout: 20000 }
 - assertNotVisible: 'What do you train\?'
 - takeScreenshot: ac-04-signed-out-onboarding-link
+
 # The sign-in screens themselves stay reachable.
-- openLink: pace://forgot-password
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://forgot-password' } }
 - extendedWaitUntil: { visible: 'Send reset link', timeout: 20000 }
 - takeScreenshot: 05-auth-forgot-password
-- openLink: pace://sign-up
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://sign-up' } }
 - extendedWaitUntil: { visible: 'Confirm password', timeout: 20000 }
 - takeScreenshot: 03-auth-sign-up
-- openLink: pace://sign-in
-- tapOn: { text: 'Open', optional: true }
+- runFlow: { file: open-link.yaml, env: { LINK: 'pace://sign-in' } }
 - extendedWaitUntil: { visible: 'Forgot password\?', timeout: 20000 }
 - takeScreenshot: 04-auth-sign-in
