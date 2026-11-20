@@ -52,13 +52,18 @@ echo "ok: PaceTrackingModule present in the app binary"
 
 # Newest iOS runtime, first available iPhone in it.
 udid="$(xcrun simctl list devices available -j | python3 -c '
-import json, sys
+import json, re, sys
 devices = json.load(sys.stdin)["devices"]
+def version(runtime):
+    # "...SimRuntime.iOS-27-2" -> [27, 2]. Some images add runtimes with a suffix
+    # ("...iOS-27-1-iPhone19"); only the leading version numbers count.
+    m = re.search(r"\.iOS-(\d+(?:-\d+)*)", runtime)
+    return [int(p) for p in m.group(1).split("-")] if m else []
 candidates = [(runtime, d) for runtime, items in devices.items() if ".iOS-" in runtime
               for d in items if d["name"].startswith("iPhone")]
 if not candidates:
     sys.exit("no available iPhone simulator")
-candidates.sort(key=lambda c: [int(p) for p in c[0].rsplit(".iOS-", 1)[1].split("-")])
+candidates.sort(key=lambda c: version(c[0]))
 runtime, device = candidates[-1]
 print(device["udid"])
 print(device["name"], runtime, file=sys.stderr)

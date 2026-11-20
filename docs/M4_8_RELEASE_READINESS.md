@@ -69,8 +69,10 @@ Details: [DATA_FIDELITY.md](DATA_FIDELITY.md), [EXPORT_FORMATS.md](EXPORT_FORMAT
 - **Guide:** [FREE_IPHONE_TESTING.md](FREE_IPHONE_TESTING.md). It builds `main`, uses free Personal
   Team signing, and has a 21-item checklist, all NOT RUN.
 - **The borrowed Mac reports macOS 27.0.1.** Apple lists Xcode 26.6 (the version CI validates)
-  only up to macOS Tahoe 26.x, so that Mac needs Xcode 27. PACE has **never** been built with
-  Xcode 27. The exact installed Xcode is not confirmed.
+  only up to macOS Tahoe 26.x, so that Mac needs Xcode 27. **Since 2026-11-20, CI builds PACE for
+  a physical iPhone with Xcode 27.0 and 27.2 on macOS 27.0.1** (unsigned;
+  [M5_0_PHYSICAL_DEVICE_VALIDATION.md](M5_0_PHYSICAL_DEVICE_VALIDATION.md) §3). Signing, installing
+  and running on the iPhone are untested. The exact Xcode installed on the Mac is not confirmed.
 - **Accounts:** the owner's Apple Account, and a Supabase URL and publishable key.
 
 ## 5. Known limitations
@@ -92,7 +94,8 @@ Details: [DATA_FIDELITY.md](DATA_FIDELITY.md), [EXPORT_FORMATS.md](EXPORT_FORMAT
 2. **Unmerged data-integrity fixes:** the timestamp bounds (`fix/import-time-bounds-v2`:
    unrestorable backups) and FIT same-second records (`fix/fit-same-second-v2`: lost sensor
    values and points).
-3. **Xcode 27 compatibility** is unknown, and it is the only Xcode the borrowed Mac supports.
+3. ~~Xcode 27 compatibility~~: resolved for building (CI device build with Xcode 27.0 and 27.2);
+   signing and installing remain untested.
 
 **Medium:**
 - Real device recordings (FIT from Garmin, COROS, Wahoo) not yet validated.

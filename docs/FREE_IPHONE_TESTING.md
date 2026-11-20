@@ -82,11 +82,13 @@ read on 2026-11-12:
 |---|---|---|---|---|
 | 26.0–26.3 | Sequoia 15.6 – Tahoe 26.x | Should (Swift 6.2) | No | No |
 | **26.6** | Tahoe 26.2 – Tahoe 26.x (**not macOS 27**) | Yes | **Yes** (simulator build, launch, Maestro) | No |
-| **27.x** | Tahoe 26.6 or later, **including macOS 27** | Unknown (Swift 6.4; Expo SDK 58 untested) | No | No |
+| **27.x** | Tahoe 26.6 or later, **including macOS 27** | **Yes:** 27.0 and 27.2 on macOS 27.0.1 build the device app (unsigned) | **Yes** (device build, `ios-xcode27.yml`) | No |
 
 **The borrowed Mac reports macOS 27.0.1.**
 - Apple lists Xcode 26.6 only up to Tahoe 26.x, so on this Mac the supported choice is **Xcode
-  27.x** (the Mac App Store version), which PACE has never been built with.
+  27.x** (the Mac App Store version). CI builds PACE for a physical iPhone with Xcode 27.0 and
+  27.2 on macOS 27.0.1 (M5_0_PHYSICAL_DEVICE_VALIDATION.md §3); signing and installing are still
+  untested.
 - Don't downgrade macOS. Use Xcode 27 and treat the first build as the compatibility test: if
   it fails, stop and send the exact error. Don't change native code or dependencies to make it
   build.
@@ -141,7 +143,8 @@ Swift must report **6.2 or later**.
 ### 4.1 One-time tools (the Mac's owner, as admin)
 
 1. **Xcode:** choose by the Mac's macOS (see "Which Xcode?" above).
-   - **macOS 27 (the borrowed Mac):** Xcode 27 from the Mac App Store. Not yet tested with PACE.
+   - **macOS 27 (the borrowed Mac):** Xcode 27 from the Mac App Store. CI builds PACE with 27.0
+     and 27.2 (device build, unsigned); signing and installing are not yet tested.
    - **macOS Tahoe 26.2–26.x:** Xcode 26.6, the version PACE's CI validates. Download it from
      [developer.apple.com/download/all](https://developer.apple.com/download/all/) (sign in with
      a free Apple Account), search "Xcode 26.6", download the `.xip`, double-click it and move

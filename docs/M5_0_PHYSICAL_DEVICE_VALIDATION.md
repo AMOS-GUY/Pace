@@ -45,7 +45,7 @@ record that they were absent.
 | Item | Requirement | Status |
 |---|---|---|
 | Mac | macOS **27.0.1** (the borrowed Mac) | — |
-| Xcode | **27.x** from the Mac App Store. Xcode 26.6 doesn't run on macOS 27. | Build-verified (section 3) |
+| Xcode | **27.x** from the Mac App Store. Xcode 26.6 doesn't run on macOS 27. | Build-verified with 27.0 and 27.2 (section 3) |
 | Swift | 6.2 or later (Expo's `ExpoModulesJSI` declares `swift-tools-version: 6.2`) | Build-verified: Xcode 27's Swift |
 | Node.js | 24 (22.13+ works) | — |
 | pnpm | 12.18.0 via Corepack | — |
@@ -105,12 +105,19 @@ without any Apple account:
 5. A Release build for the simulator, launched on an **iOS 27 simulator**, which must keep running.
 
 | Check | Xcode 27.0 | Xcode 27.2 |
-|---|---|---|
-| Swift tests | _pending run_ | _pending run_ |
-| Prebuild and pods | _pending run_ | _pending run_ |
-| Device build (Debug, iphoneos, arm64) | _pending run_ | _pending run_ |
-| Device app checks | _pending run_ | _pending run_ |
-| Release simulator build and iOS 27 launch | _pending run_ | _pending run_ |
+| --- | --- | --- |
+| Swift tests (recorder core) | PASSED | PASSED |
+| Prebuild (development variant) and pods; `PaceTracking` linked | PASSED | PASSED |
+| Device build (Debug, `iphoneos`, arm64, unsigned) | PASSED (SDK iphoneos27.0) | PASSED (SDK iphoneos27.2) |
+| Device app checks (arm64, `app.pace.ios.dev`, iOS 16.4 minimum, background location, both location texts, tracking module) | PASSED | PASSED |
+| Release build for the simulator | PASSED | PASSED |
+| Launch on an iOS 27 simulator | _pending, see below_ | _pending, see below_ |
+
+Runs [44751617081](https://github.com/AMOS-GUY/Pace/actions/runs/44751617081) (builds) and
+[44760753806](https://github.com/AMOS-GUY/Pace/actions/runs/44760753806) (builds and device app
+checks) on 2026-11-20, `main` `1c8fb46` plus this branch's CI changes. The app code is unchanged.
+
+**So:** Xcode 27 on macOS 27 builds PACE for a physical iPhone. **Build-verified.**
 
 **What this does not prove:**
 - **Signing:** the Personal Team signs on the Mac, and CI can't sign.
@@ -285,7 +292,7 @@ BLOCKED or NOT RUN, with a note.
 |---|---|
 | App launch, navigation, onboarding, sign-in (local stand-in), recording from simulated GPS, activity detail | **Simulator-verified** (UI preview workflow, iOS 26.5) |
 | Signed-out access control via deep links | **Simulator-verified** |
-| Device build with Xcode 27 on macOS 27 | **Build-verified** once the run in section 3 passes |
+| Device build with Xcode 27.0 and 27.2 on macOS 27.0.1 | **Build-verified** (section 3; unsigned) |
 | Signing with a free Personal Team, installation | **Not tested** (needs your Apple Account on the Mac) |
 | GPS on hardware, background recording while locked, interruptions, battery | **Not tested**; blocked on the device session |
 | Backup and restore on a device | **Not tested** |
