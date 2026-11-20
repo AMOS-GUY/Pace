@@ -1,7 +1,7 @@
 # Data fidelity: what each format keeps
 
 What PACE can read and write, and what is lost on the way. Checked against the code and tests on
-2026-11-13. "Tested" means automated tests with synthetic files. **No real device file and no
+2026-11-20 (main `f83ff60`). "Tested" means automated tests with synthetic files. **No real device file and no
 physical iPhone has been used yet.**
 
 Legend: ✅ kept · 🟡 partly (see notes) · ❌ not kept · — not applicable
@@ -17,7 +17,7 @@ Legend: ✅ kept · 🟡 partly (see notes) · ❌ not kept · — not applicabl
 | Cadence | ✅ `cad` (whole numbers) | ✅ bike `Cadence`, run `RunCadence` | ✅ including fractional cadence |
 | Power | ✅ `<power>` or `PowerInWatts` | ✅ `Watts` | ✅ |
 | Sensor values without a GPS position | ❌ GPX values sit on points | ✅ | ✅ Kept, reported |
-| Same-second records | — | — | 🟡 Until R4 is merged, a second record in the same second is skipped. The fix is on `fix/fit-same-second-records`. |
+| Same-second records | — | — | 🟡 Until R4 is merged, a second record in the same second is skipped. The fix is on `fix/fit-same-second-v2`. |
 | Sport | 🟡 Mapped `<type>` names and Strava numbers; others → you choose | 🟡 Running and Biking; `Other` → you choose | ✅ Run, ride, walk, hike, swim, triathlon |
 | Triathlon legs | ❌ Warned (R3) | ❌ (multisport sessions not read) | ✅ Swim–T1–bike–T2–run only |
 | Indoor activities without GPS | Refused | Refused | Refused, with the reason |
@@ -33,7 +33,7 @@ Legend: ✅ kept · 🟡 partly (see notes) · ❌ not kept · — not applicabl
 | Distance, moving and elapsed time | ✅ recomputed identically on re-import | ✅ | ✅ recomputed by replay |
 | Laps | ❌ (R2) | ✅ `data.json`, `laps.csv` | ✅ |
 | Triathlon legs | ❌ (R3; re-import warns) | ✅ `data.json` | ✅ replayed from leg events |
-| Heart rate and cadence | 🟡 One value per sample on its nearest point ≤ 2 s; whole numbers (R6, merged in PR #11) | ✅ `data.json` | ✅ in backup format 2 (`feature/backup-v2`); ❌ in format-1 backups (R7) |
+| Heart rate and cadence | 🟡 One value per sample on its nearest point ≤ 2 s; whole numbers (R6, merged in PR #11) | ✅ `data.json` | ✅ in backup format 2 (merged, PR #12); ❌ in format-1 backups made by older versions (R7) |
 | Power | ✅ at exact point times (R1) | ✅ `data.json` | ✅ in backup format 2; ❌ in format-1 backups (R7) |
 | Splits, records | ❌ | ✅ | ✅ recomputed |
 | Goals, settings, profile | ❌ | ✅ | 🟡 Goals restored. Format 2: only preferences and profile are backed up, validated and restored. Format 1 restored settings only where the device had none, and also carried the encrypted auth-session rows, which are now never restored. |
@@ -55,8 +55,9 @@ Legend: ✅ kept · 🟡 partly (see notes) · ❌ not kept · — not applicabl
 | ID | Finding | Status |
 |---|---|---|
 | R6 | GPX export copied heart rate and cadence onto the following 5 s of points; re-import duplicated them (24 → 120 samples) | Fixed, merged (PR #11) |
-| R4 | FIT records sharing a second were dropped entirely (cadence, power, even a GPS point) | Fixed on `fix/fit-same-second-records`, awaiting review |
-| **R7** | Encrypted backups (format 1) contained no sensor samples: a backup → restore round trip kept the activity, 300 GPS points, 2 laps and the distance exactly, but heart rate, cadence and power went from 600 samples to 0 | Fixed by backup format 2 on `feature/backup-v2` (approved as M4.8), awaiting review. See BACKUP_FORMAT.md there. |
+| R4 | FIT records sharing a second were dropped entirely (cadence, power, even a GPS point) | Fixed on `fix/fit-same-second-v2`, awaiting review |
+| T1 | A GPX, TCX or FIT time outside 2000–2100 (e.g. year 99999) dropped every later point as out of order and made the next backup unrestorable | Fixed on `fix/import-time-bounds-v2`, awaiting review |
+| **R7** | Encrypted backups (format 1) contained no sensor samples: a backup → restore round trip kept the activity, 300 GPS points, 2 laps and the distance exactly, but heart rate, cadence and power went from 600 samples to 0 | Fixed by backup format 2, merged (PR #12). Format-1 backups made earlier still lack sensors. See [BACKUP_FORMAT.md](BACKUP_FORMAT.md). |
 
 **Correction (2026-11-13):** an earlier version of this table said backups saved settings but did
 not apply them on restore. That was wrong: format 1 restored them, but only where the device had

@@ -1,13 +1,16 @@
 # M4.8 release readiness: data integrity, backup security, import reliability
 
-_Status as of 2026-11-14._ **No feature has been tested on a physical iPhone or with real device
+_Status as of 2026-11-20 (main `f83ff60`)._ **No feature has been tested on a physical iPhone or with real device
 recordings.** Nothing below is production-ready on the strength of automated tests alone.
 
 **Evidence levels:**
 - **U:** unit-tested.
 - **I:** integration-tested: real services and real SQLite (`node:sqlite`) in Node.
-- **S:** simulator-tested: CI builds the app and launches it on an iOS simulator, and Maestro
-  checks the first screen.
+- **S:** simulator-tested. The `UI preview` workflow:
+  - builds the Release app (ad hoc signed) and runs it on an iPhone 17 simulator (iOS 26.5);
+  - signs in through a local stand-in for Supabase Auth (`scripts/ui-preview/auth-stub.mjs`, CI only);
+  - walks onboarding, the tabs, a recording driven by simulated GPS, activity detail and settings.
+  The `iOS` workflow launches the app.
 - **D:** tested on a physical iPhone.
 - **R:** tested with real device recordings (Garmin, COROS, Wahoo files).
 
@@ -15,19 +18,20 @@ recordings.** Nothing below is production-ready on the strength of automated tes
 
 | Area | U | I | S | D | R | Notes |
 |---|---|---|---|---|---|---|
-| App launch, first screen | — | — | ✅ | ❌ | — | CI: the simulator build launches and stays up; Maestro sees the first screen |
-| Sign-up, sign-in, email verification | ✅ | — | ❌ | ❌ | — | Needs a Supabase project. Not exercised end to end. |
-| Onboarding, permissions screens | ✅ (logic) | — | ❌ | ❌ | — | |
-| GPS recording (foreground) | ✅ | ✅ (replay suite) | ❌ | ❌ | — | Engine verified with synthetic GPS only |
+| App launch, first screen | — | — | ✅ | ❌ | — | CI: the simulator build launches and stays up |
+| Sign-up, sign-in, email verification | ✅ | — | 🟡 | ❌ | — | Sign-in is tested on the simulator, against the local stand-in only. A real Supabase project, sign-up and email links are not exercised. |
+| Onboarding, permissions screens | ✅ (logic) | — | ✅ | ❌ | — | |
+| Screen access control (which screens open in which state) | ✅ | — | 🟡 | ❌ | — | Unit tests cover every state ([SECURITY.md](SECURITY.md)). On the simulator, signed-out deep links to six protected screens all return to Welcome. The not-yet-onboarded state is checked by unit tests only: an iOS prompt blocked the simulator check. |
+| GPS recording (foreground) | ✅ | ✅ (replay suite) | 🟡 | ❌ | — | Simulator: a 0.5 km run from simulated GPS movement is recorded, paused, saved and shown. No real GPS. |
 | Background recording, screen lock | ✅ (Swift XCTests) | — | ❌ | ❌ | — | The biggest open risk |
 | GPS interruption and recovery, app termination | ✅ | ✅ | ❌ | ❌ | — | Journal recovery tested in Swift and TypeScript |
 | Pause and resume, laps, triathlon legs | ✅ | ✅ | ❌ | ❌ | — | |
-| Activity detail, splits, laps, records | ✅ | ✅ | ❌ | ❌ | — | UI never rendered on a device |
+| Activity detail, splits, laps, records | ✅ | ✅ | ✅ | ❌ | — | Rendered on the simulator, never on a device |
 | Local persistence, restart recovery | ✅ | ✅ | ❌ | ❌ | — | |
 | GPX, TCX, FIT import | ✅ | ✅ | ❌ | ❌ | ❌ | FIT validated with synthetic files and a harness only |
 | ZIP and gzip archives, bulk import, cancellation | ✅ | ✅ | ❌ | ❌ | ❌ | |
 | GPX export, portable export | ✅ | ✅ | ❌ | ❌ | — | |
-| Encrypted backup and restore | ✅ | ✅ | ❌ | ❌ | — | Format 2 is on `feature/backup-v2` (not merged) |
+| Encrypted backup and restore | ✅ | ✅ | ❌ | ❌ | — | Format 2 merged (PR #12) |
 | Privacy zone on export | ✅ | ✅ | ❌ | ❌ | — | |
 | Empty states (new athlete) | ✅ | ✅ | ❌ | ❌ | — | |
 | Battery behaviour | — | — | — | ❌ | — | Not measured anywhere |
@@ -38,15 +42,15 @@ recordings.** Nothing below is production-ready on the strength of automated tes
 | Path | Status | Evidence |
 |---|---|---|
 | FIT → PACE | ✅ synthetic | Decoder fuzzing, mapping tests, M4.7 harness |
-| FIT records sharing a second | 🟡 Fixed on `fix/fit-same-second-records` (R4), not merged | Synthetic; whether devices produce them is unverified |
-| Timestamps outside 2000–2100 | 🟡 Fixed on `fix/import-time-bounds`, not merged | **On main, one such GPX or TCX point makes every later backup unrestorable** |
+| FIT records sharing a second | 🟡 Fixed on `fix/fit-same-second-v2` (R4, based on current main), not merged | Synthetic; whether devices produce them is unverified |
+| Timestamps outside 2000–2100 | 🟡 Fixed on `fix/import-time-bounds-v2` (based on current main), not merged | **Still reproduced on main with backup format 2: one such GPX or TCX point drops every later point and makes the next backup unrestorable** |
 | PACE → GPX → PACE | ✅ points, times, pauses, heart rate, cadence (R6), power (R1). ❌ laps (R2), legs (R3). | Merged |
-| PACE → backup → restore | Format 1 (main): ❌ heart rate, cadence and power lost (R7). Format 2 (branch): ✅ exact. | `backup-v2.test.ts`, `backup-v2-audit.test.ts` |
+| PACE → backup → restore | Format 2 (main): ✅ exact. Backups made in format 1 by older versions have no heart rate, cadence or power (R7). | `backup-v2.test.ts`, `backup-v2-audit.test.ts` |
 | FIT, TCX, GPX and a triathlon → backup format 2 → restore | ✅ exact: points, events, laps, legs, splits, sensors in stored order | Audit test, encrypted and plain |
 | Existing data with bad timestamps | ❌ not repaired | Only new imports are guarded |
 
-Details: [DATA_FIDELITY.md](DATA_FIDELITY.md), [EXPORT_FORMATS.md](EXPORT_FORMATS.md), and
-BACKUP_FORMAT.md on `feature/backup-v2`.
+Details: [DATA_FIDELITY.md](DATA_FIDELITY.md), [EXPORT_FORMATS.md](EXPORT_FORMATS.md) and
+[BACKUP_FORMAT.md](BACKUP_FORMAT.md).
 
 ## 3. Security readiness
 
@@ -55,10 +59,10 @@ BACKUP_FORMAT.md on `feature/backup-v2`.
 | Archive limits, unsafe paths, ZIP bombs, nested archives, damaged gzip | ✅ tested |
 | FIT decoder: bounds, checksums, fuzzing | ✅ tested |
 | GPX/TCX: DTD and entities refused; NaN, Infinity and out-of-range coordinates and sensors skipped | ✅ probed |
-| Backup decompression cap | 🟡 Format 2 branch: 512 MB, enforced while decompressing. **Main has no cap.** |
-| Backups containing auth-session rows | **Main: format-1 backups include the encrypted `secure:*` rows and restore can write them back.** Format 2 branch: never backed up or restored. |
-| Unknown or relabelled backup content | 🟡 Format 2 branch: strict, refused. Main: unknown fields dropped. |
-| Restore atomicity | ✅ per activity. Goals and settings are reported (format 2 branch), not all-or-nothing overall by design. |
+| Backup decompression cap | ✅ 512 MB, enforced while decompressing |
+| Backups containing auth-session rows | ✅ Never backed up, and never restored, not even from format-1 backups that contain them |
+| Unknown or relabelled backup content | ✅ Format 2: strict, refused |
+| Restore atomicity | ✅ per activity. Goals and settings are reported, not all-or-nothing overall by design. |
 
 ## 4. Device validation readiness
 
@@ -85,14 +89,15 @@ BACKUP_FORMAT.md on `feature/backup-v2`.
 
 1. **No physical-device run:** recording, background GPS and permissions are unproven on an
    iPhone.
-2. **Unmerged data-integrity fixes:** backup format 2 (sensor loss, auth-session rows,
-   decompression cap) and the timestamp bounds (unrestorable backups).
+2. **Unmerged data-integrity fixes:** the timestamp bounds (`fix/import-time-bounds-v2`:
+   unrestorable backups) and FIT same-second records (`fix/fit-same-second-v2`: lost sensor
+   values and points).
 3. **Xcode 27 compatibility** is unknown, and it is the only Xcode the borrowed Mac supports.
 
 **Medium:**
 - Real device recordings (FIT from Garmin, COROS, Wahoo) not yet validated.
 - Battery behaviour not measured.
-- R4 needs review.
+- R4 needs review (merge it after the timestamp bounds; both touch `fit.ts` and combine cleanly).
 - Settings restore replaces local preferences (by design; confirm it's what you want).
 
 ## 7. Recommended next milestone
