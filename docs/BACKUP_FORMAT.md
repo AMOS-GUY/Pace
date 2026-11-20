@@ -17,7 +17,7 @@ encrypted:  "PACEBK" 0x81 | u32 header length | header JSON | XChaCha20-Poly1305
 
 | | Version 1 | **Version 2** (current) |
 |---|---|---|
-| Written by | PACE builds up to commit `5747af8` | PACE builds from `feature/backup-v2` on |
+| Written by | PACE builds up to commit `5747af8` | PACE builds from PR #12 (merged 2026-11-14, `74d26a9`) on |
 | Activities, raw GPS samples, recording events (pauses, laps, legs), laps, goals | ✅ | ✅ (unchanged) |
 | **Sensor samples** (heart rate, cadence, power) | ❌ not included | ✅ every stored sample |
 | Settings | Every row on the device except three names, **including the encrypted auth-session rows (`secure:*`)** | Only the portable allowlist: `preferences`, `profile` |
