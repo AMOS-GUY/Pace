@@ -159,10 +159,13 @@ export class ActivityService {
 
     const all = parsed.segments.flat();
     // Parsers skip such times already; this guards any other source of a ParsedTrack, because
-    // one time outside 2000–2100 would make every later backup unrestorable.
+    // one time outside 2000–2100 would make every later backup unrestorable. Leg changes are
+    // stored at their own time, which a leg before the first point would not bound (laps are
+    // applied only between points, so they always are).
     if (
       all.some((s) => !plausibleTime(s.recordedAt)) ||
-      parsed.sensors.some((s) => !plausibleTime(s.recordedAt))
+      parsed.sensors.some((s) => !plausibleTime(s.recordedAt)) ||
+      legStarts.some((t) => !plausibleTime(t))
     )
       throw new ImportError('The file contains times outside 2000–2100', 'invalid_file');
     const externalId = importFingerprint(all);

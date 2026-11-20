@@ -69,6 +69,39 @@ describe('import refuses timestamps outside 2000–2100', () => {
     ]);
   });
 
+  it('refuses a parsed track from any other source that still holds such a time', async () => {
+    const ctx = await db('8003');
+    const t = parseGpxTrack(
+      gpx(
+        range(10)
+          .map((s) => gpxPoint(s))
+          .join(''),
+      ),
+    );
+    t.segments[0]![9] = { ...t.segments[0]![9]!, recordedAt: Date.UTC(2110, 0, 1) };
+    await expect(new ActivityService(ctx).importTrack(t, { timezone: 'UTC' })).rejects.toThrow(
+      'The file contains times outside 2000–2100',
+    );
+    expect(await ctx.db.all('SELECT id FROM activities')).toEqual([]);
+  });
+
+  it('refuses a triathlon whose leg change is dated outside 2000–2100', async () => {
+    // A leg change is stored at its own time; one before the first point is not bounded by it.
+    const ctx = await db('8004');
+    const t = parseGpxTrack(
+      gpx(
+        range(60)
+          .map((s) => gpxPoint(s))
+          .join(''),
+      ),
+    );
+    t.legStarts = [Date.UTC(1995, 0, 1), T + 20_000, T + 30_000, T + 40_000];
+    await expect(
+      new ActivityService(ctx).importTrack(t, { timezone: 'UTC', sportType: 'triathlon' }),
+    ).rejects.toThrow('The file contains times outside 2000–2100');
+    expect(await ctx.db.all('SELECT id FROM activities')).toEqual([]);
+  });
+
   it('keeps backups restorable after importing such a file', async () => {
     const src = await db('8001');
     await new ActivityService(src).importTrack(
