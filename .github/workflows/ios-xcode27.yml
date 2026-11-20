@@ -1,0 +1,155 @@
+name: iOS (Xcode 27, device build)
+
+# Xcode 27 compatibility for the first physical-iPhone build (M5.0). It runs on GitHub's
+# `xcode-27` image, which runs macOS 27, the same major OS as the Mac used for the first device
+# build. No Apple account is used: the app is built for a physical iPhone without signing, which
+# proves it compiles and links for the device; signing and installing happen on the Mac
+# (docs/M5_0_PHYSICAL_DEVICE_VALIDATION.md).
+#
+# For each Xcode version:
+#   - Swift tests of the native recorder core;
+#   - prebuild of the development variant (`APP_VARIANT=development`: PACE Dev,
+#     app.pace.ios.dev), exactly as on the Mac, then pods;
+#   - Debug build for a physical iPhone (iphoneos, arm64), the build you install with your
+#     Personal Team, with its Info.plist and binary checked (scripts/ci/check-device-app.sh);
+#   - Release build for the simulator, launched on an iOS 27 simulator and kept running.
+#
+# The image is a GitHub preview, so this workflow is informational: it does not gate other
+# workflows. It runs on pushes to main and to ci/** branches, and manually.
+on:
+  push:
+    branches: [main, 'ci/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-xcode27-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  device-build:
+    name: Xcode ${{ matrix.xcode }} (macOS 27)
+    runs-on: xcode-27
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        # 27.0 is the first Xcode for macOS 27; 27.2 is the newest on the image (what the Mac App
+        # Store installs today). 27.1 is the image default.
+        xcode: ['27.0', '27.2']
+    env:
+      APP_VARIANT: development
+      DEV_BUNDLE_ID: app.pace.ios.dev
+      MIN_IOS: '16.4'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode ${{ matrix.xcode }}
+        run: |
+          app="/Applications/Xcode_${{ matrix.xcode }}.app"
+          [ -d "$app" ] || app="/Applications/Xcode_${{ matrix.xcode }}.0.app"
+          sudo xcode-select -s "$app"
+          sw_vers
+          xcodebuild -version
+          xcrun swift --version
+          xcodebuild -showsdks | grep -E "iphoneos|iphonesimulator"
+      - name: Swift unit tests (recorder core, journal, serialisation)
+        working-directory: apps/mobile/modules/pace-tracking/ios
+        run: swift test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: Check Swift toolchain against package requirements
+        run: scripts/ci/check-swift-toolchain.sh .
+      - run: pnpm build
+      - name: Prebuild iOS project (development variant)
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform ios --no-install
+      - name: Install pods
+        id: pods
+        working-directory: apps/mobile/ios
+        run: |
+          pod --version
+          pod install
+          grep -q "PaceTracking" Podfile.lock || { echo "PaceTracking pod is not linked"; exit 1; }
+
+      - name: Build Debug app for a physical iPhone (unsigned)
+        id: device
+        working-directory: apps/mobile/ios
+        run: |
+          WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
+          SCHEME="${WORKSPACE%.xcworkspace}"
+          echo "Building $WORKSPACE / $SCHEME (Debug, iphoneos) with $(xcodebuild -version | head -n 1)"
+          set +e
+          args=(-workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Debug -sdk iphoneos)
+          args+=(-destination 'generic/platform=iOS' -derivedDataPath "$RUNNER_TEMP/dd-device")
+          args+=(CODE_SIGNING_ALLOWED=NO build)
+          xcodebuild "${args[@]}" > "$RUNNER_TEMP/xcodebuild-device.log" 2>&1
+          status=$?
+          set -e
+          echo "xcodebuild exit code: $status"
+          grep -cE "warning:" "$RUNNER_TEMP/xcodebuild-device.log" | sed 's/^/warnings: /' || true
+          if [ "$status" -ne 0 ]; then
+            echo "::group::Error lines"
+            grep -nE "(error|fatal error):|BUILD FAILED|failed with exit code" "$RUNNER_TEMP/xcodebuild-device.log" || true
+            echo "::endgroup::"
+            tail -n 300 "$RUNNER_TEMP/xcodebuild-device.log"
+            # Readable without signing in to GitHub.
+            echo "::error title=Device build (Xcode ${{ matrix.xcode }})::$(grep -E '(error|fatal error):' "$RUNNER_TEMP/xcodebuild-device.log" | sort -u | head -n 5 | tr '\n' ' ' | cut -c1-900)"
+          fi
+          exit "$status"
+      - name: Check the device app (arm64, plist, background location, tracking module)
+        run: |
+          app="$(ls -d "$RUNNER_TEMP"/dd-device/Build/Products/Debug-iphoneos/*.app | head -n 1)"
+          out="$(scripts/ci/check-device-app.sh "$app" "$DEV_BUNDLE_ID" "$MIN_IOS" 2>&1)" || {
+            echo "$out"
+            echo "::error title=Device app check (Xcode ${{ matrix.xcode }})::$(echo "$out" | tail -n 3 | tr '\n' ' ')"
+            exit 1
+          }
+          echo "$out"
+          echo "::notice title=Device build (Xcode ${{ matrix.xcode }})::$(echo "$out" | grep -E '^(binary|platform|minimum)' | tr '\n' ' ')"
+
+      - name: Build Release app for simulator
+        if: ${{ !cancelled() && steps.pods.outcome == 'success' }}
+        working-directory: apps/mobile/ios
+        run: |
+          WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
+          SCHEME="${WORKSPACE%.xcworkspace}"
+          set +e
+          args=(-workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator)
+          args+=(-destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/dd-sim")
+          args+=(CODE_SIGNING_ALLOWED=NO build)
+          xcodebuild "${args[@]}" > "$RUNNER_TEMP/xcodebuild-sim.log" 2>&1
+          status=$?
+          set -e
+          echo "xcodebuild exit code: $status"
+          if [ "$status" -ne 0 ]; then
+            grep -nE "(error|fatal error):|BUILD FAILED" "$RUNNER_TEMP/xcodebuild-sim.log" || true
+            tail -n 200 "$RUNNER_TEMP/xcodebuild-sim.log"
+            echo "::error title=Simulator build (Xcode ${{ matrix.xcode }})::$(grep -E '(error|fatal error):' "$RUNNER_TEMP/xcodebuild-sim.log" | sort -u | head -n 5 | tr '\n' ' ' | cut -c1-900)"
+          fi
+          exit "$status"
+      - name: Launch on an iOS 27 simulator and verify it keeps running
+        if: ${{ !cancelled() && steps.pods.outcome == 'success' }}
+        run: |
+          app="$(ls -d "$RUNNER_TEMP"/dd-sim/Build/Products/Release-iphonesimulator/*.app | head -n 1)"
+          scripts/ci/ios-simulator-launch.sh "$app" "$DEV_BUNDLE_ID" "$RUNNER_TEMP/launch" 30 \
+            || { echo "::error title=Simulator launch (Xcode ${{ matrix.xcode }})::the app did not keep running; see the launch artifacts"; exit 1; }
+          echo "::notice title=Simulator launch (Xcode ${{ matrix.xcode }})::launched and kept running on $(grep -m1 -E 'iOS|name' "$RUNNER_TEMP/launch/simulator.txt" 2>/dev/null | tr -s ' ')"
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcode-${{ matrix.xcode }}-logs
+          path: |
+            ${{ runner.temp }}/xcodebuild-device.log
+            ${{ runner.temp }}/xcodebuild-sim.log
+            ${{ runner.temp }}/launch
+          if-no-files-found: ignore
