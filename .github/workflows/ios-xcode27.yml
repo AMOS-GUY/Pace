@@ -139,8 +139,14 @@ jobs:
         if: ${{ !cancelled() && steps.pods.outcome == 'success' }}
         run: |
           app="$(ls -d "$RUNNER_TEMP"/dd-sim/Build/Products/Release-iphonesimulator/*.app | head -n 1)"
-          scripts/ci/ios-simulator-launch.sh "$app" "$DEV_BUNDLE_ID" "$RUNNER_TEMP/launch" 30 \
-            || { echo "::error title=Simulator launch (Xcode ${{ matrix.xcode }})::the app did not keep running; see the launch artifacts"; exit 1; }
+          if ! scripts/ci/ios-simulator-launch.sh "$app" "$DEV_BUNDLE_ID" "$RUNNER_TEMP/launch" 30 \
+            > "$RUNNER_TEMP/launch.log" 2>&1; then
+            cat "$RUNNER_TEMP/launch.log"
+            # Readable without signing in to GitHub: the script's own reason.
+            echo "::error title=Simulator launch (Xcode ${{ matrix.xcode }})::$(grep -E '^(ok|error)' "$RUNNER_TEMP/launch.log" | tail -n 6 | tr '\n' ' ' | cut -c1-900)"
+            exit 1
+          fi
+          cat "$RUNNER_TEMP/launch.log"
           echo "::notice title=Simulator launch (Xcode ${{ matrix.xcode }})::launched and kept running on $(grep -m1 -E 'iOS|name' "$RUNNER_TEMP/launch/simulator.txt" 2>/dev/null | tr -s ' ')"
 
       - name: Upload build logs

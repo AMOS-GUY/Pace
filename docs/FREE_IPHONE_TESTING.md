@@ -204,7 +204,7 @@ git rev-parse HEAD && git ls-remote origin refs/heads/main
   nothing modified.
 - **Recent enough:** check that the checkout contains the merged work. This must print `ok`:
   ```bash
-  git merge-base --is-ancestor 1c9a0bc HEAD && echo ok
+  git merge-base --is-ancestor 1c8fb46 HEAD && echo ok
   ```
 - **Write down the short SHA** (`git rev-parse --short HEAD`). You need it for the test
   results, and to run the same commit on Windows later.
@@ -382,7 +382,7 @@ Record the result of each test, the date, the iOS version and the PACE commit. E
 | 4 | Email link | Tap the link on the iPhone | PACE Dev opens and the account is verified | NOT RUN |
 | 5 | Sign-in and onboarding | Sign in, complete onboarding | Reaches the Home tab | NOT RUN |
 | 6 | Location permission | Grant "While Using" | System prompt shows PACE's text | NOT RUN |
-| 7 | "Always" permission | Start a recording | "Always" prompt appears; choose it | NOT RUN |
+| 7 | No "Always" prompt | Start a recording | No "Always" prompt: PACE only asks for "While Using". Background recording is designed to work with it; verify it in tests 14–15 (M5_0_PHYSICAL_DEVICE_VALIDATION.md §2.3) | NOT RUN |
 | 8 | Start recording | Outdoors, start a run | GPS status settles and the timer starts | NOT RUN |
 | 9 | GPS samples | Walk or run 5 minutes | Route is drawn and distance increases | NOT RUN |
 | 10 | Distance and elapsed time | Compare with a known distance or a watch | Distance plausible; elapsed time matches a clock | NOT RUN |
@@ -398,7 +398,7 @@ Record the result of each test, the date, the iOS version and the PACE commit. E
 | 20 | FIT import | Files app → a `.fit` file | Imports, or is refused with a clear reason | NOT RUN |
 | 21 | Export | Settings → Export, share the ZIP | ZIP is created and shareable | NOT RUN |
 
-TESTING.md ("Physical-device test plan") has the longer recording plan.
+The full M5.0 test plan, with results tables, is in [M5_0_PHYSICAL_DEVICE_VALIDATION.md](M5_0_PHYSICAL_DEVICE_VALIDATION.md). TESTING.md ("Physical-device test plan") has the longer recording plan.
 
 ## 8. After testing: cleanup
 

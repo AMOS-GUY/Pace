@@ -52,11 +52,21 @@ for key in NSLocationWhenInUseUsageDescription NSLocationAlwaysAndWhenInUseUsage
   echo "$key: present (${#text} characters)"
 done
 
-# The module is linked statically into the main binary (static_framework in the podspec).
-if nm -gU "$exe" 2>/dev/null | grep -q "PaceTrackingModule" ||
-  strings -a "$exe" | grep -q "PaceTrackingModule"; then
-  echo "PACE tracking module: present in the binary"
-else
-  fail "PaceTrackingModule was not found in the app binary"
-fi
+# The module is linked statically. In a Debug build (Xcode 15+), the app's code lives in
+# <App>.debug.dylib next to a small stub executable, so both are searched. Tool output goes to a
+# file first: piping into `grep -q` kills the producer with SIGPIPE under `pipefail` and turns a
+# match into "not found" (see ios-simulator-launch.sh).
+scan="$(mktemp)"
+found=""
+for bin in "$exe" "$APP"/*.debug.dylib; do
+  [[ -f "$bin" ]] || continue
+  { strings -a "$bin"; nm "$bin" 2>/dev/null; } > "$scan" || true
+  if grep -qE 'PaceTrackingModule|12PaceTracking.*ModuleC' "$scan"; then
+    found="$(basename "$bin")"
+    break
+  fi
+done
+rm -f "$scan"
+[[ -n "$found" ]] || fail "PaceTrackingModule was not found in the app binary or its debug dylib"
+echo "PACE tracking module: present in $found"
 echo "device app checks passed"
