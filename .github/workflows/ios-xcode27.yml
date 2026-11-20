@@ -143,7 +143,8 @@ jobs:
             > "$RUNNER_TEMP/launch.log" 2>&1; then
             cat "$RUNNER_TEMP/launch.log"
             # Readable without signing in to GitHub: the script's own reason.
-            echo "::error title=Simulator launch (Xcode ${{ matrix.xcode }})::$(grep -E '^(ok|error)' "$RUNNER_TEMP/launch.log" | tail -n 6 | tr '\n' ' ' | cut -c1-900)"
+            echo "::error title=Simulator launch (Xcode ${{ matrix.xcode }})::$(tail -n 15 "$RUNNER_TEMP/launch.log" | tr '\n' ' ' | cut -c1-1500)"
+            echo "::error title=Simulator choice (Xcode ${{ matrix.xcode }})::$(cat "$RUNNER_TEMP/launch/simulator.txt" 2>/dev/null | tr '\n' ' ' | cut -c1-500)"
             exit 1
           fi
           cat "$RUNNER_TEMP/launch.log"
